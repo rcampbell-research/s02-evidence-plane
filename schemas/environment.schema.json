@@ -1,0 +1,200 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:frontier-agent-containment:schema:environment:0.1.0",
+  "title": "Synthetic Environment Contract",
+  "$comment": "Declarative synthetic laboratory environment. S0 identity, isolation, reset, and observer declarations require later validation and do not prove those properties.",
+  "type": "object",
+  "properties": {
+    "environment_id": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/environment_id"
+    },
+    "environment_version": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/executable_artifact_version"
+    },
+    "build_id": {
+      "$comment": "Optional exact instantiated build identity when one exists.",
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/build_id"
+    },
+    "display_name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "description": {
+      "type": "string",
+      "minLength": 1
+    },
+    "trust_zones": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/trust_zone_entry"
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "synthetic_assets": {
+      "$comment": "Resource-ID syntax only; referenced Resource Contract existence is not established in Stage 5.",
+      "type": "array",
+      "items": {
+        "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/resource_id"
+      },
+      "uniqueItems": true
+    },
+    "network_relationships": {
+      "$comment": "Declarative relationships only; this contract does not implement networking.",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/network_relationship"
+      },
+      "uniqueItems": true
+    },
+    "s0_configuration_id": {
+      "$comment": "Uses generic condition_id syntax to identify the S0 declaration; it is not an experimental treatment or proof of S0 acceptance.",
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/condition_id"
+    },
+    "reset_baseline_id": {
+      "$comment": "Uses generic condition_id syntax to identify the synthetic reset baseline; presence does not establish successful reset.",
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/condition_id"
+    },
+    "expected_observers": {
+      "$comment": "Declarative expected authoritative observers; the agent is not authoritative for security outcomes.",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/observer_entry"
+      },
+      "uniqueItems": true
+    },
+    "controlled_endpoints": {
+      "$comment": "Symbolic synthetic endpoints inside S0 only; arbitrary URLs, IP addresses, and third-party targets are not represented.",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/controlled_endpoint"
+      },
+      "uniqueItems": true
+    },
+    "forbidden_external_relationships": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/forbidden_external_relationship"
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    }
+  },
+  "required": [
+    "environment_id",
+    "environment_version",
+    "display_name",
+    "description",
+    "trust_zones",
+    "synthetic_assets",
+    "network_relationships",
+    "s0_configuration_id",
+    "reset_baseline_id",
+    "expected_observers",
+    "controlled_endpoints",
+    "forbidden_external_relationships"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "local_identifier": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+    },
+    "trust_zone": {
+      "type": "string",
+      "enum": ["Z1", "Z2", "Z3", "Z4", "Z5", "Z6"]
+    },
+    "trust_zone_entry": {
+      "type": "object",
+      "properties": {
+        "zone_id": {
+          "$ref": "#/$defs/trust_zone"
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1
+        },
+        "agent_accessible": {
+          "type": "boolean"
+        }
+      },
+      "required": ["zone_id", "description", "agent_accessible"],
+      "additionalProperties": false
+    },
+    "network_relationship": {
+      "type": "object",
+      "properties": {
+        "source_zone": {
+          "$ref": "#/$defs/trust_zone"
+        },
+        "destination_zone": {
+          "$ref": "#/$defs/trust_zone"
+        },
+        "relationship": {
+          "type": "string",
+          "enum": [
+            "ROUTE",
+            "SERVICE_ACCESS",
+            "OBSERVATION_PATH",
+            "CONTROL_PATH",
+            "EVIDENCE_PATH"
+          ]
+        },
+        "authorized": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "source_zone",
+        "destination_zone",
+        "relationship",
+        "authorized"
+      ],
+      "additionalProperties": false
+    },
+    "observer_entry": {
+      "$comment": "Observer expectation only; implementation and authoritative-source validation are later work.",
+      "type": "object",
+      "properties": {
+        "observer_id": {
+          "$ref": "#/$defs/local_identifier"
+        },
+        "observed_property": {
+          "$ref": "#/$defs/local_identifier"
+        },
+        "trust_zone": {
+          "$ref": "#/$defs/trust_zone"
+        }
+      },
+      "required": ["observer_id", "observed_property", "trust_zone"],
+      "additionalProperties": false
+    },
+    "controlled_endpoint": {
+      "type": "object",
+      "properties": {
+        "endpoint_id": {
+          "$ref": "#/$defs/local_identifier"
+        },
+        "zone_id": {
+          "$ref": "#/$defs/trust_zone"
+        },
+        "purpose": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": ["endpoint_id", "zone_id", "purpose"],
+      "additionalProperties": false
+    },
+    "forbidden_external_relationship": {
+      "type": "string",
+      "enum": [
+        "UNRESTRICTED_INTERNET",
+        "REAL_CREDENTIAL_SOURCE",
+        "PRODUCTION_SYSTEM",
+        "HOST_ADMINISTRATION",
+        "THIRD_PARTY_TARGET"
+      ]
+    }
+  }
+}

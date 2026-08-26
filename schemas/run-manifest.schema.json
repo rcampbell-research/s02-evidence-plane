@@ -1,0 +1,197 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:frontier-agent-containment:schema:run-manifest:0.1.0",
+  "title": "Authoritative Pre-Run Manifest Contract",
+  "$comment": "Strictly pre-run configuration. References are syntax-checked only in Stage 5; existence, version compatibility, acceptance, realized immutability, and cross-contract budget consistency require later validation. Runtime decisions, effects, outcomes, and analytic results are excluded.",
+  "type": "object",
+  "properties": {
+    "experiment_id": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/experiment_id"
+    },
+    "campaign_id": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/campaign_id"
+    },
+    "scheduled_run_id": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/scheduled_run_id"
+    },
+    "run_id": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/run_id"
+    },
+    "run_manifest_version": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/executable_artifact_version"
+    },
+    "phase": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/run_phase"
+    },
+    "scenario_id": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/scenario_id"
+    },
+    "task_id": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/task_id"
+    },
+    "agent_condition_id": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/agent_condition_id"
+    },
+    "model_condition_id": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/model_condition_id"
+    },
+    "capability_condition_id": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/capability_condition_id"
+    },
+    "autonomy_condition_id": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/autonomy_condition_id"
+    },
+    "control_condition_id": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/control_condition_id"
+    },
+    "capability_envelope_id": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/capability_envelope_id"
+    },
+    "policy_id": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/policy_id"
+    },
+    "environment_id": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/environment_id"
+    },
+    "build_id": {
+      "$comment": "Optional exact environment build identity when an instantiated build exists.",
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/build_id"
+    },
+    "instrument_configuration_id": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/instrument_configuration_id"
+    },
+    "seed_repetition_identity": {
+      "$ref": "#/$defs/seed_repetition_identity"
+    },
+    "action_budget": {
+      "$comment": "Explicit run value; Stage 5 does not derive or reconcile it with task, scenario, or autonomy budgets.",
+      "type": "integer",
+      "minimum": 1
+    },
+    "s0_acceptance_identity": {
+      "$comment": "Stage-5-local bounded reference only; presence is not proof that S0 acceptance exists or passed.",
+      "type": "string",
+      "pattern": "^s0accept:[a-z0-9](?:[a-z0-9._-]*[a-z0-9])?$"
+    },
+    "scheduled_run_identity": {
+      "$comment": "Additional predeclared scheduling metadata; it remains distinct from scheduled_run_id and run_id.",
+      "$ref": "#/$defs/scheduled_run_identity"
+    },
+    "configuration_frozen_before_start": {
+      "$comment": "Manifest declaration only; later orchestration/evidence must establish realized pre-start freeze.",
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "experiment_id",
+    "campaign_id",
+    "scheduled_run_id",
+    "run_id",
+    "run_manifest_version",
+    "phase",
+    "scenario_id",
+    "task_id",
+    "agent_condition_id",
+    "model_condition_id",
+    "capability_condition_id",
+    "autonomy_condition_id",
+    "control_condition_id",
+    "capability_envelope_id",
+    "policy_id",
+    "environment_id",
+    "instrument_configuration_id",
+    "seed_repetition_identity",
+    "action_budget",
+    "s0_acceptance_identity",
+    "scheduled_run_identity",
+    "configuration_frozen_before_start"
+  ],
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "phase": {
+            "enum": ["PILOT", "CONFIRMATORY"]
+          }
+        },
+        "required": ["phase"]
+      },
+      "then": {
+        "properties": {
+          "configuration_frozen_before_start": {
+            "const": true
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "local_identifier": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+    },
+    "seed_repetition_identity": {
+      "$comment": "Supports declared seed availability without requiring or fabricating provider determinism.",
+      "type": "object",
+      "properties": {
+        "repetition_id": {
+          "$ref": "#/$defs/local_identifier"
+        },
+        "seed_status": {
+          "type": "string",
+          "enum": ["AVAILABLE", "UNAVAILABLE"]
+        },
+        "seed_value": {
+          "oneOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "$ref": "#/$defs/local_identifier"
+            }
+          ]
+        }
+      },
+      "required": ["repetition_id", "seed_status"],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "seed_status": {
+                "const": "AVAILABLE"
+              }
+            },
+            "required": ["seed_status"]
+          },
+          "then": {
+            "required": ["seed_value"]
+          },
+          "else": {
+            "not": {
+              "required": ["seed_value"]
+            }
+          }
+        }
+      ]
+    },
+    "scheduled_run_identity": {
+      "type": "object",
+      "properties": {
+        "schedule_identity": {
+          "$ref": "#/$defs/local_identifier"
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1
+        },
+        "matched_block_identity": {
+          "$ref": "#/$defs/local_identifier"
+        }
+      },
+      "required": ["schedule_identity", "description"],
+      "additionalProperties": false
+    }
+  }
+}

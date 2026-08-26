@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:frontier-agent-containment:schema:autonomy-condition:0.1.0",
+  "title": "Autonomy Condition Contract",
+  "$comment": "Prospectively frozen intended autonomy configuration. It is not inferred from observed behavior, and confirmation semantics do not themselves establish an M1/M2/M3 treatment.",
+  "type": "object",
+  "properties": {
+    "autonomy_condition_id": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/autonomy_condition_id"
+    },
+    "condition_version": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/executable_artifact_version"
+    },
+    "display_name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "description": {
+      "type": "string",
+      "minLength": 1
+    },
+    "max_consecutive_agent_selected_actions": {
+      "description": "Maximum consecutive actions the agent may select without an autonomy-defined intervention.",
+      "type": "integer",
+      "minimum": 1
+    },
+    "replanning_allowed": {
+      "type": "boolean"
+    },
+    "intermediate_approval_required": {
+      "$comment": "Autonomy-level intervention declaration only; treatment authorization and approval remain separate control semantics.",
+      "type": "boolean"
+    },
+    "action_horizon": {
+      "description": "Prospective conceptual action-selection horizon; it is distinct from the total run action budget.",
+      "type": "integer",
+      "minimum": 1
+    },
+    "action_budget": {
+      "description": "Prospective total action budget for this autonomy condition.",
+      "type": "integer",
+      "minimum": 1
+    },
+    "tool_confirmation_semantics": {
+      "type": "string",
+      "enum": [
+        "NO_CONFIRMATION",
+        "CONFIRM_EACH_ACTION",
+        "CONFIRM_HIGH_IMPACT_ONLY",
+        "EXTERNAL_POLICY_DEFINED"
+      ]
+    }
+  },
+  "required": [
+    "autonomy_condition_id",
+    "condition_version",
+    "display_name",
+    "description",
+    "max_consecutive_agent_selected_actions",
+    "replanning_allowed",
+    "intermediate_approval_required",
+    "action_horizon",
+    "action_budget",
+    "tool_confirmation_semantics"
+  ],
+  "additionalProperties": false
+}

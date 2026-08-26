@@ -1,0 +1,278 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:frontier-agent-containment:schema:agent-model-condition:0.1.0",
+  "title": "Agent and Model Condition Contract",
+  "$comment": "Declarative non-treatment subject and capability configuration. M1/M2/M3 controls, policy enforcement, capability-envelope decisions, and network enforcement are intentionally excluded.",
+  "type": "object",
+  "properties": {
+    "agent_condition_id": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/agent_condition_id"
+    },
+    "condition_version": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/executable_artifact_version"
+    },
+    "model_condition_id": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/model_condition_id"
+    },
+    "capability_condition_id": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/capability_condition_id"
+    },
+    "display_name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "description": {
+      "type": "string",
+      "minLength": 1
+    },
+    "model_identifier": {
+      "$ref": "#/$defs/machine_identifier"
+    },
+    "model_version": {
+      "$ref": "#/$defs/model_version"
+    },
+    "provider_runtime_identity": {
+      "$ref": "#/$defs/provider_runtime_identity"
+    },
+    "inference_configuration": {
+      "$ref": "#/$defs/inference_configuration"
+    },
+    "context_configuration": {
+      "$ref": "#/$defs/context_configuration"
+    },
+    "tool_repertoire": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/tool_entry"
+      },
+      "uniqueItems": true
+    },
+    "planning_configuration": {
+      "$ref": "#/$defs/planning_configuration"
+    }
+  },
+  "required": [
+    "agent_condition_id",
+    "condition_version",
+    "model_condition_id",
+    "capability_condition_id",
+    "display_name",
+    "description",
+    "model_identifier",
+    "model_version",
+    "provider_runtime_identity",
+    "inference_configuration",
+    "context_configuration",
+    "tool_repertoire",
+    "planning_configuration"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "local_identifier": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+    },
+    "machine_identifier": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^[a-z0-9][a-z0-9._-]*$"
+    },
+    "action_class": {
+      "$comment": "Stage-5-local exact copy of the Stage 3/4 action-class syntax; it does not freeze a global action vocabulary.",
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+    },
+    "model_version": {
+      "$comment": "UNAVAILABLE records provider-version unavailability without fabricating a version.",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "anyOf": [
+        {
+          "const": "UNAVAILABLE"
+        },
+        {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._+-]*$"
+        }
+      ]
+    },
+    "provider_runtime_identity": {
+      "$comment": "Declarative provider/runtime identity only; credentials and provider-controlled internals are not contract content.",
+      "type": "object",
+      "properties": {
+        "provider_id": {
+          "$ref": "#/$defs/local_identifier"
+        },
+        "runtime_id": {
+          "$ref": "#/$defs/local_identifier"
+        },
+        "runtime_version": {
+          "$ref": "#/$defs/model_version"
+        },
+        "version_availability": {
+          "type": "string",
+          "enum": ["AVAILABLE", "PARTIAL", "UNAVAILABLE"]
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "provider_id",
+        "runtime_id",
+        "version_availability",
+        "description"
+      ],
+      "additionalProperties": false
+    },
+    "inference_configuration": {
+      "$comment": "Provider-specific values are declarations, not normative capability claims, and must not encode treatment controls.",
+      "type": "object",
+      "properties": {
+        "reasoning_mode": {
+          "$ref": "#/$defs/local_identifier"
+        },
+        "temperature": {
+          "type": "number",
+          "minimum": 0
+        },
+        "top_p": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "max_output_tokens": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "other_parameters": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/declared_parameter"
+          },
+          "uniqueItems": true
+        }
+      },
+      "additionalProperties": false
+    },
+    "declared_parameter": {
+      "type": "object",
+      "properties": {
+        "parameter_id": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/local_identifier"
+            },
+            {
+              "not": {
+                "enum": [
+                  "control_condition_id",
+                  "experimental_control_layer",
+                  "policy_id",
+                  "approval_policy_id",
+                  "capability_envelope_id",
+                  "authorization_state",
+                  "authorization_decision"
+                ]
+              }
+            }
+          ]
+        },
+        "declared_value": {
+          "type": ["string", "number", "boolean", "null"]
+        }
+      },
+      "required": ["parameter_id", "declared_value"],
+      "additionalProperties": false
+    },
+    "context_configuration": {
+      "$comment": "References common non-treatment context artifacts only; treatment-specific M1 content belongs to Control/Control Condition artifacts.",
+      "type": "object",
+      "properties": {
+        "system_context": {
+          "$ref": "#/$defs/context_artifact"
+        },
+        "task_context": {
+          "$ref": "#/$defs/context_artifact"
+        },
+        "maximum_context_tokens": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "history_carryover_permitted": {
+          "type": "boolean"
+        },
+        "additional_context_artifacts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/context_artifact"
+          },
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "system_context",
+        "task_context",
+        "history_carryover_permitted",
+        "additional_context_artifacts"
+      ],
+      "additionalProperties": false
+    },
+    "context_artifact": {
+      "type": "object",
+      "properties": {
+        "context_id": {
+          "$ref": "#/$defs/local_identifier"
+        },
+        "context_version": {
+          "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/executable_artifact_version"
+        }
+      },
+      "required": ["context_id", "context_version"],
+      "additionalProperties": false
+    },
+    "tool_entry": {
+      "$comment": "In-principle tool repertoire only; policy decisions and mediation are not represented here.",
+      "type": "object",
+      "properties": {
+        "tool_id": {
+          "$ref": "#/$defs/local_identifier"
+        },
+        "action_classes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/action_class"
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": ["tool_id", "action_classes", "description"],
+      "additionalProperties": false
+    },
+    "planning_configuration": {
+      "$comment": "Non-treatment planning configuration. Replanning and action horizon are owned by the Autonomy Condition Contract.",
+      "type": "object",
+      "properties": {
+        "internal_step_budget": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "tool_selection_mode": {
+          "$ref": "#/$defs/local_identifier"
+        },
+        "memory_mode": {
+          "$ref": "#/$defs/local_identifier"
+        }
+      },
+      "required": ["tool_selection_mode", "memory_mode"],
+      "additionalProperties": false
+    }
+  }
+}
