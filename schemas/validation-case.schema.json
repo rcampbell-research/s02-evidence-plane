@@ -1,0 +1,331 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:frontier-agent-containment:schema:validation-case:0.1.0",
+  "title": "Known-Ground-Truth Validation Case Contract",
+  "$comment": "A prospectively frozen, declarative instrument-validation case. Expectations are not H1-H4 findings, and schema validity does not prove that a component, fixture, or referenced instrument configuration exists or behaves as declared.",
+  "type": "object",
+  "properties": {
+    "validation_case_id": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/validation_case_id"
+    },
+    "validation_case_version": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/executable_artifact_version"
+    },
+    "instrument_configuration_id": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/instrument_configuration_id"
+    },
+    "display_name": {"$ref": "#/$defs/display_name"},
+    "description": {"$ref": "#/$defs/description"},
+    "validation_phase": {
+      "type": "string",
+      "enum": ["V0", "V1", "V2", "V3", "V4", "V5"]
+    },
+    "applicability_class": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/validation_applicability_class"
+    },
+    "applicable_component": {"$ref": "#/$defs/local_identifier"},
+    "applicable_scenario_families": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/scenario_family"},
+      "uniqueItems": true
+    },
+    "applicable_control_layers": {
+      "$comment": "Experimental M1/M2/M3 applicability only. S0 validation is represented by case purpose and instrument/S0 references, never as a treatment layer.",
+      "type": "array",
+      "items": {
+        "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/experimental_control_layer"
+      },
+      "uniqueItems": true
+    },
+    "preconditions": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/precondition"},
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "trigger": {"$ref": "#/$defs/trigger"},
+    "ground_truth": {
+      "$comment": "Independent known ground truth; neither agent nor scripted-actor self-report is an authoritative security oracle.",
+      "$ref": "#/$defs/ground_truth"
+    },
+    "expected_authorization_state": {
+      "$comment": "NOT_APPLICABLE is a validation-expectation wrapper only and does not modify or conflate the runtime authorization_decision enum.",
+      "oneOf": [
+        {
+          "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/authorization_decision"
+        },
+        {"const": "NOT_APPLICABLE"}
+      ]
+    },
+    "expected_approval_state": {
+      "$comment": "NOT_APPLICABLE is a validation-expectation wrapper; applicable approval decisions retain the frozen six-state enum including TIMED_OUT.",
+      "oneOf": [
+        {
+          "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/approval_decision"
+        },
+        {"const": "NOT_APPLICABLE"}
+      ]
+    },
+    "expected_control_state": {"$ref": "#/$defs/declarative_expectation"},
+    "expected_execution_state": {
+      "$comment": "NOT_APPLICABLE is local to validation expectation and is not added to the shared execution-state enum.",
+      "oneOf": [
+        {
+          "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/execution_state"
+        },
+        {"const": "NOT_APPLICABLE"}
+      ]
+    },
+    "expected_effect_state": {
+      "$comment": "Reuses the exact Stage 6 effect-state semantics, with a local validation-only NOT_APPLICABLE wrapper.",
+      "oneOf": [
+        {
+          "$ref": "urn:frontier-agent-containment:schema:evidence-event:0.1.0#/$defs/effect_state"
+        },
+        {"const": "NOT_APPLICABLE"}
+      ]
+    },
+    "expected_evidence": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/evidence_expectation"},
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "expected_evidence_quality_state": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/evidence_quality_state"
+    },
+    "expected_terminal_outcome": {
+      "$comment": "NOT_APPLICABLE is a validation-expectation wrapper and is not a ninth scientific terminal action outcome.",
+      "oneOf": [
+        {
+          "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/terminal_action_outcome"
+        },
+        {"const": "NOT_APPLICABLE"}
+      ]
+    },
+    "expected_run_validity": {
+      "$comment": "The first two states are the exact Stage 6 run-validity states; NOT_APPLICABLE is local to validation expectation.",
+      "oneOf": [
+        {
+          "$ref": "urn:frontier-agent-containment:schema:derived-run-outcome:0.1.0#/properties/run_validity"
+        },
+        {"const": "NOT_APPLICABLE"}
+      ]
+    },
+    "expected_primary_endpoint_observability": {
+      "$comment": "The first two states are the exact Stage 6 primary-endpoint observability states; NOT_APPLICABLE is local to validation expectation.",
+      "oneOf": [
+        {
+          "$ref": "urn:frontier-agent-containment:schema:derived-run-outcome:0.1.0#/properties/primary_endpoint_observability"
+        },
+        {"const": "NOT_APPLICABLE"}
+      ]
+    },
+    "expected_primary_endpoint_state": {
+      "$comment": "Validation expectation only. H1 remains numeric 0/1 and is absent for invalid or incomplete runs in Derived Run Outcome.",
+      "type": "string",
+      "enum": [
+        "ZERO",
+        "ONE",
+        "UNAVAILABLE_INVALID",
+        "UNAVAILABLE_INCOMPLETE",
+        "NOT_APPLICABLE"
+      ]
+    },
+    "reset_cleanup_expectation": {"$ref": "#/$defs/reset_expectation"},
+    "pass_criterion": {"$ref": "#/$defs/pass_criterion"}
+  },
+  "required": [
+    "validation_case_id",
+    "validation_case_version",
+    "instrument_configuration_id",
+    "display_name",
+    "description",
+    "validation_phase",
+    "applicability_class",
+    "applicable_component",
+    "applicable_scenario_families",
+    "applicable_control_layers",
+    "preconditions",
+    "trigger",
+    "ground_truth",
+    "expected_authorization_state",
+    "expected_approval_state",
+    "expected_control_state",
+    "expected_execution_state",
+    "expected_effect_state",
+    "expected_evidence",
+    "expected_evidence_quality_state",
+    "expected_terminal_outcome",
+    "expected_run_validity",
+    "expected_primary_endpoint_observability",
+    "expected_primary_endpoint_state",
+    "reset_cleanup_expectation",
+    "pass_criterion"
+  ],
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "expected_primary_endpoint_state": {"enum": ["ZERO", "ONE"]}
+        },
+        "required": ["expected_primary_endpoint_state"]
+      },
+      "then": {
+        "properties": {
+          "expected_run_validity": {"const": "VALID_FOR_PRIMARY_ANALYSIS"},
+          "expected_primary_endpoint_observability": {
+            "const": "COMPLETE_FOR_PRIMARY_ENDPOINT"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "expected_primary_endpoint_state": {"const": "UNAVAILABLE_INVALID"}
+        },
+        "required": ["expected_primary_endpoint_state"]
+      },
+      "then": {
+        "properties": {
+          "expected_run_validity": {"const": "INVALID_FOR_PRIMARY_ANALYSIS"}
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "expected_primary_endpoint_state": {"const": "UNAVAILABLE_INCOMPLETE"}
+        },
+        "required": ["expected_primary_endpoint_state"]
+      },
+      "then": {
+        "properties": {
+          "expected_primary_endpoint_observability": {
+            "const": "INCOMPLETE_FOR_PRIMARY_ENDPOINT"
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "local_identifier": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+    },
+    "display_name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200
+    },
+    "description": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 4096
+    },
+    "scenario_family": {
+      "$comment": "Exact Stage 3 candidate-family compatibility; this does not imply final benchmark inclusion.",
+      "type": "string",
+      "enum": ["S01", "S02", "S03", "S04", "S05", "S06", "S07", "S08", "S09", "S10"]
+    },
+    "bounded_expected_state": {
+      "type": ["string", "number", "boolean", "null"]
+    },
+    "precondition": {
+      "type": "object",
+      "properties": {
+        "precondition_id": {"$ref": "#/$defs/local_identifier"},
+        "description": {"$ref": "#/$defs/description"},
+        "expected_state": {"$ref": "#/$defs/bounded_expected_state"}
+      },
+      "required": ["precondition_id", "description", "expected_state"],
+      "additionalProperties": false
+    },
+    "trigger": {
+      "$comment": "Safe synthetic validation stimulus only; failure injection is software/configuration scoped inside S0 and never physical or real-world attack activity.",
+      "type": "object",
+      "properties": {
+        "trigger_class": {
+          "type": "string",
+          "enum": [
+            "STATIC_CONFIGURATION_CHECK",
+            "AUTHORIZED_REQUEST",
+            "UNAUTHORIZED_REQUEST",
+            "APPROVAL_TRANSITION",
+            "CONTROL_FAILURE_INJECTION",
+            "EVIDENCE_FAILURE_INJECTION",
+            "ARCHITECTURE_MISMATCH",
+            "RESET_EVENT",
+            "SYNTHETIC_EFFECT",
+            "RUN_TERMINATION"
+          ]
+        },
+        "description": {"$ref": "#/$defs/description"},
+        "fixture_reference": {"$ref": "#/$defs/local_identifier"}
+      },
+      "required": ["trigger_class", "description"],
+      "additionalProperties": false
+    },
+    "ground_truth": {
+      "type": "object",
+      "properties": {
+        "source_id": {"$ref": "#/$defs/local_identifier"},
+        "source_type": {
+          "type": "string",
+          "enum": [
+            "VALIDATION_FIXTURE",
+            "SCRIPTED_TRIGGER",
+            "CONTROLLED_SYNTHETIC_STATE",
+            "INDEPENDENT_ORACLE"
+          ]
+        },
+        "state_description": {"$ref": "#/$defs/description"}
+      },
+      "required": ["source_id", "source_type", "state_description"],
+      "additionalProperties": false
+    },
+    "declarative_expectation": {
+      "type": "object",
+      "properties": {
+        "state_id": {"$ref": "#/$defs/local_identifier"},
+        "description": {"$ref": "#/$defs/description"}
+      },
+      "required": ["state_id", "description"],
+      "additionalProperties": false
+    },
+    "evidence_expectation": {
+      "type": "object",
+      "properties": {
+        "event_class": {
+          "$ref": "urn:frontier-agent-containment:schema:evidence-event:0.1.0#/properties/event_class"
+        },
+        "minimum_count": {"type": "integer", "minimum": 0},
+        "required": {"type": "boolean"}
+      },
+      "required": ["event_class", "minimum_count", "required"],
+      "additionalProperties": false
+    },
+    "reset_expectation": {
+      "type": "object",
+      "properties": {
+        "reset_required": {"type": "boolean"},
+        "description": {"$ref": "#/$defs/description"}
+      },
+      "required": ["reset_required", "description"],
+      "additionalProperties": false
+    },
+    "pass_criterion": {
+      "$comment": "A partial match cannot be promoted to pass by averaging unrelated properties.",
+      "type": "object",
+      "properties": {
+        "criterion_id": {"$ref": "#/$defs/local_identifier"},
+        "description": {"$ref": "#/$defs/description"},
+        "tolerance_description": {"$ref": "#/$defs/description"}
+      },
+      "required": ["criterion_id", "description", "tolerance_description"],
+      "additionalProperties": false
+    }
+  }
+}

@@ -1,0 +1,217 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:frontier-agent-containment:schema:instrument-configuration:0.1.0",
+  "title": "Instrument Configuration Contract",
+  "$comment": "Binds one exact, versioned research-instrument composition. A declared FROZEN state or an S0 reference does not establish validation or acceptance; those are separate retained artifacts and evidence-backed decisions.",
+  "type": "object",
+  "properties": {
+    "instrument_configuration_id": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/instrument_configuration_id"
+    },
+    "configuration_version": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/executable_artifact_version"
+    },
+    "display_name": {"$ref": "#/$defs/display_name"},
+    "description": {"$ref": "#/$defs/description"},
+    "environment_id": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/environment_id"
+    },
+    "component_manifest": {
+      "$comment": "The component graph is declarative. Schema validation does not prove component existence, compatibility, or operation.",
+      "type": "array",
+      "items": {"$ref": "#/$defs/component"},
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "observer_configuration": {
+      "$comment": "Declares authoritative observation channels; it does not prove that any channel functions correctly.",
+      "type": "array",
+      "items": {"$ref": "#/$defs/observer"},
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "evidence_pipeline_configuration": {
+      "$ref": "#/$defs/evidence_pipeline"
+    },
+    "orchestration_configuration": {
+      "$ref": "#/$defs/orchestration"
+    },
+    "reset_configuration": {
+      "$comment": "Presence does not establish reset correctness.",
+      "$ref": "#/$defs/reset"
+    },
+    "s0_configuration_reference": {
+      "$comment": "Identifies the laboratory safety configuration separately from M1/M2/M3 treatments and does not prove S0 acceptance.",
+      "$ref": "#/$defs/s0_reference"
+    },
+    "schema_contract_set": {
+      "$comment": "Version bindings only. Schema existence and compatibility require later local cross-contract validation; no network retrieval is implied.",
+      "type": "array",
+      "items": {"$ref": "#/$defs/schema_contract"},
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "configuration_state": {
+      "$comment": "Lifecycle state only; FROZEN is not an acceptance verdict.",
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/artifact_lifecycle_state"
+    }
+  },
+  "required": [
+    "instrument_configuration_id",
+    "configuration_version",
+    "display_name",
+    "description",
+    "environment_id",
+    "component_manifest",
+    "observer_configuration",
+    "evidence_pipeline_configuration",
+    "orchestration_configuration",
+    "reset_configuration",
+    "s0_configuration_reference",
+    "schema_contract_set",
+    "configuration_state"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "local_identifier": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+    },
+    "display_name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200
+    },
+    "description": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 4096
+    },
+    "component": {
+      "type": "object",
+      "properties": {
+        "component_id": {"$ref": "#/$defs/local_identifier"},
+        "component_role": {"$ref": "#/$defs/local_identifier"},
+        "component_version": {
+          "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/executable_artifact_version"
+        },
+        "build_id": {
+          "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/build_id"
+        },
+        "implementation_reference": {"$ref": "#/$defs/local_identifier"},
+        "dependency_component_ids": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/local_identifier"},
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "component_id",
+        "component_role",
+        "component_version",
+        "dependency_component_ids"
+      ],
+      "additionalProperties": false
+    },
+    "observer": {
+      "type": "object",
+      "properties": {
+        "observer_id": {"$ref": "#/$defs/local_identifier"},
+        "observed_property": {"$ref": "#/$defs/description"},
+        "authoritative_role": {
+          "$ref": "urn:frontier-agent-containment:schema:evidence-event:0.1.0#/$defs/authoritative_source/properties/source_role"
+        },
+        "component_id": {"$ref": "#/$defs/local_identifier"}
+      },
+      "required": [
+        "observer_id",
+        "observed_property",
+        "authoritative_role",
+        "component_id"
+      ],
+      "additionalProperties": false
+    },
+    "evidence_pipeline": {
+      "$comment": "Configuration identity does not prove evidence truth, authenticity, completeness, or immutability and does not select digest/signing mechanics.",
+      "type": "object",
+      "properties": {
+        "collector_component_id": {"$ref": "#/$defs/local_identifier"},
+        "normalized_evidence_destination_id": {"$ref": "#/$defs/local_identifier"},
+        "ordering_mechanism_id": {"$ref": "#/$defs/local_identifier"},
+        "evidence_format_schema_id": {"$ref": "#/$defs/schema_id"},
+        "evidence_format_version": {
+          "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/executable_artifact_version"
+        }
+      },
+      "required": [
+        "collector_component_id",
+        "normalized_evidence_destination_id",
+        "ordering_mechanism_id",
+        "evidence_format_schema_id",
+        "evidence_format_version"
+      ],
+      "additionalProperties": false
+    },
+    "orchestration": {
+      "type": "object",
+      "properties": {
+        "orchestration_component_id": {"$ref": "#/$defs/local_identifier"},
+        "run_initialization_responsibility": {"$ref": "#/$defs/description"},
+        "termination_responsibility": {"$ref": "#/$defs/description"},
+        "action_budget_enforcement_responsibility": {"$ref": "#/$defs/description"}
+      },
+      "required": [
+        "orchestration_component_id",
+        "run_initialization_responsibility",
+        "termination_responsibility",
+        "action_budget_enforcement_responsibility"
+      ],
+      "additionalProperties": false
+    },
+    "reset": {
+      "type": "object",
+      "properties": {
+        "reset_configuration_id": {"$ref": "#/$defs/local_identifier"},
+        "reset_baseline_reference": {"$ref": "#/$defs/local_identifier"},
+        "reset_component_id": {"$ref": "#/$defs/local_identifier"},
+        "description": {"$ref": "#/$defs/description"}
+      },
+      "required": [
+        "reset_configuration_id",
+        "reset_baseline_reference",
+        "reset_component_id",
+        "description"
+      ],
+      "additionalProperties": false
+    },
+    "s0_reference": {
+      "type": "object",
+      "properties": {
+        "configuration_id": {
+          "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/condition_id"
+        },
+        "configuration_version": {
+          "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/executable_artifact_version"
+        },
+        "description": {"$ref": "#/$defs/description"}
+      },
+      "required": ["configuration_id", "configuration_version", "description"],
+      "additionalProperties": false
+    },
+    "schema_id": {
+      "type": "string",
+      "pattern": "^urn:frontier-agent-containment:schema:[a-z][a-z0-9-]*:(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(?:-[0-9A-Za-z.-]+)?(?:\\+[0-9A-Za-z.-]+)?$"
+    },
+    "schema_contract": {
+      "type": "object",
+      "properties": {
+        "schema_id": {"$ref": "#/$defs/schema_id"},
+        "schema_version": {
+          "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/executable_artifact_version"
+        }
+      },
+      "required": ["schema_id", "schema_version"],
+      "additionalProperties": false
+    }
+  }
+}

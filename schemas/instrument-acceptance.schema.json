@@ -1,0 +1,222 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:frontier-agent-containment:schema:instrument-acceptance:0.1.0",
+  "title": "Instrument Acceptance Manifest Contract",
+  "$comment": "An evidence-referencing acceptance decision for one exact instrument configuration. ACCEPTED_FOR_PILOT or ACCEPTED_FOR_CONFIRMATORY is not self-proving: schema validation does not establish case completeness, mandatory passes, reference existence, component/environment agreement, M3 independence, S0 acceptance, or correct verdict derivation.",
+  "type": "object",
+  "properties": {
+    "acceptance_version": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/executable_artifact_version"
+    },
+    "instrument_configuration_id": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/instrument_configuration_id"
+    },
+    "instrument_configuration_version": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/executable_artifact_version"
+    },
+    "environment_id": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/environment_id"
+    },
+    "campaign_id": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/campaign_id"
+    },
+    "validation_set_id": {"$ref": "#/$defs/local_identifier"},
+    "validation_set_version": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/executable_artifact_version"
+    },
+    "acceptance_state": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/instrument_acceptance_state"
+    },
+    "validation_results": {
+      "$comment": "Every verdict, including static V0 and NOT_APPLICABLE decisions, retains at least one authoritative evidence-event reference. Existence and semantic linkage remain later validation work.",
+      "type": "array",
+      "items": {"$ref": "#/$defs/validation_result"},
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "component_versions": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/component_version"},
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "acceptance_basis": {
+      "$comment": "Declarative summary only; it cannot replace case-level retained results and evidence.",
+      "$ref": "#/$defs/description"
+    },
+    "acceptance_order": {
+      "description": "Positive logical acceptance-record order; no wall-clock or cryptographic immutability claim.",
+      "type": "integer",
+      "minimum": 1
+    },
+    "accepted_for_phase": {
+      "allOf": [
+        {
+          "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/run_phase"
+        },
+        {"enum": ["PILOT", "CONFIRMATORY"]}
+      ]
+    },
+    "acceptance_authority": {"$ref": "#/$defs/acceptance_authority"},
+    "acceptance_decision_rule_id": {"$ref": "#/$defs/local_identifier"},
+    "acceptance_decision_rule_version": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/executable_artifact_version"
+    },
+    "unresolved_conditions": {
+      "$comment": "Records failures, exclusions, missing/stale conditions, or justified non-applicability without asserting that the verdict rule was applied correctly.",
+      "type": "array",
+      "items": {"$ref": "#/$defs/description"},
+      "uniqueItems": true
+    }
+  },
+  "required": [
+    "acceptance_version",
+    "instrument_configuration_id",
+    "instrument_configuration_version",
+    "environment_id",
+    "campaign_id",
+    "validation_set_id",
+    "validation_set_version",
+    "acceptance_state",
+    "validation_results",
+    "component_versions",
+    "acceptance_basis",
+    "acceptance_order",
+    "acceptance_authority",
+    "acceptance_decision_rule_id",
+    "acceptance_decision_rule_version",
+    "unresolved_conditions"
+  ],
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {"acceptance_state": {"const": "ACCEPTED_FOR_PILOT"}},
+        "required": ["acceptance_state"]
+      },
+      "then": {
+        "properties": {"accepted_for_phase": {"const": "PILOT"}},
+        "required": ["accepted_for_phase"]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "acceptance_state": {"const": "ACCEPTED_FOR_CONFIRMATORY"}
+        },
+        "required": ["acceptance_state"]
+      },
+      "then": {
+        "properties": {"accepted_for_phase": {"const": "CONFIRMATORY"}},
+        "required": ["accepted_for_phase"]
+      }
+    },
+    {
+      "if": {
+        "properties": {"acceptance_state": {"const": "REJECTED"}},
+        "required": ["acceptance_state"]
+      },
+      "then": {"not": {"required": ["accepted_for_phase"]}}
+    }
+  ],
+  "$defs": {
+    "local_identifier": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+    },
+    "description": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 4096
+    },
+    "validation_result": {
+      "type": "object",
+      "properties": {
+        "validation_case_id": {
+          "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/validation_case_id"
+        },
+        "validation_case_version": {
+          "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/executable_artifact_version"
+        },
+        "validation_phase": {
+          "$ref": "urn:frontier-agent-containment:schema:validation-case:0.1.0#/properties/validation_phase"
+        },
+        "applicability_class": {
+          "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/validation_applicability_class"
+        },
+        "result_state": {
+          "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/validation_result_state"
+        },
+        "evidence_event_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/event_id"
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "result_description": {"$ref": "#/$defs/description"},
+        "not_applicable_reason": {"$ref": "#/$defs/description"}
+      },
+      "required": [
+        "validation_case_id",
+        "validation_case_version",
+        "validation_phase",
+        "applicability_class",
+        "result_state",
+        "evidence_event_ids",
+        "result_description"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "result_state": {"const": "VALIDATION_NOT_APPLICABLE"}
+            },
+            "required": ["result_state"]
+          },
+          "then": {"required": ["not_applicable_reason"]},
+          "else": {"not": {"required": ["not_applicable_reason"]}}
+        },
+        {
+          "if": {
+            "properties": {
+              "applicability_class": {"const": "MANDATORY_GLOBAL"}
+            },
+            "required": ["applicability_class"]
+          },
+          "then": {
+            "properties": {
+              "result_state": {"not": {"const": "VALIDATION_NOT_APPLICABLE"}}
+            }
+          }
+        }
+      ]
+    },
+    "component_version": {
+      "type": "object",
+      "properties": {
+        "component_id": {"$ref": "#/$defs/local_identifier"},
+        "component_version": {
+          "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/executable_artifact_version"
+        },
+        "build_id": {
+          "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/build_id"
+        }
+      },
+      "required": ["component_id", "component_version"],
+      "additionalProperties": false
+    },
+    "acceptance_authority": {
+      "$comment": "The agent under test cannot self-certify instrument acceptance.",
+      "type": "object",
+      "properties": {
+        "authority_id": {"$ref": "#/$defs/local_identifier"},
+        "authority_role": {"const": "INSTRUMENT_ACCEPTANCE_AUTHORITY"}
+      },
+      "required": ["authority_id", "authority_role"],
+      "additionalProperties": false
+    }
+  }
+}
