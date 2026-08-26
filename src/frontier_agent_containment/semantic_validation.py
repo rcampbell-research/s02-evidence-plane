@@ -1,13 +1,13 @@
 """Deterministic, in-memory cross-contract semantic validation.
 
-Stage 9 validates only the supported pre-run artifact families listed in
+Stage 10 validates only the supported pre-run artifact families listed in
 ``SUPPORTED_ARTIFACT_FAMILIES``.  Structural validation always runs first via
 the project's network-independent JSON Schema validator.  Structurally invalid
 artifacts are excluded from semantic indexes and are never repaired.
 
-The validator deliberately does not resolve approval policies, validate
-campaign/analysis/acceptance gates, interpret evidence, derive outcomes, prove
-S0 or M3 properties, or execute any configured component.
+The validator deliberately does not resolve approval policies or validation
+evidence, interpret evidence, derive outcomes, prove S0 or runtime M3
+properties, or execute any configured component.
 """
 
 from __future__ import annotations
@@ -34,7 +34,7 @@ ArtifactCollection: TypeAlias = Mapping[str, Iterable[Artifact]]
 
 
 class SemanticErrorCode(str, Enum):
-    """Bounded Stage 9 semantic-validation error codes."""
+    """Bounded Stage 10 semantic-validation error codes."""
 
     SCHEMA_INVALID = "SCHEMA_INVALID"
     REFERENCE_INVALID = "REFERENCE_INVALID"
@@ -46,6 +46,12 @@ class SemanticErrorCode(str, Enum):
     ENVIRONMENT_INVALID = "ENVIRONMENT_INVALID"
     RUN_MANIFEST_INVALID = "RUN_MANIFEST_INVALID"
     UNSUPPORTED_ARTIFACT_FAMILY = "UNSUPPORTED_ARTIFACT_FAMILY"
+    CAPABILITY_EVALUATION_INVALID = "CAPABILITY_EVALUATION_INVALID"
+    CAMPAIGN_INVALID = "CAMPAIGN_INVALID"
+    ACCEPTANCE_INVALID = "ACCEPTANCE_INVALID"
+    ANALYSIS_INVALID = "ANALYSIS_INVALID"
+    VALIDATION_INCOMPLETE = "VALIDATION_INCOMPLETE"
+    PROVENANCE_UNRESOLVED = "PROVENANCE_UNRESOLVED"
 
 
 @dataclass(frozen=True, slots=True)
@@ -74,7 +80,7 @@ class SemanticValidationError(ValueError):
 @dataclass(frozen=True, slots=True)
 class _FamilySpec:
     schema_id: str
-    identity_field: str
+    identity_field: str | None
     version_field: str
 
 
@@ -145,6 +151,33 @@ SUPPORTED_ARTIFACT_FAMILIES: Final[Mapping[str, _FamilySpec]] = {
         "instrument_configuration_id",
         "configuration_version",
     ),
+    "capability_evaluation": _FamilySpec(
+        f"{_SCHEMA_PREFIX}capability-evaluation:0.1.0",
+        "evaluation_configuration_id",
+        "evaluation_version",
+    ),
+    "campaign": _FamilySpec(
+        f"{_SCHEMA_PREFIX}campaign:0.1.0", "campaign_id", "campaign_version"
+    ),
+    "validation_case": _FamilySpec(
+        f"{_SCHEMA_PREFIX}validation-case:0.1.0",
+        "validation_case_id",
+        "validation_case_version",
+    ),
+    # The frozen v0.1 Instrument Acceptance Contract intentionally has no
+    # intrinsic artifact identity. Records therefore remain unkeyed and are
+    # selected only through an exact, unique campaign-compatible match. The
+    # opaque Campaign reference string is not claimed to be content-resolved.
+    "instrument_acceptance": _FamilySpec(
+        f"{_SCHEMA_PREFIX}instrument-acceptance:0.1.0",
+        None,
+        "acceptance_version",
+    ),
+    "analysis_manifest": _FamilySpec(
+        f"{_SCHEMA_PREFIX}analysis-manifest:0.1.0",
+        "analysis_configuration_id",
+        "analysis_version",
+    ),
 }
 
 
@@ -163,6 +196,10 @@ class _ArtifactRegistry:
         unique_agent_records: list[_ArtifactRecord] = []
 
         for family in sorted(SUPPORTED_ARTIFACT_FAMILIES):
+            spec = SUPPORTED_ARTIFACT_FAMILIES[family]
+            if spec.identity_field is None:
+                self.primary[family] = {}
+                continue
             grouped: dict[str, list[_ArtifactRecord]] = {}
             for record in records.get(family, []):
                 grouped.setdefault(record.identity, []).append(record)
@@ -176,7 +213,6 @@ class _ArtifactRegistry:
                         unique_agent_records.append(group[0])
                     continue
                 versions = ", ".join(sorted(record.version for record in group))
-                spec = SUPPORTED_ARTIFACT_FAMILIES[family]
                 findings.append(
                     SemanticFinding(
                         code=SemanticErrorCode.DUPLICATE_IDENTITY,
@@ -263,7 +299,7 @@ def validate_artifact_set(
                     SemanticFinding(
                         code=SemanticErrorCode.UNSUPPORTED_ARTIFACT_FAMILY,
                         message=(
-                            f"artifact family {family!r} is not supported by Stage 9"
+                            f"artifact family {family!r} is not supported by Stage 10"
                         ),
                         artifact_family=family,
                         artifact_id=_best_effort_identity(artifact, ordinal),
@@ -274,8 +310,12 @@ def validate_artifact_set(
 
         schema = schema_store.get(spec.schema_id)
         for ordinal, artifact in enumerate(supplied):
-            label = _best_effort_identity(
-                artifact, ordinal, preferred=spec.identity_field
+            label = (
+                _best_effort_identity(
+                    artifact, ordinal, preferred=spec.identity_field
+                )
+                if spec.identity_field is not None
+                else f"<instrument_acceptance:{ordinal}>"
             )
             if schema is None:
                 findings.append(
@@ -321,7 +361,11 @@ def validate_artifact_set(
             valid_records[family].append(
                 _ArtifactRecord(
                     family=family,
-                    identity=artifact[spec.identity_field],
+                    identity=(
+                        artifact[spec.identity_field]
+                        if spec.identity_field is not None
+                        else label
+                    ),
                     version=artifact[spec.version_field],
                     artifact=artifact,
                     ordinal=ordinal,
@@ -339,6 +383,11 @@ def validate_artifact_set(
     _validate_instrument_configurations(registry, findings)
     _validate_scheduled_runs(registry, findings)
     _validate_run_manifests(registry, findings)
+    _validate_capability_evaluations(registry, findings)
+    _validate_validation_cases(registry, findings)
+    _validate_instrument_acceptances(registry, findings)
+    _validate_analysis_manifests(registry, findings)
+    _validate_campaigns(registry, findings)
 
     return tuple(sorted(findings, key=_finding_sort_key))
 
@@ -1182,7 +1231,996 @@ def _validate_run_references(
     del task
 
 
+def _validate_capability_evaluations(
+    registry: _ArtifactRegistry, findings: list[SemanticFinding]
+) -> None:
+    for record in _records(registry, "capability_evaluation"):
+        artifact = record.artifact
+        evaluated = set(artifact["evaluated_capability_conditions"])
+        for index, capability_id in enumerate(
+            artifact["evaluated_capability_conditions"]
+        ):
+            _require_capability_condition(
+                record,
+                registry,
+                capability_id,
+                _pointer("evaluated_capability_conditions", index),
+                findings,
+            )
+
+        task_ids = [
+            task["capability_task_id"] for task in artifact["capability_tasks"]
+        ]
+        declared_tasks = set(task_ids)
+        _report_local_duplicates(
+            record,
+            findings,
+            "capability_tasks",
+            "capability_task_id",
+            task_ids,
+        )
+
+        score_pairs: Counter[tuple[str, str]] = Counter()
+        for index, score in enumerate(artifact["observed_scores"]):
+            capability_id = score["capability_condition_id"]
+            task_id = score["capability_task_id"]
+            if capability_id not in evaluated:
+                _add_stage10_finding(
+                    record,
+                    findings,
+                    SemanticErrorCode.CAPABILITY_EVALUATION_INVALID,
+                    _pointer("observed_scores", index, "capability_condition_id"),
+                    (
+                        f"observed score capability condition {capability_id!r} "
+                        "is not declared in evaluated_capability_conditions"
+                    ),
+                    "agent_model_condition",
+                    capability_id,
+                )
+            if task_id not in declared_tasks:
+                _add_stage10_finding(
+                    record,
+                    findings,
+                    SemanticErrorCode.CAPABILITY_EVALUATION_INVALID,
+                    _pointer("observed_scores", index, "capability_task_id"),
+                    f"observed score task {task_id!r} is not declared",
+                    "capability_task",
+                    task_id,
+                )
+            score_pairs[(capability_id, task_id)] += 1
+
+        for pair in sorted(key for key, count in score_pairs.items() if count > 1):
+            _add_stage10_finding(
+                record,
+                findings,
+                SemanticErrorCode.CAPABILITY_EVALUATION_INVALID,
+                _pointer("observed_scores"),
+                f"duplicate semantic capability score for condition/task pair {pair!r}",
+                "agent_model_condition",
+                pair[0],
+            )
+
+        if artifact["capability_representation"] != "ORDERED":
+            continue
+        ordered_groups = artifact["ordering_result"]["ordered_groups"]
+        ordered_ids = [item for group in ordered_groups for item in group]
+        ordered_counts = Counter(ordered_ids)
+        for capability_id in sorted(
+            item for item, count in ordered_counts.items() if count > 1
+        ):
+            _add_stage10_finding(
+                record,
+                findings,
+                SemanticErrorCode.CAPABILITY_EVALUATION_INVALID,
+                _pointer("ordering_result", "ordered_groups"),
+                f"ordered capability condition {capability_id!r} occurs more than once",
+                "agent_model_condition",
+                capability_id,
+            )
+        ordered = set(ordered_ids)
+        for capability_id in sorted(ordered - evaluated):
+            _add_stage10_finding(
+                record,
+                findings,
+                SemanticErrorCode.CAPABILITY_EVALUATION_INVALID,
+                _pointer("ordering_result", "ordered_groups"),
+                f"ordering contains undeclared capability condition {capability_id!r}",
+                "agent_model_condition",
+                capability_id,
+            )
+        for capability_id in sorted(evaluated - ordered):
+            _add_stage10_finding(
+                record,
+                findings,
+                SemanticErrorCode.CAPABILITY_EVALUATION_INVALID,
+                _pointer("ordering_result", "ordered_groups"),
+                f"ordering omits evaluated capability condition {capability_id!r}",
+                "agent_model_condition",
+                capability_id,
+            )
+
+
+def _validate_validation_cases(
+    registry: _ArtifactRegistry, findings: list[SemanticFinding]
+) -> None:
+    for record in _records(registry, "validation_case"):
+        artifact = record.artifact
+        instrument = _require_reference(
+            record,
+            registry,
+            "instrument_configuration",
+            artifact["instrument_configuration_id"],
+            _pointer("instrument_configuration_id"),
+            findings,
+        )
+        if instrument is None:
+            continue
+        component_ids = {
+            component["component_id"]
+            for component in instrument.artifact["component_manifest"]
+        }
+        if artifact["applicable_component"] not in component_ids:
+            _add_stage10_finding(
+                record,
+                findings,
+                SemanticErrorCode.REFERENCE_INVALID,
+                _pointer("applicable_component"),
+                (
+                    f"applicable component {artifact['applicable_component']!r} "
+                    "is absent from the referenced Instrument Configuration"
+                ),
+                "instrument_component",
+                artifact["applicable_component"],
+            )
+
+
+def _validate_instrument_acceptances(
+    registry: _ArtifactRegistry, findings: list[SemanticFinding]
+) -> None:
+    for record in _records(registry, "instrument_acceptance"):
+        artifact = record.artifact
+        instrument = _require_reference(
+            record,
+            registry,
+            "instrument_configuration",
+            artifact["instrument_configuration_id"],
+            _pointer("instrument_configuration_id"),
+            findings,
+        )
+        _require_reference(
+            record,
+            registry,
+            "environment",
+            artifact["environment_id"],
+            _pointer("environment_id"),
+            findings,
+        )
+        if instrument is not None:
+            if artifact["instrument_configuration_version"] != instrument.version:
+                _add_stage10_finding(
+                    record,
+                    findings,
+                    SemanticErrorCode.VERSION_INVALID,
+                    _pointer("instrument_configuration_version"),
+                    (
+                        "acceptance instrument configuration version does not "
+                        "match the resolved Instrument Configuration"
+                    ),
+                    "instrument_configuration",
+                    instrument.identity,
+                )
+            if artifact["environment_id"] != instrument.artifact["environment_id"]:
+                _add_stage10_finding(
+                    record,
+                    findings,
+                    SemanticErrorCode.ACCEPTANCE_INVALID,
+                    _pointer("environment_id"),
+                    (
+                        "acceptance environment does not match the resolved "
+                        "Instrument Configuration"
+                    ),
+                    "instrument_configuration",
+                    instrument.identity,
+                )
+            _validate_acceptance_component_versions(
+                record, instrument, findings
+            )
+        _validate_acceptance_results(record, registry, findings)
+
+
+def _validate_acceptance_component_versions(
+    acceptance: _ArtifactRecord,
+    instrument: _ArtifactRecord,
+    findings: list[SemanticFinding],
+) -> None:
+    accepted_components = acceptance.artifact["component_versions"]
+    accepted_ids = [item["component_id"] for item in accepted_components]
+    _report_local_duplicates(
+        acceptance,
+        findings,
+        "component_versions",
+        "component_id",
+        accepted_ids,
+    )
+    accepted_by_id = {
+        item["component_id"]: item
+        for item in accepted_components
+        if accepted_ids.count(item["component_id"]) == 1
+    }
+    configured_by_id = {
+        item["component_id"]: item
+        for item in instrument.artifact["component_manifest"]
+    }
+    for component_id in sorted(configured_by_id.keys() - accepted_by_id.keys()):
+        _add_stage10_finding(
+            acceptance,
+            findings,
+            SemanticErrorCode.ACCEPTANCE_INVALID,
+            _pointer("component_versions"),
+            f"acceptance omits configured component {component_id!r}",
+            "instrument_component",
+            component_id,
+        )
+    for component_id in sorted(accepted_by_id.keys() - configured_by_id.keys()):
+        _add_stage10_finding(
+            acceptance,
+            findings,
+            SemanticErrorCode.ACCEPTANCE_INVALID,
+            _pointer("component_versions"),
+            f"acceptance introduces undeclared component {component_id!r}",
+            "instrument_component",
+            component_id,
+        )
+    for component_id in sorted(accepted_by_id.keys() & configured_by_id.keys()):
+        if (
+            accepted_by_id[component_id]["component_version"]
+            != configured_by_id[component_id]["component_version"]
+        ):
+            _add_stage10_finding(
+                acceptance,
+                findings,
+                SemanticErrorCode.VERSION_INVALID,
+                _pointer("component_versions"),
+                f"accepted component {component_id!r} version does not match",
+                "instrument_component",
+                component_id,
+            )
+
+
+def _validate_acceptance_results(
+    acceptance: _ArtifactRecord,
+    registry: _ArtifactRegistry,
+    findings: list[SemanticFinding],
+) -> None:
+    artifact = acceptance.artifact
+    results = artifact["validation_results"]
+    counts = Counter(item["validation_case_id"] for item in results)
+    for case_id in sorted(item for item, count in counts.items() if count > 1):
+        _add_stage10_finding(
+            acceptance,
+            findings,
+            SemanticErrorCode.VALIDATION_INCOMPLETE,
+            _pointer("validation_results"),
+            f"validation case {case_id!r} is represented more than once",
+            "validation_case",
+            case_id,
+        )
+
+    accepted = artifact["acceptance_state"] in {
+        "ACCEPTED_FOR_PILOT",
+        "ACCEPTED_FOR_CONFIRMATORY",
+    }
+    for index, result in enumerate(results):
+        case_id = result["validation_case_id"]
+        case = registry.resolve("validation_case", case_id)
+        if case is None:
+            _add_stage10_finding(
+                acceptance,
+                findings,
+                SemanticErrorCode.REFERENCE_INVALID,
+                _pointer("validation_results", index, "validation_case_id"),
+                f"validation case {case_id!r} does not resolve exactly once",
+                "validation_case",
+                case_id,
+            )
+            continue
+        if result["validation_case_version"] != case.version:
+            _add_stage10_finding(
+                acceptance,
+                findings,
+                SemanticErrorCode.VERSION_INVALID,
+                _pointer("validation_results", index, "validation_case_version"),
+                "validation result version does not match the Validation Case",
+                "validation_case",
+                case_id,
+            )
+        if result["applicability_class"] != case.artifact["applicability_class"]:
+            _add_stage10_finding(
+                acceptance,
+                findings,
+                SemanticErrorCode.ACCEPTANCE_INVALID,
+                _pointer("validation_results", index, "applicability_class"),
+                "validation result applicability does not match the Validation Case",
+                "validation_case",
+                case_id,
+            )
+        if result["validation_phase"] != case.artifact["validation_phase"]:
+            _add_stage10_finding(
+                acceptance,
+                findings,
+                SemanticErrorCode.ACCEPTANCE_INVALID,
+                _pointer("validation_results", index, "validation_phase"),
+                "validation result phase does not match the Validation Case",
+                "validation_case",
+                case_id,
+            )
+        if (
+            case.artifact["instrument_configuration_id"]
+            != artifact["instrument_configuration_id"]
+        ):
+            _add_stage10_finding(
+                acceptance,
+                findings,
+                SemanticErrorCode.ACCEPTANCE_INVALID,
+                _pointer("validation_results", index, "validation_case_id"),
+                "Validation Case targets a different Instrument Configuration",
+                "validation_case",
+                case_id,
+            )
+        if not accepted:
+            continue
+        applicability = case.artifact["applicability_class"]
+        result_state = result["result_state"]
+        if applicability == "MANDATORY_GLOBAL" and result_state != "VALIDATION_PASS":
+            _add_stage10_finding(
+                acceptance,
+                findings,
+                SemanticErrorCode.ACCEPTANCE_INVALID,
+                _pointer("validation_results", index, "result_state"),
+                "accepted instrument requires MANDATORY_GLOBAL validation PASS",
+                "validation_case",
+                case_id,
+            )
+        elif applicability == "MANDATORY_CONDITIONAL" and result_state in {
+            "VALIDATION_FAIL",
+            "VALIDATION_INCONCLUSIVE",
+        }:
+            _add_stage10_finding(
+                acceptance,
+                findings,
+                SemanticErrorCode.ACCEPTANCE_INVALID,
+                _pointer("validation_results", index, "result_state"),
+                "represented mandatory conditional validation did not pass",
+                "validation_case",
+                case_id,
+            )
+
+    if not accepted:
+        return
+    for case in _records(registry, "validation_case"):
+        if (
+            case.artifact["instrument_configuration_id"]
+            != artifact["instrument_configuration_id"]
+            or case.artifact["applicability_class"] != "MANDATORY_GLOBAL"
+        ):
+            continue
+        exact_results = [
+            result
+            for result in results
+            if result["validation_case_id"] == case.identity
+            and result["validation_case_version"] == case.version
+        ]
+        if len(exact_results) != 1:
+            _add_stage10_finding(
+                acceptance,
+                findings,
+                SemanticErrorCode.VALIDATION_INCOMPLETE,
+                _pointer("validation_results"),
+                (
+                    f"MANDATORY_GLOBAL Validation Case {case.identity!r} version "
+                    f"{case.version!r} must appear exactly once"
+                ),
+                "validation_case",
+                case.identity,
+            )
+
+
+def _validate_analysis_manifests(
+    registry: _ArtifactRegistry, findings: list[SemanticFinding]
+) -> None:
+    invariants = {
+        "primary_endpoint": "RUN_LEVEL_ANY_UNAUTHORIZED_EXECUTED",
+        "primary_estimand": "RISK_DIFFERENCE",
+        "primary_effect_direction": "M3_MINUS_M1",
+    }
+    for record in _records(registry, "analysis_manifest"):
+        artifact = record.artifact
+        for field, expected in invariants.items():
+            if artifact[field] != expected:
+                _add_stage10_finding(
+                    record,
+                    findings,
+                    SemanticErrorCode.ANALYSIS_INVALID,
+                    _pointer(field),
+                    f"{field} must remain {expected!r}",
+                )
+        for field in (
+            "primary_m1_control_condition_id",
+            "primary_m3_control_condition_id",
+        ):
+            if field in artifact:
+                _require_reference(
+                    record,
+                    registry,
+                    "control_condition",
+                    artifact[field],
+                    _pointer(field),
+                    findings,
+                )
+        for index, scenario_id in enumerate(artifact.get("scenario_subset", [])):
+            _require_reference(
+                record,
+                registry,
+                "scenario",
+                scenario_id,
+                _pointer("scenario_subset", index),
+                findings,
+            )
+        for index, agent_id in enumerate(artifact.get("agent_condition_subset", [])):
+            _require_reference(
+                record,
+                registry,
+                "agent_model_condition",
+                agent_id,
+                _pointer("agent_condition_subset", index),
+                findings,
+            )
+        capability = artifact.get("capability_representation")
+        if capability is not None and "capability_evaluation_reference" in capability:
+            _require_reference(
+                record,
+                registry,
+                "capability_evaluation",
+                capability["capability_evaluation_reference"],
+                _pointer(
+                    "capability_representation", "capability_evaluation_reference"
+                ),
+                findings,
+            )
+
+
+def _validate_campaigns(
+    registry: _ArtifactRegistry, findings: list[SemanticFinding]
+) -> None:
+    for record in _records(registry, "campaign"):
+        artifact = record.artifact
+        for field, family in (
+            ("scenario_ids", "scenario"),
+            ("agent_condition_ids", "agent_model_condition"),
+            ("autonomy_condition_ids", "autonomy_condition"),
+            ("control_condition_ids", "control_condition"),
+        ):
+            for index, identity in enumerate(artifact[field]):
+                _require_reference(
+                    record,
+                    registry,
+                    family,
+                    identity,
+                    _pointer(field, index),
+                    findings,
+                )
+        _require_reference(
+            record,
+            registry,
+            "environment",
+            artifact["environment_id"],
+            _pointer("environment_id"),
+            findings,
+        )
+        instrument = _require_reference(
+            record,
+            registry,
+            "instrument_configuration",
+            artifact["instrument_configuration_id"],
+            _pointer("instrument_configuration_id"),
+            findings,
+        )
+        if (
+            instrument is not None
+            and instrument.artifact["environment_id"] != artifact["environment_id"]
+        ):
+            _add_stage10_finding(
+                record,
+                findings,
+                SemanticErrorCode.CAMPAIGN_INVALID,
+                _pointer("environment_id"),
+                "Campaign environment does not match Instrument Configuration",
+                "instrument_configuration",
+                instrument.identity,
+            )
+
+        scheduled = _validate_campaign_schedule(record, registry, findings)
+        capability_evaluation = _resolve_campaign_capability_evaluation(
+            record, registry, findings
+        )
+        _validate_campaign_capability_coverage(
+            record, capability_evaluation, registry, findings
+        )
+
+        if artifact["phase"] in {"PILOT", "CONFIRMATORY"}:
+            _validate_campaign_acceptance(record, registry, findings)
+        if artifact["phase"] == "CONFIRMATORY":
+            _validate_confirmatory_analysis(
+                record,
+                scheduled,
+                capability_evaluation,
+                registry,
+                findings,
+            )
+
+
+def _validate_campaign_schedule(
+    campaign: _ArtifactRecord,
+    registry: _ArtifactRegistry,
+    findings: list[SemanticFinding],
+) -> list[_ArtifactRecord]:
+    artifact = campaign.artifact
+    scheduled: list[_ArtifactRecord] = []
+    for index, scheduled_id in enumerate(artifact["scheduled_run_ids"]):
+        run = registry.resolve("scheduled_run", scheduled_id)
+        if run is None:
+            _add_stage10_finding(
+                campaign,
+                findings,
+                SemanticErrorCode.CAMPAIGN_INVALID,
+                _pointer("scheduled_run_ids", index),
+                f"Scheduled Run {scheduled_id!r} does not resolve exactly once",
+                "scheduled_run",
+                scheduled_id,
+            )
+            continue
+        scheduled.append(run)
+        for field in (
+            "experiment_id",
+            "campaign_id",
+            "phase",
+            "environment_id",
+            "instrument_configuration_id",
+        ):
+            if run.artifact[field] != artifact[field]:
+                _add_stage10_finding(
+                    campaign,
+                    findings,
+                    SemanticErrorCode.CAMPAIGN_INVALID,
+                    _pointer("scheduled_run_ids", index),
+                    f"Scheduled Run {field} does not match Campaign",
+                    "scheduled_run",
+                    run.identity,
+                )
+        for run_field, campaign_field in (
+            ("scenario_id", "scenario_ids"),
+            ("agent_condition_id", "agent_condition_ids"),
+            ("autonomy_condition_id", "autonomy_condition_ids"),
+            ("control_condition_id", "control_condition_ids"),
+        ):
+            if run.artifact[run_field] not in artifact[campaign_field]:
+                _add_stage10_finding(
+                    campaign,
+                    findings,
+                    SemanticErrorCode.CAMPAIGN_INVALID,
+                    _pointer("scheduled_run_ids", index),
+                    (
+                        f"Scheduled Run {run_field} is absent from Campaign "
+                        f"{campaign_field}"
+                    ),
+                    "scheduled_run",
+                    run.identity,
+                )
+
+    listed = set(artifact["scheduled_run_ids"])
+    for run in _records(registry, "scheduled_run"):
+        if run.artifact["campaign_id"] == campaign.identity and run.identity not in listed:
+            _add_stage10_finding(
+                campaign,
+                findings,
+                SemanticErrorCode.CAMPAIGN_INVALID,
+                _pointer("scheduled_run_ids"),
+                f"active Campaign Scheduled Run {run.identity!r} is unlisted",
+                "scheduled_run",
+                run.identity,
+            )
+    ordinals = Counter(run.artifact["schedule_ordinal"] for run in scheduled)
+    for ordinal in sorted(item for item, count in ordinals.items() if count > 1):
+        _add_stage10_finding(
+            campaign,
+            findings,
+            SemanticErrorCode.CAMPAIGN_INVALID,
+            _pointer("scheduled_run_ids"),
+            f"schedule_ordinal {ordinal} occurs more than once in Campaign",
+        )
+    return scheduled
+
+
+def _resolve_campaign_capability_evaluation(
+    campaign: _ArtifactRecord,
+    registry: _ArtifactRegistry,
+    findings: list[SemanticFinding],
+) -> _ArtifactRecord | None:
+    reference = campaign.artifact.get("capability_evaluation_reference")
+    if reference is None:
+        return None
+    evaluation = _require_reference(
+        campaign,
+        registry,
+        "capability_evaluation",
+        reference,
+        _pointer("capability_evaluation_reference"),
+        findings,
+    )
+    if evaluation is None:
+        return None
+    if campaign.artifact["phase"] == "CONFIRMATORY":
+        if evaluation.artifact["evaluation_state"] != "FROZEN_FOR_CONFIRMATORY_USE":
+            _add_stage10_finding(
+                campaign,
+                findings,
+                SemanticErrorCode.CAPABILITY_EVALUATION_INVALID,
+                _pointer("capability_evaluation_reference"),
+                "Confirmatory Campaign requires a frozen Capability Evaluation",
+                "capability_evaluation",
+                evaluation.identity,
+            )
+        if evaluation.artifact["containment_outcomes_used"] is not False:
+            _add_stage10_finding(
+                campaign,
+                findings,
+                SemanticErrorCode.CAPABILITY_EVALUATION_INVALID,
+                _pointer("capability_evaluation_reference"),
+                "Capability Evaluation must exclude containment outcomes",
+                "capability_evaluation",
+                evaluation.identity,
+            )
+    return evaluation
+
+
+def _validate_campaign_capability_coverage(
+    campaign: _ArtifactRecord,
+    evaluation: _ArtifactRecord | None,
+    registry: _ArtifactRegistry,
+    findings: list[SemanticFinding],
+) -> None:
+    if evaluation is None or campaign.artifact["phase"] not in {"PILOT", "CONFIRMATORY"}:
+        return
+    evaluated = set(evaluation.artifact["evaluated_capability_conditions"])
+    for index, agent_id in enumerate(campaign.artifact["agent_condition_ids"]):
+        agent = registry.resolve("agent_model_condition", agent_id)
+        if agent is None:
+            continue
+        capability_id = agent.artifact["capability_condition_id"]
+        if capability_id not in evaluated:
+            _add_stage10_finding(
+                campaign,
+                findings,
+                SemanticErrorCode.CAPABILITY_EVALUATION_INVALID,
+                _pointer("agent_condition_ids", index),
+                (
+                    f"Campaign capability condition {capability_id!r} is absent "
+                    "from the referenced Capability Evaluation"
+                ),
+                "capability_evaluation",
+                evaluation.identity,
+            )
+
+
+def _validate_campaign_acceptance(
+    campaign: _ArtifactRecord,
+    registry: _ArtifactRegistry,
+    findings: list[SemanticFinding],
+) -> None:
+    phase = campaign.artifact["phase"]
+    expected_state = (
+        "ACCEPTED_FOR_PILOT"
+        if phase == "PILOT"
+        else "ACCEPTED_FOR_CONFIRMATORY"
+    )
+    compatible = [
+        acceptance
+        for acceptance in _records(registry, "instrument_acceptance")
+        if acceptance.artifact["instrument_configuration_id"]
+        == campaign.artifact["instrument_configuration_id"]
+        and acceptance.artifact["environment_id"]
+        == campaign.artifact["environment_id"]
+        and acceptance.artifact["campaign_id"] == campaign.identity
+        and acceptance.artifact["acceptance_state"] == expected_state
+        and acceptance.artifact.get("accepted_for_phase") == phase
+    ]
+    if len(compatible) != 1:
+        _add_stage10_finding(
+            campaign,
+            findings,
+            SemanticErrorCode.ACCEPTANCE_INVALID,
+            _pointer("instrument_acceptance_reference"),
+            (
+                f"{phase} Campaign requires exactly one compatible {expected_state} "
+                f"acceptance; found {len(compatible)}"
+            ),
+            "instrument_acceptance",
+            None,
+        )
+    # No intrinsic acceptance ID exists in v0.1. The opaque Campaign reference
+    # cannot be content-resolved, so unique compatibility gates readiness but
+    # does not prove the provenance of instrument_acceptance_reference.
+
+
+def _validate_confirmatory_analysis(
+    campaign: _ArtifactRecord,
+    scheduled: list[_ArtifactRecord],
+    evaluation: _ArtifactRecord | None,
+    registry: _ArtifactRegistry,
+    findings: list[SemanticFinding],
+) -> None:
+    analysis_id = campaign.artifact["analysis_configuration_id"]
+    analysis = registry.resolve("analysis_manifest", analysis_id)
+    if analysis is None:
+        _add_stage10_finding(
+            campaign,
+            findings,
+            SemanticErrorCode.ANALYSIS_INVALID,
+            _pointer("analysis_configuration_id"),
+            f"Analysis Manifest {analysis_id!r} does not resolve exactly once",
+            "analysis_manifest",
+            analysis_id,
+        )
+        return
+    artifact = analysis.artifact
+    if artifact["analysis_state"] != "FROZEN_FOR_CONFIRMATORY":
+        _add_analysis_gate_error(
+            analysis,
+            campaign,
+            findings,
+            _pointer("analysis_state"),
+            "Confirmatory Campaign requires FROZEN_FOR_CONFIRMATORY analysis",
+        )
+        return
+
+    m1_id = artifact["primary_m1_control_condition_id"]
+    m3_id = artifact["primary_m3_control_condition_id"]
+    m1 = registry.resolve("control_condition", m1_id)
+    m3 = registry.resolve("control_condition", m3_id)
+    if m1 is not None and _declared_pure_control_layer(m1, registry) != "M1":
+        _add_analysis_gate_error(
+            analysis,
+            campaign,
+            findings,
+            _pointer("primary_m1_control_condition_id"),
+            "primary M1 comparator is not a declaratively pure M1 condition",
+            "control_condition",
+            m1_id,
+        )
+    if m3 is not None and _declared_pure_control_layer(m3, registry) != "M3":
+        _add_analysis_gate_error(
+            analysis,
+            campaign,
+            findings,
+            _pointer("primary_m3_control_condition_id"),
+            "primary M3 comparator is not a declaratively pure M3 condition",
+            "control_condition",
+            m3_id,
+        )
+    for field, comparator_id in (
+        ("primary_m1_control_condition_id", m1_id),
+        ("primary_m3_control_condition_id", m3_id),
+    ):
+        if comparator_id not in campaign.artifact["control_condition_ids"]:
+            _add_analysis_gate_error(
+                analysis,
+                campaign,
+                findings,
+                _pointer(field),
+                "primary comparator is absent from Campaign control conditions",
+                "control_condition",
+                comparator_id,
+            )
+        if not any(
+            run.artifact["control_condition_id"] == comparator_id for run in scheduled
+        ):
+            _add_analysis_gate_error(
+                analysis,
+                campaign,
+                findings,
+                _pointer(field),
+                "primary comparator is absent from Campaign Scheduled Runs",
+                "control_condition",
+                comparator_id,
+            )
+
+    scheduled_scenarios = {run.artifact["scenario_id"] for run in scheduled}
+    for index, scenario_id in enumerate(artifact["scenario_subset"]):
+        if scenario_id not in campaign.artifact["scenario_ids"]:
+            _add_analysis_gate_error(
+                analysis,
+                campaign,
+                findings,
+                _pointer("scenario_subset", index),
+                "analysis scenario is absent from Campaign",
+                "scenario",
+                scenario_id,
+            )
+        elif scenario_id not in scheduled_scenarios:
+            _add_analysis_gate_error(
+                analysis,
+                campaign,
+                findings,
+                _pointer("scenario_subset", index),
+                "analysis scenario has no Campaign Scheduled Run",
+                "scenario",
+                scenario_id,
+            )
+
+    scheduled_agents = {run.artifact["agent_condition_id"] for run in scheduled}
+    for index, agent_id in enumerate(artifact["agent_condition_subset"]):
+        if agent_id not in campaign.artifact["agent_condition_ids"]:
+            _add_analysis_gate_error(
+                analysis,
+                campaign,
+                findings,
+                _pointer("agent_condition_subset", index),
+                "analysis agent condition is absent from Campaign",
+                "agent_model_condition",
+                agent_id,
+            )
+        elif agent_id not in scheduled_agents:
+            _add_analysis_gate_error(
+                analysis,
+                campaign,
+                findings,
+                _pointer("agent_condition_subset", index),
+                "analysis agent condition has no Campaign Scheduled Run",
+                "agent_model_condition",
+                agent_id,
+            )
+
+    if evaluation is not None:
+        analysis_representation = artifact["capability_representation"][
+            "representation"
+        ]
+        if analysis_representation != evaluation.artifact["capability_representation"]:
+            _add_analysis_gate_error(
+                analysis,
+                campaign,
+                findings,
+                _pointer("capability_representation", "representation"),
+                "analysis and Capability Evaluation representations do not match",
+                "capability_evaluation",
+                evaluation.identity,
+            )
+        analysis_reference = artifact["capability_representation"].get(
+            "capability_evaluation_reference"
+        )
+        if analysis_reference is not None and analysis_reference != evaluation.identity:
+            _add_analysis_gate_error(
+                analysis,
+                campaign,
+                findings,
+                _pointer(
+                    "capability_representation", "capability_evaluation_reference"
+                ),
+                "analysis references a different Capability Evaluation",
+                "capability_evaluation",
+                analysis_reference,
+            )
+
+    sample_size = artifact["sample_size"]
+    scheduled_run_count = (
+        sample_size
+        if isinstance(sample_size, int)
+        else sample_size["scheduled_run_count"]
+    )
+    if scheduled_run_count != len(campaign.artifact["scheduled_run_ids"]):
+        _add_analysis_gate_error(
+            analysis,
+            campaign,
+            findings,
+            _pointer("sample_size"),
+            (
+                "frozen sample-size scheduled run count does not equal the "
+                "Campaign scheduled-run denominator"
+            ),
+        )
+
+
+def _declared_pure_control_layer(
+    condition: _ArtifactRecord, registry: _ArtifactRegistry
+) -> str | None:
+    composition = condition.artifact["composition_type"]
+    if composition == "DEFENSE_IN_DEPTH":
+        return None
+    layers: set[str] = set()
+    for constituent in condition.artifact["constituents"]:
+        control = registry.resolve("control", constituent["control_id"])
+        if control is None:
+            return None
+        layers.add(control.artifact["experimental_control_layer"])
+    if len(layers) != 1:
+        return None
+    layer = next(iter(layers))
+    if composition in {"SINGLE_CONTROL", "LAYER_CONDITION"}:
+        return layer
+    if composition == "COMBINED_M3" and layer == "M3":
+        return "M3"
+    return None
+
+
+def _require_capability_condition(
+    owner: _ArtifactRecord,
+    registry: _ArtifactRegistry,
+    capability_id: str,
+    field_path: str,
+    findings: list[SemanticFinding],
+) -> _ArtifactRecord | None:
+    target = registry.capability_conditions.get(capability_id)
+    if target is not None:
+        return target
+    _add_stage10_finding(
+        owner,
+        findings,
+        SemanticErrorCode.REFERENCE_INVALID,
+        field_path,
+        f"capability condition {capability_id!r} does not resolve exactly once",
+        "agent_model_condition",
+        capability_id,
+    )
+    return None
+
+
+def _add_analysis_gate_error(
+    analysis: _ArtifactRecord,
+    campaign: _ArtifactRecord,
+    findings: list[SemanticFinding],
+    field_path: str,
+    message: str,
+    referenced_family: str | None = None,
+    referenced_id: str | None = None,
+) -> None:
+    _add_stage10_finding(
+        analysis,
+        findings,
+        SemanticErrorCode.ANALYSIS_INVALID,
+        field_path,
+        f"{message} for Campaign {campaign.identity!r}",
+        referenced_family,
+        referenced_id,
+    )
+
+
+def _add_stage10_finding(
+    owner: _ArtifactRecord,
+    findings: list[SemanticFinding],
+    code: SemanticErrorCode,
+    field_path: str,
+    message: str,
+    referenced_family: str | None = None,
+    referenced_id: str | None = None,
+) -> None:
+    findings.append(
+        SemanticFinding(
+            code=code,
+            message=message,
+            artifact_family=owner.family,
+            artifact_id=owner.identity,
+            field_path=field_path,
+            referenced_artifact_family=referenced_family,
+            referenced_artifact_id=referenced_id,
+        )
+    )
+
+
 def _records(registry: _ArtifactRegistry, family: str) -> list[_ArtifactRecord]:
+    if SUPPORTED_ARTIFACT_FAMILIES[family].identity_field is None:
+        return sorted(
+            registry.records.get(family, []),
+            key=lambda record: (record.identity, record.version, record.ordinal),
+        )
     return sorted(
         registry.primary.get(family, {}).values(),
         key=lambda record: (record.identity, record.version, record.ordinal),
