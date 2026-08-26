@@ -10,6 +10,7 @@ readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
     "jsonschema>=4.10",
+    "rfc8785==0.1.4",
 ]
 
 [project.optional-dependencies]
