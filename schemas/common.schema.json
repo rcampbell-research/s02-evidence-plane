@@ -1,0 +1,266 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:frontier-agent-containment:schema:common:0.1.0",
+  "title": "Frontier Agent Containment Shared Semantics",
+  "$comment": "Canonical Stage 2 definitions only; this is not a scientific contract-family schema.",
+  "$defs": {
+    "executable_artifact_version": {
+      "type": "string",
+      "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(?:-(0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*)(?:\\.(0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*))*)?(?:\\+[0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*)?$",
+      "not": { "pattern": "\\s" },
+      "$comment": "Executable artifact version, distinct from document versions and Git tag names."
+    },
+    "stable_typed_identifier": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*:[a-z0-9][a-z0-9._-]*$",
+      "not": { "pattern": "\\s" },
+      "$comment": "Shared <type>:<opaque-token> lexical rule. Tokens are non-secret opaque identity values; generation, collision handling, and any timestamp use are separate concerns."
+    },
+    "experiment_id": {
+      "allOf": [
+        { "$ref": "#/$defs/stable_typed_identifier" },
+        { "pattern": "^exp:" }
+      ]
+    },
+    "run_id": {
+      "allOf": [
+        { "$ref": "#/$defs/stable_typed_identifier" },
+        { "pattern": "^run:" }
+      ]
+    },
+    "condition_id": {
+      "allOf": [
+        { "$ref": "#/$defs/stable_typed_identifier" },
+        { "pattern": "^cond:" }
+      ]
+    },
+    "scenario_id": {
+      "allOf": [
+        { "$ref": "#/$defs/stable_typed_identifier" },
+        { "pattern": "^scenario:" }
+      ]
+    },
+    "task_id": {
+      "allOf": [
+        { "$ref": "#/$defs/stable_typed_identifier" },
+        { "pattern": "^task:" }
+      ]
+    },
+    "action_id": {
+      "allOf": [
+        { "$ref": "#/$defs/stable_typed_identifier" },
+        { "pattern": "^action:" }
+      ]
+    },
+    "event_id": {
+      "allOf": [
+        { "$ref": "#/$defs/stable_typed_identifier" },
+        { "pattern": "^event:" }
+      ]
+    },
+    "agent_condition_id": {
+      "allOf": [
+        { "$ref": "#/$defs/stable_typed_identifier" },
+        { "pattern": "^agentcond:" }
+      ]
+    },
+    "model_condition_id": {
+      "allOf": [
+        { "$ref": "#/$defs/stable_typed_identifier" },
+        { "pattern": "^modelcond:" }
+      ]
+    },
+    "capability_condition_id": {
+      "allOf": [
+        { "$ref": "#/$defs/stable_typed_identifier" },
+        { "pattern": "^capcond:" }
+      ]
+    },
+    "autonomy_condition_id": {
+      "allOf": [
+        { "$ref": "#/$defs/stable_typed_identifier" },
+        { "pattern": "^autonomy:" }
+      ]
+    },
+    "control_id": {
+      "allOf": [
+        { "$ref": "#/$defs/stable_typed_identifier" },
+        { "pattern": "^control:" }
+      ]
+    },
+    "control_condition_id": {
+      "allOf": [
+        { "$ref": "#/$defs/stable_typed_identifier" },
+        { "pattern": "^ctrlcond:" }
+      ]
+    },
+    "capability_envelope_id": {
+      "allOf": [
+        { "$ref": "#/$defs/stable_typed_identifier" },
+        { "pattern": "^envelope:" }
+      ]
+    },
+    "policy_id": {
+      "allOf": [
+        { "$ref": "#/$defs/stable_typed_identifier" },
+        { "pattern": "^policy:" }
+      ]
+    },
+    "approval_policy_id": {
+      "allOf": [
+        { "$ref": "#/$defs/stable_typed_identifier" },
+        { "pattern": "^approvalpolicy:" }
+      ]
+    },
+    "environment_id": {
+      "allOf": [
+        { "$ref": "#/$defs/stable_typed_identifier" },
+        { "pattern": "^env:" }
+      ]
+    },
+    "build_id": {
+      "allOf": [
+        { "$ref": "#/$defs/stable_typed_identifier" },
+        { "pattern": "^build:" }
+      ]
+    },
+    "resource_id": {
+      "allOf": [
+        { "$ref": "#/$defs/stable_typed_identifier" },
+        { "pattern": "^resource:" }
+      ]
+    },
+    "validation_case_id": {
+      "allOf": [
+        { "$ref": "#/$defs/stable_typed_identifier" },
+        { "pattern": "^valcase:" }
+      ]
+    },
+    "instrument_configuration_id": {
+      "allOf": [
+        { "$ref": "#/$defs/stable_typed_identifier" },
+        { "pattern": "^instrument:" }
+      ]
+    },
+    "analysis_configuration_id": {
+      "allOf": [
+        { "$ref": "#/$defs/stable_typed_identifier" },
+        { "pattern": "^analysis:" }
+      ]
+    },
+    "campaign_id": {
+      "allOf": [
+        { "$ref": "#/$defs/stable_typed_identifier" },
+        { "pattern": "^campaign:" }
+      ]
+    },
+    "scheduled_run_id": {
+      "allOf": [
+        { "$ref": "#/$defs/stable_typed_identifier" },
+        { "pattern": "^scheduledrun:" }
+      ]
+    },
+    "experimental_control_layer": {
+      "type": "string",
+      "enum": ["M1", "M2", "M3"]
+    },
+    "laboratory_safety_layer": {
+      "type": "string",
+      "enum": ["S0"]
+    },
+    "capability_authorization_state": {
+      "type": "string",
+      "enum": ["ALLOWED", "DENIED", "APPROVAL_REQUIRED", "NOT_APPLICABLE"]
+    },
+    "authorization_decision": {
+      "type": "string",
+      "enum": ["ALLOWED", "DENIED", "APPROVAL_REQUIRED", "INDETERMINATE"]
+    },
+    "approval_decision": {
+      "type": "string",
+      "enum": [
+        "APPROVED",
+        "REJECTED",
+        "EXPIRED",
+        "TIMED_OUT",
+        "UNAVAILABLE",
+        "INVALID"
+      ]
+    },
+    "terminal_action_outcome": {
+      "type": "string",
+      "enum": [
+        "AUTHORIZED_EXECUTED",
+        "AUTHORIZED_NOT_EXECUTED",
+        "UNAUTHORIZED_BLOCKED",
+        "UNAUTHORIZED_NOT_EXECUTED_OTHER",
+        "UNAUTHORIZED_EXECUTED",
+        "AGENT_ABORTED",
+        "CONTROL_ERROR",
+        "INCONCLUSIVE"
+      ]
+    },
+    "run_phase": {
+      "type": "string",
+      "enum": [
+        "DEVELOPMENT",
+        "INSTRUMENT_VALIDATION",
+        "PILOT",
+        "CONFIRMATORY"
+      ]
+    },
+    "evidence_quality_state": {
+      "type": "string",
+      "enum": [
+        "VALID",
+        "MISSING_REQUIRED",
+        "CONFLICTING",
+        "DUPLICATE",
+        "MALFORMED",
+        "UNTRUSTED_SOURCE",
+        "OUT_OF_ORDER",
+        "UNRESOLVED_IDENTITY",
+        "INCONCLUSIVE"
+      ]
+    },
+    "validation_result_state": {
+      "type": "string",
+      "enum": [
+        "VALIDATION_PASS",
+        "VALIDATION_FAIL",
+        "VALIDATION_INCONCLUSIVE",
+        "VALIDATION_NOT_APPLICABLE"
+      ]
+    },
+    "validation_applicability_class": {
+      "type": "string",
+      "enum": [
+        "MANDATORY_GLOBAL",
+        "MANDATORY_CONDITIONAL",
+        "OPTIONAL_DIAGNOSTIC"
+      ]
+    },
+    "instrument_acceptance_state": {
+      "type": "string",
+      "enum": [
+        "ACCEPTED_FOR_PILOT",
+        "ACCEPTED_FOR_CONFIRMATORY",
+        "REJECTED"
+      ]
+    },
+    "artifact_lifecycle_state": {
+      "type": "string",
+      "enum": ["DRAFT", "VALIDATED", "FROZEN", "RETIRED"]
+    },
+    "execution_state": {
+      "type": "string",
+      "enum": [
+        "EXECUTION_NOT_ATTEMPTED",
+        "EXECUTION_ATTEMPTED",
+        "EXECUTION_SUCCEEDED",
+        "EXECUTION_FAILED",
+        "EXECUTION_RESULT_UNKNOWN"
+      ]
+    }
+  }
+}

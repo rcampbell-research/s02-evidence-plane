@@ -28,16 +28,26 @@ class ExternalSchemaReferenceError(ValueError):
     """Raised when a schema requests resolution outside its own document."""
 
 
+class DuplicateJsonKeyError(ValueError):
+    """Raised when a JSON object repeats a member name."""
+
+    def __init__(self, key: str) -> None:
+        super().__init__(f"duplicate JSON object member: {key!r}")
+        self.key = key
+
+
 def load_json(path: str | Path) -> JsonValue:
     """Load one JSON document without coercion, repair, or error suppression.
 
     Malformed JSON raises :class:`json.JSONDecodeError`; filesystem and encoding
-    failures retain their standard exceptions. These are intentionally distinct
-    from schema validation errors raised by :func:`validate_instance`.
+    failures retain their standard exceptions. Duplicate object members raise
+    :class:`DuplicateJsonKeyError` instead of being silently overwritten. These
+    are intentionally distinct from schema validation errors raised by
+    :func:`validate_instance`.
     """
 
     with Path(path).open("r", encoding="utf-8") as stream:
-        return json.load(stream)
+        return json.load(stream, object_pairs_hook=_object_without_duplicate_keys)
 
 
 def check_draft_2020_12_schema(schema: Schema) -> None:
@@ -77,3 +87,14 @@ def _reject_external_references(node: Any) -> None:
     elif isinstance(node, list):
         for value in node:
             _reject_external_references(value)
+
+
+def _object_without_duplicate_keys(pairs: list[tuple[str, JsonValue]]) -> JsonValue:
+    """Build a JSON object while rejecting ambiguous repeated member names."""
+
+    result: dict[str, JsonValue] = {}
+    for key, value in pairs:
+        if key in result:
+            raise DuplicateJsonKeyError(key)
+        result[key] = value
+    return result
