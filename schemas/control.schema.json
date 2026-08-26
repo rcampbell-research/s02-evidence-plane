@@ -1,0 +1,167 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:frontier-agent-containment:schema:control:0.1.0",
+  "title": "Atomic Experimental Control Contract",
+  "$comment": "One declarative atomic M1/M2/M3 control definition. Configuration and M3 assertions require later external validation and do not establish effectiveness or independence.",
+  "type": "object",
+  "properties": {
+    "control_id": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/control_id"
+    },
+    "control_version": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/executable_artifact_version"
+    },
+    "display_name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "description": {
+      "type": "string",
+      "minLength": 1
+    },
+    "control_class": {
+      "$ref": "#/$defs/local_identifier"
+    },
+    "experimental_control_layer": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/experimental_control_layer"
+    },
+    "security_objective": {
+      "type": "string",
+      "minLength": 1
+    },
+    "enforcement_location": {
+      "type": "string",
+      "minLength": 1
+    },
+    "trusted_component": {
+      "type": "string",
+      "minLength": 1
+    },
+    "agent_visible_interface": {
+      "type": "string",
+      "minLength": 1
+    },
+    "agent_has_administrative_authority": {
+      "type": "boolean"
+    },
+    "failure_mode": {
+      "$ref": "#/$defs/failure_mode"
+    },
+    "configuration_id": {
+      "$comment": "Uses the frozen generic condition_id syntax as a Stage 4 implementation-configuration identity.",
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/condition_id"
+    },
+    "dependencies": {
+      "type": "array",
+      "items": {
+        "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/control_id"
+      },
+      "uniqueItems": true
+    },
+    "applicable_scenario_families": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/scenario_family"
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "validation_requirements": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/validation_requirement"
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "m3_external_enforcement_assertion": {
+      "$comment": "Declarative assertion only; it is not evidence or proof of M3 independence.",
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "control_id",
+    "control_version",
+    "display_name",
+    "description",
+    "control_class",
+    "experimental_control_layer",
+    "security_objective",
+    "enforcement_location",
+    "trusted_component",
+    "agent_visible_interface",
+    "agent_has_administrative_authority",
+    "failure_mode",
+    "configuration_id",
+    "dependencies",
+    "applicable_scenario_families",
+    "validation_requirements",
+    "m3_external_enforcement_assertion"
+  ],
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "experimental_control_layer": {
+            "const": "M3"
+          }
+        },
+        "required": ["experimental_control_layer"]
+      },
+      "then": {
+        "properties": {
+          "agent_has_administrative_authority": {
+            "const": false
+          },
+          "m3_external_enforcement_assertion": {
+            "const": true
+          },
+          "failure_mode": {
+            "not": {
+              "const": "NOT_APPLICABLE"
+            }
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "m3_external_enforcement_assertion": {
+            "const": false
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "local_identifier": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+    },
+    "failure_mode": {
+      "$comment": "Stage-4-local declared failure behavior; not a terminal action outcome.",
+      "type": "string",
+      "enum": ["FAIL_CLOSED", "FAIL_OPEN", "NOT_APPLICABLE"]
+    },
+    "scenario_family": {
+      "$comment": "Stage-4-local exact compatibility copy of the frozen Stage 3 candidate-family enum.",
+      "type": "string",
+      "enum": ["S01", "S02", "S03", "S04", "S05", "S06", "S07", "S08", "S09", "S10"]
+    },
+    "validation_requirement": {
+      "$comment": "Declarative requirement only; this object does not execute instrument validation.",
+      "type": "object",
+      "properties": {
+        "requirement_id": {
+          "$ref": "#/$defs/local_identifier"
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": ["requirement_id", "description"],
+      "additionalProperties": false
+    }
+  }
+}

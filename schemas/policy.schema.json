@@ -1,0 +1,120 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:frontier-agent-containment:schema:policy:0.1.0",
+  "title": "Policy Contract",
+  "$comment": "Declarative Stage 4 policy configuration. Rule overlap, ordering, conflict resolution, storage authority, and runtime enforcement are deferred.",
+  "type": "object",
+  "properties": {
+    "policy_id": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/policy_id"
+    },
+    "policy_version": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/executable_artifact_version"
+    },
+    "display_name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "description": {
+      "type": "string",
+      "minLength": 1
+    },
+    "default_authorization": {
+      "allOf": [
+        {
+          "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/capability_authorization_state"
+        }
+      ],
+      "const": "DENIED"
+    },
+    "rules": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/rule"
+      },
+      "uniqueItems": true
+    }
+  },
+  "required": [
+    "policy_id",
+    "policy_version",
+    "display_name",
+    "description",
+    "default_authorization",
+    "rules"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "local_identifier": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+    },
+    "action_class": {
+      "$comment": "Stage-4-local copy of the exact Stage 3 action-class syntax; no global action vocabulary is frozen.",
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+    },
+    "rule": {
+      "type": "object",
+      "properties": {
+        "rule_id": {
+          "$ref": "#/$defs/local_identifier"
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1
+        },
+        "resource_id": {
+          "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/resource_id"
+        },
+        "action_class": {
+          "$ref": "#/$defs/action_class"
+        },
+        "authorization_state": {
+          "allOf": [
+            {
+              "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/capability_authorization_state"
+            },
+            {
+              "enum": ["ALLOWED", "DENIED", "APPROVAL_REQUIRED"]
+            }
+          ]
+        },
+        "subject_agent_condition_id": {
+          "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/agent_condition_id"
+        },
+        "approval_policy_id": {
+          "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/approval_policy_id"
+        }
+      },
+      "required": [
+        "rule_id",
+        "description",
+        "resource_id",
+        "action_class",
+        "authorization_state"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "authorization_state": {
+                "const": "APPROVAL_REQUIRED"
+              }
+            },
+            "required": ["authorization_state"]
+          },
+          "then": {
+            "required": ["approval_policy_id"]
+          },
+          "else": {
+            "not": {
+              "required": ["approval_policy_id"]
+            }
+          }
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,168 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:frontier-agent-containment:schema:control-condition:0.1.0",
+  "title": "Control Condition Contract",
+  "$comment": "Declarative frozen treatment composition. Whole-object duplicates are rejected; control_id-only uniqueness, reference existence, layer compatibility, composition-order set equality, and COMBINED_M3 constituent classification are deferred to cross-contract semantic validation.",
+  "type": "object",
+  "properties": {
+    "control_condition_id": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/control_condition_id"
+    },
+    "condition_version": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/executable_artifact_version"
+    },
+    "display_name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "description": {
+      "type": "string",
+      "minLength": 1
+    },
+    "composition_type": {
+      "$ref": "#/$defs/composition_type"
+    },
+    "constituents": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/constituent"
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "composition_order": {
+      "type": "array",
+      "items": {
+        "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/control_id"
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "baseline_assumptions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/baseline_assumption"
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "expected_enforcement_locations": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/enforcement_location"
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    }
+  },
+  "required": [
+    "control_condition_id",
+    "condition_version",
+    "display_name",
+    "description",
+    "composition_type",
+    "constituents",
+    "baseline_assumptions",
+    "expected_enforcement_locations"
+  ],
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "composition_type": {
+            "const": "SINGLE_CONTROL"
+          }
+        },
+        "required": ["composition_type"]
+      },
+      "then": {
+        "properties": {
+          "constituents": {
+            "minItems": 1,
+            "maxItems": 1
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "composition_type": {
+            "const": "COMBINED_M3"
+          }
+        },
+        "required": ["composition_type"]
+      },
+      "then": {
+        "properties": {
+          "constituents": {
+            "minItems": 2
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "local_identifier": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+    },
+    "composition_type": {
+      "type": "string",
+      "enum": [
+        "SINGLE_CONTROL",
+        "LAYER_CONDITION",
+        "COMBINED_M3",
+        "DEFENSE_IN_DEPTH"
+      ]
+    },
+    "constituent": {
+      "type": "object",
+      "properties": {
+        "control_id": {
+          "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/control_id"
+        },
+        "control_version": {
+          "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/executable_artifact_version"
+        },
+        "configuration_id": {
+          "$comment": "Uses the frozen generic condition_id syntax as a Stage 4 implementation-configuration identity.",
+          "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/condition_id"
+        }
+      },
+      "required": ["control_id", "control_version", "configuration_id"],
+      "additionalProperties": false
+    },
+    "baseline_assumption": {
+      "$comment": "Declarative baseline assumption only; it must not silently define an experimental control.",
+      "type": "object",
+      "properties": {
+        "assumption_id": {
+          "$ref": "#/$defs/local_identifier"
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": ["assumption_id", "description"],
+      "additionalProperties": false
+    },
+    "enforcement_location": {
+      "$comment": "Expected location declaration only; it is not evidence that enforcement exists.",
+      "type": "object",
+      "properties": {
+        "location_id": {
+          "$ref": "#/$defs/local_identifier"
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": ["location_id", "description"],
+      "additionalProperties": false
+    }
+  }
+}
