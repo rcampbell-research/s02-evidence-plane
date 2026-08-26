@@ -1235,11 +1235,11 @@ def test_distinct_rerun_identity_remains_representable(
 
 def test_unsupported_artifact_family_is_explicit(schema_store: dict[str, Any]) -> None:
     artifacts = valid_artifact_set()
-    artifacts["evidence_event"] = [{"event_id": "event:unsupported"}]
+    artifacts["unknown_artifact_family"] = [{"synthetic_id": "unsupported"}]
     assert_has(
         validate(artifacts, schema_store),
         SemanticErrorCode.UNSUPPORTED_ARTIFACT_FAMILY,
-        family="evidence_event",
+        family="unknown_artifact_family",
     )
 
 

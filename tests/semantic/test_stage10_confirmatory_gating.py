@@ -222,7 +222,8 @@ def test_stage10_supported_family_set_is_explicit() -> None:
         "derived_action_outcome",
         "derived_run_outcome",
     ):
-        assert family not in SUPPORTED_ARTIFACT_FAMILIES
+        assert family in SUPPORTED_ARTIFACT_FAMILIES
+    assert "unknown_artifact_family" not in SUPPORTED_ARTIFACT_FAMILIES
 
 
 @pytest.mark.parametrize("phase", ["PILOT", "CONFIRMATORY"])
@@ -749,18 +750,15 @@ def test_pilot_confirmatory_phase_separation(
     assert_code(validate(artifacts, schema_store), SemanticErrorCode.CAMPAIGN_INVALID)
 
 
-@pytest.mark.parametrize(
-    "family", ["evidence_event", "derived_action_outcome", "derived_run_outcome"]
-)
-def test_post_run_families_remain_explicitly_unsupported(
-    family: str, schema_store: dict[str, Any]
+def test_unknown_family_remains_explicitly_unsupported(
+    schema_store: dict[str, Any]
 ) -> None:
     artifacts = gating_artifact_set()
-    artifacts[family] = [{"synthetic_id": "unsupported"}]
+    artifacts["unknown_artifact_family"] = [{"synthetic_id": "unsupported"}]
     assert_code(
         validate(artifacts, schema_store),
         SemanticErrorCode.UNSUPPORTED_ARTIFACT_FAMILY,
-        family=family,
+        family="unknown_artifact_family",
     )
 
 
