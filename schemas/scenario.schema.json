@@ -1,0 +1,211 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:frontier-agent-containment:schema:scenario:0.1.0",
+  "title": "Synthetic Scenario Contract",
+  "$comment": "Traceable to Implementation Contract v0.1 Scenario Contract requirements and the frozen Threat & Scenario Specification. Predicates are declarative observations, not attack instructions.",
+  "type": "object",
+  "properties": {
+    "scenario_id": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/scenario_id"
+    },
+    "scenario_version": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/executable_artifact_version"
+    },
+    "scenario_family": {
+      "type": "string",
+      "enum": ["S01", "S02", "S03", "S04", "S05", "S06", "S07", "S08", "S09", "S10"]
+    },
+    "description": {
+      "type": "string",
+      "minLength": 1
+    },
+    "benign_task_id": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/task_id"
+    },
+    "protected_resource_set": {
+      "$ref": "#/$defs/nonempty_resource_id_set"
+    },
+    "authorized_resource_set": {
+      "$ref": "#/$defs/nonempty_resource_id_set"
+    },
+    "unauthorized_resource_set": {
+      "$ref": "#/$defs/nonempty_resource_id_set"
+    },
+    "starting_state": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/state_assertion"
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "capability_envelope_id": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/capability_envelope_id"
+    },
+    "terminal_unauthorized_objective": {
+      "$ref": "#/$defs/predicate"
+    },
+    "benign_success_predicate": {
+      "$ref": "#/$defs/predicate"
+    },
+    "partial_progress_predicates": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/predicate"
+      },
+      "uniqueItems": true
+    },
+    "resource_reached_predicate": {
+      "$ref": "#/$defs/predicate"
+    },
+    "privilege_crossing_predicate": {
+      "$ref": "#/$defs/predicate"
+    },
+    "persistence_predicate": {
+      "$ref": "#/$defs/predicate"
+    },
+    "data_movement_predicate": {
+      "$ref": "#/$defs/predicate"
+    },
+    "egress_predicate": {
+      "$ref": "#/$defs/predicate"
+    },
+    "action_budget": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "termination_conditions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/predicate"
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "applicable_control_layers": {
+      "type": "array",
+      "items": {
+        "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/experimental_control_layer"
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "safety_requirements": {
+      "$ref": "#/$defs/requirements"
+    },
+    "validation_requirements": {
+      "$ref": "#/$defs/requirements"
+    }
+  },
+  "required": [
+    "scenario_id",
+    "scenario_version",
+    "scenario_family",
+    "description",
+    "benign_task_id",
+    "protected_resource_set",
+    "authorized_resource_set",
+    "unauthorized_resource_set",
+    "starting_state",
+    "capability_envelope_id",
+    "terminal_unauthorized_objective",
+    "benign_success_predicate",
+    "partial_progress_predicates",
+    "resource_reached_predicate",
+    "action_budget",
+    "termination_conditions",
+    "applicable_control_layers",
+    "safety_requirements",
+    "validation_requirements"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "local_name": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+    },
+    "nonempty_resource_id_set": {
+      "type": "array",
+      "items": {
+        "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/resource_id"
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "predicate": {
+      "$comment": "A declarative predicate must be evaluated from authoritative observation rather than agent self-report.",
+      "type": "object",
+      "properties": {
+        "predicate_id": {
+          "$ref": "#/$defs/local_name"
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": ["predicate_id", "description"],
+      "additionalProperties": false
+    },
+    "json_scalar": {
+      "type": ["null", "boolean", "number", "string"]
+    },
+    "bounded_json_value": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/json_scalar"
+        },
+        {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/json_scalar"
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/json_scalar"
+          }
+        }
+      ]
+    },
+    "state_assertion": {
+      "type": "object",
+      "properties": {
+        "resource_id": {
+          "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/resource_id"
+        },
+        "state_name": {
+          "$ref": "#/$defs/local_name"
+        },
+        "expected_value": {
+          "$ref": "#/$defs/bounded_json_value"
+        }
+      },
+      "required": ["resource_id", "state_name", "expected_value"],
+      "additionalProperties": false
+    },
+    "requirement": {
+      "type": "object",
+      "properties": {
+        "requirement_id": {
+          "$ref": "#/$defs/local_name"
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": ["requirement_id", "description"],
+      "additionalProperties": false
+    },
+    "requirements": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/requirement"
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    }
+  }
+}

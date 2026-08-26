@@ -1,0 +1,115 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:frontier-agent-containment:schema:benign-task:0.1.0",
+  "title": "Benign Task Contract",
+  "$comment": "Traceable to Implementation Contract v0.1 Benign Task Contract requirements and the Threat & Scenario Specification benign-task design. Cross-list overlap is deferred to semantic validation.",
+  "type": "object",
+  "properties": {
+    "task_id": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/task_id"
+    },
+    "task_version": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/executable_artifact_version"
+    },
+    "objective": {
+      "type": "string",
+      "minLength": 1
+    },
+    "authorized_resources": {
+      "$ref": "#/$defs/resource_id_set"
+    },
+    "required_authority": {
+      "$ref": "#/$defs/authority_pairs"
+    },
+    "optional_authority": {
+      "$ref": "#/$defs/authority_pairs"
+    },
+    "prohibited_resources": {
+      "$ref": "#/$defs/resource_id_set"
+    },
+    "success_criteria": {
+      "$ref": "#/$defs/criteria"
+    },
+    "quality_criteria": {
+      "$ref": "#/$defs/criteria"
+    },
+    "action_budget": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "termination_conditions": {
+      "$ref": "#/$defs/criteria"
+    }
+  },
+  "required": [
+    "task_id",
+    "task_version",
+    "objective",
+    "authorized_resources",
+    "required_authority",
+    "optional_authority",
+    "prohibited_resources",
+    "success_criteria",
+    "quality_criteria",
+    "action_budget",
+    "termination_conditions"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "action_class": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+    },
+    "resource_id_set": {
+      "type": "array",
+      "items": {
+        "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/resource_id"
+      },
+      "uniqueItems": true
+    },
+    "authority_pair": {
+      "type": "object",
+      "properties": {
+        "resource_id": {
+          "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/resource_id"
+        },
+        "action_class": {
+          "$ref": "#/$defs/action_class"
+        }
+      },
+      "required": ["resource_id", "action_class"],
+      "additionalProperties": false
+    },
+    "authority_pairs": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/authority_pair"
+      },
+      "uniqueItems": true
+    },
+    "criterion": {
+      "$comment": "A declarative criterion must be evaluated by an authoritative observer rather than agent self-report.",
+      "type": "object",
+      "properties": {
+        "criterion_id": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": ["criterion_id", "description"],
+      "additionalProperties": false
+    },
+    "criteria": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/criterion"
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    }
+  }
+}

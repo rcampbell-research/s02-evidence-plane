@@ -1,31 +1,47 @@
 """Strict, network-independent JSON Schema validation primitives.
 
-This Stage 1 foundation implements the strictness and testability requirements
-of the frozen Implementation Contract v0.1 without adding scientific contract
-semantics. It does not coerce, repair, migrate, or rewrite inputs.
+This foundation implements the strictness and testability requirements of the
+frozen Implementation Contract v0.1. It supports only explicitly supplied
+project schemas and never coerces, repairs, migrates, or rewrites inputs.
 """
 
 from __future__ import annotations
 
 import json
-from collections.abc import Mapping
+from collections.abc import Iterable, Mapping
 from pathlib import Path
 from typing import Any, Final, TypeAlias
+from urllib.parse import urljoin
 
-from jsonschema import Draft202012Validator
+from jsonschema import Draft202012Validator, RefResolver
 
 
 JsonValue: TypeAlias = (
     None | bool | int | float | str | list["JsonValue"] | dict[str, "JsonValue"]
 )
 Schema: TypeAlias = Mapping[str, Any]
+SchemaStore: TypeAlias = Mapping[str, Schema]
+
+PROJECT_SCHEMA_ID_PREFIX: Final = "urn:frontier-agent-containment:schema:"
 
 VALIDATOR_CLASS: Final = Draft202012Validator
 """The sole JSON Schema dialect validator used by this foundation."""
 
 
 class ExternalSchemaReferenceError(ValueError):
-    """Raised when a schema requests resolution outside its own document."""
+    """Raised when a schema requests uncontrolled external resolution."""
+
+
+class UnknownSchemaReferenceError(ValueError):
+    """Raised when a project schema reference is absent from the local store."""
+
+
+class SchemaStoreError(ValueError):
+    """Raised when a supplied local schema store is malformed."""
+
+
+class DuplicateSchemaIdError(SchemaStoreError):
+    """Raised when local schema documents declare the same schema identifier."""
 
 
 class DuplicateJsonKeyError(ValueError):
@@ -50,43 +66,180 @@ def load_json(path: str | Path) -> JsonValue:
         return json.load(stream, object_pairs_hook=_object_without_duplicate_keys)
 
 
-def check_draft_2020_12_schema(schema: Schema) -> None:
+def load_schema_store(paths: Iterable[str | Path]) -> dict[str, Schema]:
+    """Load and validate an explicit collection of project schema documents.
+
+    Every document must be a JSON object with a unique project ``$id``. All
+    references must be local fragments or resolve to another schema in this
+    exact collection. No search path, URI retrieval, or network fallback is
+    used.
+    """
+
+    store: dict[str, Schema] = {}
+    for path in paths:
+        document = load_json(path)
+        if not isinstance(document, Mapping):
+            raise SchemaStoreError(f"schema document is not an object: {path}")
+        schema_id = _project_schema_id(document, source=str(path))
+        if schema_id in store:
+            raise DuplicateSchemaIdError(f"duplicate schema $id: {schema_id!r}")
+        VALIDATOR_CLASS.check_schema(document)
+        store[schema_id] = document
+
+    _check_store_references(store)
+    return store
+
+
+def check_draft_2020_12_schema(
+    schema: Schema, *, schema_store: SchemaStore | None = None
+) -> None:
     """Check that *schema* is valid Draft 2020-12 and locally resolvable.
 
-    External and remote references are rejected before validation so schema
-    checking and instance validation cannot trigger network retrieval.
+    References may use local fragments or project URNs present in the explicit
+    *schema_store*. External and missing project references are rejected before
+    instance validation, so resolution cannot trigger network retrieval.
     Invalid schema definitions otherwise raise ``jsonschema.SchemaError``.
     """
 
-    _reject_external_references(schema)
+    store = _prepare_schema_store(schema_store)
     VALIDATOR_CLASS.check_schema(schema)
+    _check_reference_policy(schema, store)
 
 
-def validate_instance(instance: JsonValue, schema: Schema) -> None:
+def validate_instance(
+    instance: JsonValue,
+    schema: Schema,
+    *,
+    schema_store: SchemaStore | None = None,
+) -> None:
     """Validate *instance* without modifying it or the supplied *schema*.
 
     The schema is checked first. An invalid instance raises
     ``jsonschema.ValidationError``; success returns ``None``.
     """
 
-    check_draft_2020_12_schema(schema)
-    VALIDATOR_CLASS(schema).validate(instance)
+    store = _prepare_schema_store(schema_store)
+    VALIDATOR_CLASS.check_schema(schema)
+    _check_reference_policy(schema, store)
+    resolver = RefResolver.from_schema(
+        schema,
+        store=dict(store),
+        handlers={
+            "file": _deny_uri_retrieval,
+            "ftp": _deny_uri_retrieval,
+            "http": _deny_uri_retrieval,
+            "https": _deny_uri_retrieval,
+            "urn": _deny_uri_retrieval,
+        },
+        urljoin_cache=_join_schema_uri,
+    )
+    VALIDATOR_CLASS(schema, resolver=resolver).validate(instance)
 
 
-def _reject_external_references(node: Any) -> None:
-    """Reject references requiring resolution beyond the supplied document."""
+def _prepare_schema_store(schema_store: SchemaStore | None) -> dict[str, Schema]:
+    """Validate a caller-supplied in-memory store without changing it."""
+
+    if schema_store is None:
+        return {}
+
+    prepared: dict[str, Schema] = {}
+    for declared_id, schema in schema_store.items():
+        if not isinstance(schema, Mapping):
+            raise SchemaStoreError(
+                f"schema store value for {declared_id!r} is not an object"
+            )
+        schema_id = _project_schema_id(schema, source=f"store key {declared_id!r}")
+        if schema_id in prepared:
+            raise DuplicateSchemaIdError(f"duplicate schema $id: {schema_id!r}")
+        if declared_id != schema_id:
+            raise SchemaStoreError(
+                f"schema store key {declared_id!r} does not match $id {schema_id!r}"
+            )
+        VALIDATOR_CLASS.check_schema(schema)
+        prepared[schema_id] = schema
+
+    _check_store_references(prepared)
+    return prepared
+
+
+def _project_schema_id(schema: Schema, *, source: str) -> str:
+    """Return a valid project ``$id`` from one store document."""
+
+    schema_id = schema.get("$id")
+    if not isinstance(schema_id, str) or not schema_id.startswith(
+        PROJECT_SCHEMA_ID_PREFIX
+    ):
+        raise SchemaStoreError(f"schema from {source} lacks a valid project $id")
+    return schema_id
+
+
+def _check_store_references(store: SchemaStore) -> None:
+    """Check every stored schema against the complete explicit store."""
+
+    for schema in store.values():
+        _check_reference_policy(schema, store)
+
+
+def _check_reference_policy(node: Any, schema_store: SchemaStore) -> None:
+    """Allow only document fragments and known project-schema URNs."""
 
     if isinstance(node, Mapping):
         for key, value in node.items():
-            if key in {"$ref", "$dynamicRef"} and isinstance(value, str):
-                if not value.startswith("#"):
-                    raise ExternalSchemaReferenceError(
-                        f"external schema reference is not supported: {value!r}"
-                    )
-            _reject_external_references(value)
+            if key == "$id" and isinstance(value, str):
+                _check_schema_identifier(value)
+            elif key in {"$ref", "$dynamicRef"} and isinstance(value, str):
+                _check_reference(value, schema_store)
+            _check_reference_policy(value, schema_store)
     elif isinstance(node, list):
         for value in node:
-            _reject_external_references(value)
+            _check_reference_policy(value, schema_store)
+
+
+def _check_schema_identifier(schema_id: str) -> None:
+    """Reject schema bases that could redirect fragment resolution externally."""
+
+    if not schema_id.startswith(PROJECT_SCHEMA_ID_PREFIX):
+        raise ExternalSchemaReferenceError(
+            f"external schema identifier is not supported: {schema_id!r}"
+        )
+
+
+def _check_reference(reference: str, schema_store: SchemaStore) -> None:
+    """Validate one schema reference without attempting to resolve it."""
+
+    if reference.startswith("#"):
+        return
+    if reference.startswith(PROJECT_SCHEMA_ID_PREFIX):
+        schema_id = reference.split("#", 1)[0]
+        if schema_id not in schema_store:
+            raise UnknownSchemaReferenceError(
+                f"project schema reference is not in the local store: {reference!r}"
+            )
+        return
+    raise ExternalSchemaReferenceError(
+        f"external schema reference is not supported: {reference!r}"
+    )
+
+
+def _join_schema_uri(base_uri: str, reference: str) -> str:
+    """Join references while preserving the base of opaque project URNs.
+
+    Python's standard URI join discards an opaque URN when joining a fragment.
+    The installed resolver delegates URI joining, so this adapter keeps nested
+    common-schema fragments scoped to the project schema that declared them.
+    """
+
+    if reference.startswith(PROJECT_SCHEMA_ID_PREFIX):
+        return reference
+    if reference.startswith("#") and base_uri.startswith(PROJECT_SCHEMA_ID_PREFIX):
+        return base_uri.split("#", 1)[0] + reference
+    return urljoin(base_uri, reference)
+
+
+def _deny_uri_retrieval(uri: str) -> Any:
+    """Defensive resolver handler that makes every retrieval attempt fail."""
+
+    raise ExternalSchemaReferenceError(f"schema URI retrieval is disabled: {uri!r}")
 
 
 def _object_without_duplicate_keys(pairs: list[tuple[str, JsonValue]]) -> JsonValue:

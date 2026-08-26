@@ -1,0 +1,87 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:frontier-agent-containment:schema:capability-envelope:0.1.0",
+  "title": "Capability Envelope Contract",
+  "$comment": "Traceable to Implementation Contract v0.1 Capability Envelope Contract requirements and frozen default-deny authorization semantics.",
+  "type": "object",
+  "properties": {
+    "capability_envelope_id": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/capability_envelope_id"
+    },
+    "envelope_version": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/executable_artifact_version"
+    },
+    "subject_agent_condition_id": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/agent_condition_id"
+    },
+    "task_id": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/task_id"
+    },
+    "policy_id": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/policy_id"
+    },
+    "default_authorization": {
+      "allOf": [
+        {
+          "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/capability_authorization_state"
+        }
+      ],
+      "const": "DENIED"
+    },
+    "entries": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/entry"
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "validity": {
+      "$ref": "#/$defs/validity"
+    }
+  },
+  "required": [
+    "capability_envelope_id",
+    "envelope_version",
+    "subject_agent_condition_id",
+    "task_id",
+    "policy_id",
+    "default_authorization",
+    "entries"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "action_class": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+    },
+    "entry": {
+      "type": "object",
+      "properties": {
+        "resource_id": {
+          "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/resource_id"
+        },
+        "action_class": {
+          "$ref": "#/$defs/action_class"
+        },
+        "authorization_state": {
+          "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/capability_authorization_state"
+        }
+      },
+      "required": ["resource_id", "action_class", "authorization_state"],
+      "additionalProperties": false
+    },
+    "validity": {
+      "$comment": "Technology-neutral validity or lifetime description; enforcement and clock semantics are deferred.",
+      "type": "object",
+      "properties": {
+        "description": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": ["description"],
+      "additionalProperties": false
+    }
+  }
+}
