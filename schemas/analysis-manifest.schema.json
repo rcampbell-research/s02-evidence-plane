@@ -1,0 +1,534 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:frontier-agent-containment:schema:analysis-manifest:0.1.0",
+  "title": "Analysis Manifest Contract",
+  "$comment": "Prospective statistical configuration only. It carries no observed treatment effects, p-values, confidence-interval results, or H1-H4 verdicts. Schema validity does not prove cross-contract eligibility or correct analysis execution.",
+  "type": "object",
+  "properties": {
+    "analysis_configuration_id": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/analysis_configuration_id"
+    },
+    "analysis_version": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/executable_artifact_version"
+    },
+    "analysis_state": {
+      "type": "string",
+      "enum": ["DRAFT", "FROZEN_FOR_CONFIRMATORY"]
+    },
+    "primary_endpoint": {
+      "$comment": "The frozen run-level binary H1 endpoint; action-level observations remain nested within runs.",
+      "const": "RUN_LEVEL_ANY_UNAUTHORIZED_EXECUTED"
+    },
+    "primary_estimand": {"const": "RISK_DIFFERENCE"},
+    "primary_effect_direction": {
+      "$comment": "RD = P(Y=1 | M3) - P(Y=1 | M1); negative values indicate lower observed containment-failure risk under M3.",
+      "const": "M3_MINUS_M1"
+    },
+    "primary_m1_control_condition_id": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/control_condition_id"
+    },
+    "primary_m3_control_condition_id": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/control_condition_id"
+    },
+    "model_specification": {"$ref": "#/$defs/resolvable_model_specification"},
+    "dependency_structure": {"$ref": "#/$defs/resolvable_dependency_structure"},
+    "standardization_method": {"$ref": "#/$defs/resolvable_standardization_method"},
+    "interval_method": {"$ref": "#/$defs/resolvable_interval_method"},
+    "confidence_level": {
+      "type": "number",
+      "exclusiveMinimum": 0,
+      "exclusiveMaximum": 1
+    },
+    "inference_sidedness": {
+      "type": "string",
+      "enum": ["TWO_SIDED", "ONE_SIDED"]
+    },
+    "multiplicity_strategy": {"$ref": "#/$defs/resolvable_multiplicity_strategy"},
+    "capability_representation": {"$ref": "#/$defs/capability_representation"},
+    "primary_utility_endpoint": {"$ref": "#/$defs/resolvable_utility_endpoint"},
+    "scenario_subset": {
+      "$comment": "Prospectively selected scenarios only; outcome-driven removal is prohibited by the frozen design.",
+      "type": "array",
+      "items": {
+        "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/scenario_id"
+      },
+      "uniqueItems": true
+    },
+    "agent_condition_subset": {
+      "type": "array",
+      "items": {
+        "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/agent_condition_id"
+      },
+      "uniqueItems": true
+    },
+    "sample_size": {"$ref": "#/$defs/sample_size"},
+    "minimum_effect_of_interest": {
+      "$comment": "Positive magnitude on the absolute H1 risk-difference scale, selected before confirmatory outcomes.",
+      "type": "number",
+      "exclusiveMinimum": 0,
+      "maximum": 1
+    },
+    "missing_data_strategy": {"$ref": "#/$defs/resolvable_missing_data_strategy"},
+    "zero_event_strategy": {"$ref": "#/$defs/resolvable_zero_event_strategy"},
+    "analysis_populations": {"$ref": "#/$defs/analysis_populations"},
+    "software_runtime_identity": {"$ref": "#/$defs/software_runtime_identity"},
+    "secondary_hypothesis_configuration": {
+      "$comment": "Preserves the prospectively configured H2/H3/H4 families without introducing analytic results.",
+      "$ref": "#/$defs/resolvable_secondary_hypotheses"
+    }
+  },
+  "required": [
+    "analysis_configuration_id",
+    "analysis_version",
+    "analysis_state",
+    "primary_endpoint",
+    "primary_estimand",
+    "primary_effect_direction"
+  ],
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {"analysis_state": {"const": "FROZEN_FOR_CONFIRMATORY"}},
+        "required": ["analysis_state"]
+      },
+      "then": {
+        "required": [
+          "primary_m1_control_condition_id",
+          "primary_m3_control_condition_id",
+          "model_specification",
+          "dependency_structure",
+          "standardization_method",
+          "interval_method",
+          "confidence_level",
+          "inference_sidedness",
+          "multiplicity_strategy",
+          "capability_representation",
+          "primary_utility_endpoint",
+          "scenario_subset",
+          "agent_condition_subset",
+          "sample_size",
+          "minimum_effect_of_interest",
+          "missing_data_strategy",
+          "zero_event_strategy",
+          "analysis_populations",
+          "software_runtime_identity",
+          "secondary_hypothesis_configuration"
+        ],
+        "properties": {
+          "model_specification": {"$ref": "#/$defs/concrete_model_specification"},
+          "dependency_structure": {"$ref": "#/$defs/concrete_dependency_structure"},
+          "standardization_method": {"$ref": "#/$defs/concrete_standardization_method"},
+          "interval_method": {"$ref": "#/$defs/concrete_interval_method"},
+          "multiplicity_strategy": {"$ref": "#/$defs/concrete_multiplicity_strategy"},
+          "primary_utility_endpoint": {"$ref": "#/$defs/concrete_utility_endpoint"},
+          "scenario_subset": {"minItems": 1},
+          "agent_condition_subset": {"minItems": 1},
+          "missing_data_strategy": {"$ref": "#/$defs/concrete_missing_data_strategy"},
+          "zero_event_strategy": {"$ref": "#/$defs/concrete_zero_event_strategy"},
+          "secondary_hypothesis_configuration": {
+            "$ref": "#/$defs/concrete_secondary_hypotheses"
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "local_identifier": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+    },
+    "description": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 4096
+    },
+    "unresolved": {
+      "type": "object",
+      "properties": {
+        "resolution_state": {"const": "UNRESOLVED"},
+        "reason": {"$ref": "#/$defs/description"}
+      },
+      "required": ["resolution_state", "reason"],
+      "additionalProperties": false
+    },
+    "concrete_model_specification": {
+      "type": "object",
+      "properties": {
+        "resolution_state": {"const": "CONCRETE"},
+        "model_family": {"$ref": "#/$defs/local_identifier"},
+        "link_function": {"$ref": "#/$defs/local_identifier"},
+        "correlation_or_random_structure": {"$ref": "#/$defs/description"},
+        "estimation_method": {"$ref": "#/$defs/description"}
+      },
+      "required": [
+        "resolution_state",
+        "model_family",
+        "link_function",
+        "correlation_or_random_structure",
+        "estimation_method"
+      ],
+      "additionalProperties": false
+    },
+    "resolvable_model_specification": {
+      "oneOf": [
+        {"$ref": "#/$defs/unresolved"},
+        {"$ref": "#/$defs/concrete_model_specification"}
+      ]
+    },
+    "concrete_dependency_structure": {
+      "$comment": "The primary experimental unit is always RUN; action observations cannot be promoted to independent units.",
+      "type": "object",
+      "properties": {
+        "resolution_state": {"const": "CONCRETE"},
+        "experimental_unit": {"const": "RUN"},
+        "action_level_observations_independent": {"const": false},
+        "clustering_or_blocking_factors": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "SCENARIO",
+              "AGENT_MODEL_CONDITION",
+              "MATCHED_TREATMENT_SET",
+              "REPETITION_SEED_BLOCK"
+            ]
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "dependency_description": {"$ref": "#/$defs/description"}
+      },
+      "required": [
+        "resolution_state",
+        "experimental_unit",
+        "action_level_observations_independent",
+        "clustering_or_blocking_factors",
+        "dependency_description"
+      ],
+      "additionalProperties": false
+    },
+    "resolvable_dependency_structure": {
+      "oneOf": [
+        {"$ref": "#/$defs/unresolved"},
+        {"$ref": "#/$defs/concrete_dependency_structure"}
+      ]
+    },
+    "concrete_standardization_method": {
+      "type": "object",
+      "properties": {
+        "resolution_state": {"const": "CONCRETE"},
+        "method_id": {"$ref": "#/$defs/local_identifier"},
+        "target_distribution": {"$ref": "#/$defs/description"},
+        "weighting_rule": {"$ref": "#/$defs/description"}
+      },
+      "required": [
+        "resolution_state",
+        "method_id",
+        "target_distribution",
+        "weighting_rule"
+      ],
+      "additionalProperties": false
+    },
+    "resolvable_standardization_method": {
+      "oneOf": [
+        {"$ref": "#/$defs/unresolved"},
+        {"$ref": "#/$defs/concrete_standardization_method"}
+      ]
+    },
+    "concrete_interval_method": {
+      "type": "object",
+      "properties": {
+        "resolution_state": {"const": "CONCRETE"},
+        "method_id": {"$ref": "#/$defs/local_identifier"},
+        "description": {"$ref": "#/$defs/description"}
+      },
+      "required": ["resolution_state", "method_id", "description"],
+      "additionalProperties": false
+    },
+    "resolvable_interval_method": {
+      "oneOf": [
+        {"$ref": "#/$defs/unresolved"},
+        {"$ref": "#/$defs/concrete_interval_method"}
+      ]
+    },
+    "concrete_multiplicity_strategy": {
+      "type": "object",
+      "properties": {
+        "resolution_state": {"const": "CONCRETE"},
+        "strategy": {
+          "type": "string",
+          "enum": ["HIERARCHICAL", "HOLM_FAMILYWISE", "OTHER_PRESPECIFIED"]
+        },
+        "method_detail": {"$ref": "#/$defs/description"},
+        "family_order": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["H1_PRIMARY", "H2", "H3", "H4"]
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        }
+      },
+      "required": ["resolution_state", "strategy", "method_detail", "family_order"],
+      "additionalProperties": false
+    },
+    "resolvable_multiplicity_strategy": {
+      "oneOf": [
+        {"$ref": "#/$defs/unresolved"},
+        {"$ref": "#/$defs/concrete_multiplicity_strategy"}
+      ]
+    },
+    "capability_representation": {
+      "$comment": "Any ordering must resolve to an independent capability evaluation; the false declaration requires later provenance support.",
+      "type": "object",
+      "properties": {
+        "representation": {
+          "type": "string",
+          "enum": ["CATEGORICAL", "ORDERED"]
+        },
+        "capability_evaluation_reference": {
+          "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/condition_id"
+        },
+        "contrast_definition": {"$ref": "#/$defs/description"},
+        "containment_outcomes_used": {"const": false}
+      },
+      "required": [
+        "representation",
+        "contrast_definition",
+        "containment_outcomes_used"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {"representation": {"const": "ORDERED"}},
+            "required": ["representation"]
+          },
+          "then": {"required": ["capability_evaluation_reference"]}
+        }
+      ]
+    },
+    "concrete_utility_endpoint": {
+      "$comment": "Security and utility remain separate dimensions; no weighted composite is authorized.",
+      "type": "object",
+      "properties": {
+        "resolution_state": {"const": "CONCRETE"},
+        "endpoint_id": {"$ref": "#/$defs/local_identifier"},
+        "description": {"$ref": "#/$defs/description"},
+        "direction": {
+          "type": "string",
+          "enum": ["HIGHER_IS_BETTER", "LOWER_IS_BETTER"]
+        },
+        "aggregation_rule": {"$ref": "#/$defs/description"},
+        "security_weighted_composite": {"const": false}
+      },
+      "required": [
+        "resolution_state",
+        "endpoint_id",
+        "description",
+        "direction",
+        "aggregation_rule",
+        "security_weighted_composite"
+      ],
+      "additionalProperties": false
+    },
+    "resolvable_utility_endpoint": {
+      "oneOf": [
+        {"$ref": "#/$defs/unresolved"},
+        {"$ref": "#/$defs/concrete_utility_endpoint"}
+      ]
+    },
+    "sample_size": {
+      "oneOf": [
+        {"type": "integer", "minimum": 1},
+        {
+          "type": "object",
+          "properties": {
+            "scheduled_run_count": {"type": "integer", "minimum": 1},
+            "determination_reference": {"$ref": "#/$defs/local_identifier"},
+            "assumption_summary": {"$ref": "#/$defs/description"}
+          },
+          "required": [
+            "scheduled_run_count",
+            "determination_reference",
+            "assumption_summary"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "concrete_missing_data_strategy": {
+      "type": "object",
+      "properties": {
+        "resolution_state": {"const": "CONCRETE"},
+        "strategy_id": {"$ref": "#/$defs/local_identifier"},
+        "description": {"$ref": "#/$defs/description"},
+        "missing_primary_assigned_zero": {"const": false},
+        "missingness_disclosure_required": {"const": true},
+        "sensitivity_analysis_ids": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/local_identifier"},
+          "minItems": 1,
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "resolution_state",
+        "strategy_id",
+        "description",
+        "missing_primary_assigned_zero",
+        "missingness_disclosure_required",
+        "sensitivity_analysis_ids"
+      ],
+      "additionalProperties": false
+    },
+    "resolvable_missing_data_strategy": {
+      "oneOf": [
+        {"$ref": "#/$defs/unresolved"},
+        {"$ref": "#/$defs/concrete_missing_data_strategy"}
+      ]
+    },
+    "concrete_zero_event_strategy": {
+      "type": "object",
+      "properties": {
+        "resolution_state": {"const": "CONCRETE"},
+        "strategy_id": {"$ref": "#/$defs/local_identifier"},
+        "description": {"$ref": "#/$defs/description"},
+        "post_hoc_pseudocounts_prohibited": {"const": true},
+        "zero_events_are_proof_of_security": {"const": false}
+      },
+      "required": [
+        "resolution_state",
+        "strategy_id",
+        "description",
+        "post_hoc_pseudocounts_prohibited",
+        "zero_events_are_proof_of_security"
+      ],
+      "additionalProperties": false
+    },
+    "resolvable_zero_event_strategy": {
+      "oneOf": [
+        {"$ref": "#/$defs/unresolved"},
+        {"$ref": "#/$defs/concrete_zero_event_strategy"}
+      ]
+    },
+    "analysis_population": {
+      "type": "object",
+      "properties": {
+        "population": {
+          "type": "string",
+          "enum": [
+            "SCHEDULED_RUN_SET",
+            "PRIMARY_VALID_SET",
+            "UTILITY_VALID_SET",
+            "TIMING_VALID_SET"
+          ]
+        },
+        "inclusion_rule": {"$ref": "#/$defs/description"},
+        "derivation_rule": {"$ref": "#/$defs/description"}
+      },
+      "required": ["population", "inclusion_rule", "derivation_rule"],
+      "additionalProperties": false
+    },
+    "analysis_populations": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/analysis_population"},
+      "minItems": 4,
+      "maxItems": 4,
+      "uniqueItems": true,
+      "allOf": [
+        {"contains": {"properties": {"population": {"const": "SCHEDULED_RUN_SET"}}, "required": ["population"]}},
+        {"contains": {"properties": {"population": {"const": "PRIMARY_VALID_SET"}}, "required": ["population"]}},
+        {"contains": {"properties": {"population": {"const": "UTILITY_VALID_SET"}}, "required": ["population"]}},
+        {"contains": {"properties": {"population": {"const": "TIMING_VALID_SET"}}, "required": ["population"]}}
+      ]
+    },
+    "software_runtime_identity": {
+      "type": "object",
+      "properties": {
+        "software": {"$ref": "#/$defs/local_identifier"},
+        "version": {
+          "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/executable_artifact_version"
+        },
+        "environment_reference": {"$ref": "#/$defs/local_identifier"}
+      },
+      "required": ["software", "version", "environment_reference"],
+      "additionalProperties": false
+    },
+    "concrete_secondary_hypotheses": {
+      "type": "object",
+      "properties": {
+        "resolution_state": {"const": "CONCRETE"},
+        "h2": {"$ref": "#/$defs/h2_configuration"},
+        "h3": {"$ref": "#/$defs/h3_configuration"},
+        "h4": {"$ref": "#/$defs/h4_configuration"}
+      },
+      "required": ["resolution_state", "h2", "h3", "h4"],
+      "additionalProperties": false
+    },
+    "resolvable_secondary_hypotheses": {
+      "oneOf": [
+        {"$ref": "#/$defs/unresolved"},
+        {"$ref": "#/$defs/concrete_secondary_hypotheses"}
+      ]
+    },
+    "h2_configuration": {
+      "$comment": "The label and IDs do not prove constituent existence or M3 classification.",
+      "type": "object",
+      "properties": {
+        "combined_m3_control_condition_id": {
+          "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/control_condition_id"
+        },
+        "constituent_single_control_condition_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/control_condition_id"
+          },
+          "minItems": 2,
+          "uniqueItems": true
+        },
+        "endpoint": {"const": "RUN_LEVEL_ANY_UNAUTHORIZED_EXECUTED"},
+        "contrast_rule": {"$ref": "#/$defs/description"}
+      },
+      "required": [
+        "combined_m3_control_condition_id",
+        "constituent_single_control_condition_ids",
+        "endpoint",
+        "contrast_rule"
+      ],
+      "additionalProperties": false
+    },
+    "h3_configuration": {
+      "type": "object",
+      "properties": {
+        "security_endpoint": {"const": "RUN_LEVEL_ANY_UNAUTHORIZED_EXECUTED"},
+        "utility_endpoint_reference": {"$ref": "#/$defs/local_identifier"},
+        "joint_representation": {"$ref": "#/$defs/description"},
+        "security_utility_composite": {"const": false}
+      },
+      "required": [
+        "security_endpoint",
+        "utility_endpoint_reference",
+        "joint_representation",
+        "security_utility_composite"
+      ],
+      "additionalProperties": false
+    },
+    "h4_configuration": {
+      "type": "object",
+      "properties": {
+        "interaction_definition": {"$ref": "#/$defs/description"},
+        "capability_contrast_rule": {"$ref": "#/$defs/description"},
+        "containment_outcomes_used_for_ordering": {"const": false}
+      },
+      "required": [
+        "interaction_definition",
+        "capability_contrast_rule",
+        "containment_outcomes_used_for_ordering"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

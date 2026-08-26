@@ -1,0 +1,143 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:frontier-agent-containment:schema:campaign:0.1.0",
+  "title": "Campaign Contract",
+  "$comment": "A prospective collection of scheduled experimental units. Frozen/reference declarations do not prove artifact existence, instrument acceptance, or confirmatory eligibility; later cross-contract validation is mandatory.",
+  "type": "object",
+  "properties": {
+    "experiment_id": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/experiment_id"
+    },
+    "campaign_id": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/campaign_id"
+    },
+    "campaign_version": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/executable_artifact_version"
+    },
+    "display_name": {"$ref": "#/$defs/display_name"},
+    "description": {"$ref": "#/$defs/description"},
+    "phase": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/run_phase"
+    },
+    "scenario_ids": {
+      "type": "array",
+      "items": {
+        "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/scenario_id"
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "agent_condition_ids": {
+      "type": "array",
+      "items": {
+        "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/agent_condition_id"
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "autonomy_condition_ids": {
+      "type": "array",
+      "items": {
+        "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/autonomy_condition_id"
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "control_condition_ids": {
+      "type": "array",
+      "items": {
+        "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/control_condition_id"
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "environment_id": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/environment_id"
+    },
+    "instrument_configuration_id": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/instrument_configuration_id"
+    },
+    "scheduled_run_ids": {
+      "$comment": "Defines the prospective denominator by identity; existence, membership completeness, and allocation remain semantic checks.",
+      "type": "array",
+      "items": {
+        "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/scheduled_run_id"
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "campaign_frozen_before_start": {
+      "$comment": "A declaration supported later by provenance; it is not proof of immutability.",
+      "type": "boolean"
+    },
+    "capability_evaluation_reference": {
+      "$comment": "Uses the same generic condition identity as the Capability Evaluation Contract. Later validation must resolve it and establish the required freeze state.",
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/condition_id"
+    },
+    "analysis_configuration_id": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/analysis_configuration_id"
+    },
+    "instrument_acceptance_reference": {
+      "$comment": "Stage-8-local artifact reference only; presence is not evidence of pilot or confirmatory acceptance.",
+      "$ref": "#/$defs/instrument_acceptance_reference"
+    }
+  },
+  "required": [
+    "experiment_id",
+    "campaign_id",
+    "campaign_version",
+    "display_name",
+    "description",
+    "phase",
+    "scenario_ids",
+    "agent_condition_ids",
+    "autonomy_condition_ids",
+    "control_condition_ids",
+    "environment_id",
+    "instrument_configuration_id",
+    "scheduled_run_ids",
+    "campaign_frozen_before_start"
+  ],
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {"phase": {"enum": ["PILOT", "CONFIRMATORY"]}},
+        "required": ["phase"]
+      },
+      "then": {
+        "properties": {"campaign_frozen_before_start": {"const": true}}
+      }
+    },
+    {
+      "if": {
+        "properties": {"phase": {"const": "CONFIRMATORY"}},
+        "required": ["phase"]
+      },
+      "then": {
+        "required": [
+          "analysis_configuration_id",
+          "capability_evaluation_reference",
+          "instrument_acceptance_reference"
+        ]
+      }
+    }
+  ],
+  "$defs": {
+    "display_name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200
+    },
+    "description": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 4096
+    },
+    "instrument_acceptance_reference": {
+      "type": "string",
+      "pattern": "^acceptance:[a-z0-9][a-z0-9._-]*$",
+      "maxLength": 200
+    }
+  }
+}

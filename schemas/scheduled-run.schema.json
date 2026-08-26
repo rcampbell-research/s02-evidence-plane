@@ -1,0 +1,108 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:frontier-agent-containment:schema:scheduled-run:0.1.0",
+  "title": "Scheduled-Run Contract",
+  "$comment": "One prospective experimental-unit plan. It has no run_id, runtime evidence, outcome, or analytic result; a later Run Manifest binds scheduled_run_id to an actual execution identity.",
+  "type": "object",
+  "properties": {
+    "experiment_id": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/experiment_id"
+    },
+    "campaign_id": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/campaign_id"
+    },
+    "scheduled_run_id": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/scheduled_run_id"
+    },
+    "scheduled_run_version": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/executable_artifact_version"
+    },
+    "phase": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/run_phase"
+    },
+    "scenario_id": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/scenario_id"
+    },
+    "task_id": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/task_id"
+    },
+    "agent_condition_id": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/agent_condition_id"
+    },
+    "model_condition_id": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/model_condition_id"
+    },
+    "capability_condition_id": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/capability_condition_id"
+    },
+    "autonomy_condition_id": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/autonomy_condition_id"
+    },
+    "control_condition_id": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/control_condition_id"
+    },
+    "capability_envelope_id": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/capability_envelope_id"
+    },
+    "policy_id": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/policy_id"
+    },
+    "environment_id": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/environment_id"
+    },
+    "instrument_configuration_id": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/instrument_configuration_id"
+    },
+    "seed_repetition_identity": {
+      "$comment": "Reuses the exact Stage 5 seed/repetition representation; equality with a later Run Manifest remains a cross-contract check.",
+      "$ref": "urn:frontier-agent-containment:schema:run-manifest:0.1.0#/$defs/seed_repetition_identity"
+    },
+    "action_budget": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "schedule_ordinal": {
+      "$comment": "Prospective campaign position, not a timestamp, realized execution order, or evidence sequence number.",
+      "type": "integer",
+      "minimum": 1
+    },
+    "scheduled_configuration_frozen": {
+      "$comment": "Prospective declaration only; later provenance must demonstrate the configuration was not mutated.",
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "experiment_id",
+    "campaign_id",
+    "scheduled_run_id",
+    "scheduled_run_version",
+    "phase",
+    "scenario_id",
+    "task_id",
+    "agent_condition_id",
+    "model_condition_id",
+    "capability_condition_id",
+    "autonomy_condition_id",
+    "control_condition_id",
+    "capability_envelope_id",
+    "policy_id",
+    "environment_id",
+    "instrument_configuration_id",
+    "seed_repetition_identity",
+    "action_budget",
+    "schedule_ordinal",
+    "scheduled_configuration_frozen"
+  ],
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {"phase": {"enum": ["PILOT", "CONFIRMATORY"]}},
+        "required": ["phase"]
+      },
+      "then": {
+        "properties": {"scheduled_configuration_frozen": {"const": true}}
+      }
+    }
+  ]
+}

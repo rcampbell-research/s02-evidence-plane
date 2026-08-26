@@ -1,0 +1,245 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:frontier-agent-containment:schema:capability-evaluation:0.1.0",
+  "title": "Capability Evaluation Contract",
+  "$comment": "A separate synthetic authorized-task evaluation for characterizing capability conditions. It cannot contain treatment-control identities or containment outcomes, and a frozen declaration is not self-proving provenance.",
+  "type": "object",
+  "properties": {
+    "evaluation_configuration_id": {
+      "$comment": "Stage 8 uses the existing generic condition identity syntax; no new global identifier family is introduced.",
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/condition_id"
+    },
+    "evaluation_version": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/executable_artifact_version"
+    },
+    "display_name": {"$ref": "#/$defs/display_name"},
+    "description": {"$ref": "#/$defs/description"},
+    "evaluation_state": {
+      "type": "string",
+      "enum": ["DRAFT", "COMPLETED", "FROZEN_FOR_CONFIRMATORY_USE"]
+    },
+    "evaluated_capability_conditions": {
+      "type": "array",
+      "items": {
+        "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/capability_condition_id"
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "capability_tasks": {
+      "$comment": "Only declarative synthetic authorized tasks are represented; no task execution or real target material is carried here.",
+      "type": "array",
+      "items": {"$ref": "#/$defs/capability_task"},
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "scoring_method": {"$ref": "#/$defs/scoring_method"},
+    "observed_scores": {
+      "$comment": "Scores characterize task performance only and do not imply containment or security effectiveness.",
+      "type": "array",
+      "items": {"$ref": "#/$defs/observed_score"},
+      "uniqueItems": true
+    },
+    "capability_representation": {
+      "type": "string",
+      "enum": ["CATEGORICAL", "ORDERED"]
+    },
+    "ordering_method": {"$ref": "#/$defs/ordering_method"},
+    "ordering_result": {"$ref": "#/$defs/ordering_result"},
+    "containment_outcomes_used": {
+      "$comment": "Required false by contract. Later provenance validation must substantiate the declaration.",
+      "const": false
+    }
+  },
+  "required": [
+    "evaluation_configuration_id",
+    "evaluation_version",
+    "display_name",
+    "description",
+    "evaluation_state",
+    "evaluated_capability_conditions",
+    "capability_tasks",
+    "scoring_method",
+    "observed_scores",
+    "capability_representation",
+    "ordering_method",
+    "ordering_result",
+    "containment_outcomes_used"
+  ],
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "evaluation_state": {
+            "enum": ["COMPLETED", "FROZEN_FOR_CONFIRMATORY_USE"]
+          }
+        },
+        "required": ["evaluation_state"]
+      },
+      "then": {
+        "properties": {"observed_scores": {"minItems": 1}}
+      }
+    },
+    {
+      "if": {
+        "properties": {"capability_representation": {"const": "CATEGORICAL"}},
+        "required": ["capability_representation"]
+      },
+      "then": {
+        "properties": {
+          "ordering_result": {
+            "properties": {
+              "categorical_reason": {"$ref": "#/$defs/description"}
+            },
+            "required": ["categorical_reason"],
+            "not": {"required": ["ordered_groups"]}
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {"capability_representation": {"const": "ORDERED"}},
+        "required": ["capability_representation"]
+      },
+      "then": {
+        "properties": {
+          "ordering_result": {
+            "properties": {
+              "ordered_groups": {
+                "type": "array",
+                "items": {"$ref": "#/$defs/tied_group"},
+                "minItems": 2,
+                "uniqueItems": true
+              }
+            },
+            "required": ["ordered_groups"],
+            "not": {"required": ["categorical_reason"]}
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "local_identifier": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+    },
+    "display_name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200
+    },
+    "description": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 4096
+    },
+    "criterion": {
+      "type": "object",
+      "properties": {
+        "criterion_id": {"$ref": "#/$defs/local_identifier"},
+        "description": {"$ref": "#/$defs/description"}
+      },
+      "required": ["criterion_id", "description"],
+      "additionalProperties": false
+    },
+    "capability_task": {
+      "type": "object",
+      "properties": {
+        "capability_task_id": {"$ref": "#/$defs/local_identifier"},
+        "description": {"$ref": "#/$defs/description"},
+        "success_criteria": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/criterion"},
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "measurement_type": {"$ref": "#/$defs/local_identifier"},
+        "task_scope": {"const": "SYNTHETIC_AUTHORIZED"},
+        "containment_controls_used": {"const": false}
+      },
+      "required": [
+        "capability_task_id",
+        "description",
+        "success_criteria",
+        "measurement_type",
+        "task_scope",
+        "containment_controls_used"
+      ],
+      "additionalProperties": false
+    },
+    "scoring_method": {
+      "type": "object",
+      "properties": {
+        "method_id": {"$ref": "#/$defs/local_identifier"},
+        "description": {"$ref": "#/$defs/description"},
+        "aggregation_rule": {"$ref": "#/$defs/description"}
+      },
+      "required": ["method_id", "description", "aggregation_rule"],
+      "additionalProperties": false
+    },
+    "observed_score": {
+      "type": "object",
+      "properties": {
+        "capability_condition_id": {
+          "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/capability_condition_id"
+        },
+        "capability_task_id": {"$ref": "#/$defs/local_identifier"},
+        "observed_score": {
+          "$comment": "Wide representation bounds prevent non-finite/unbounded values without imposing a scientific score scale.",
+          "type": "number",
+          "minimum": -1000000000000,
+          "maximum": 1000000000000
+        }
+      },
+      "required": [
+        "capability_condition_id",
+        "capability_task_id",
+        "observed_score"
+      ],
+      "additionalProperties": false
+    },
+    "ordering_method": {
+      "$comment": "The method must predeclare ties, missing evaluations, and non-monotonic results; it cannot be selected from containment performance.",
+      "type": "object",
+      "properties": {
+        "method_id": {"$ref": "#/$defs/local_identifier"},
+        "description": {"$ref": "#/$defs/description"},
+        "tie_handling": {"$ref": "#/$defs/description"},
+        "missing_result_handling": {"$ref": "#/$defs/description"},
+        "non_monotonic_handling": {"$ref": "#/$defs/description"}
+      },
+      "required": [
+        "method_id",
+        "description",
+        "tie_handling",
+        "missing_result_handling",
+        "non_monotonic_handling"
+      ],
+      "additionalProperties": false
+    },
+    "tied_group": {
+      "$comment": "Conditions in one group are tied; array order gives ascending group order. Cross-field membership completeness is deferred.",
+      "type": "array",
+      "items": {
+        "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/capability_condition_id"
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "ordering_result": {
+      "type": "object",
+      "properties": {
+        "ordered_groups": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/tied_group"},
+          "uniqueItems": true
+        },
+        "categorical_reason": {"$ref": "#/$defs/description"}
+      },
+      "additionalProperties": false
+    }
+  }
+}
