@@ -1,0 +1,235 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:frontier-agent-containment:schema:release-profile:0.1.0",
+  "title": "Release Profile Contract",
+  "$comment": "Caller-authored release selection and whitelist only. Structural validity does not prove that a selected artifact or Git tag exists, that dependency closure or runtime control is correct, that the release is complete beyond this profile, or that any security property holds. Equality of the arbitrary MAJOR.MINOR substrings in release_id and source_release_tag_identity remains a later semantic check; this schema enforces their phase correspondence.",
+  "type": "object",
+  "properties": {
+    "profile_version": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/executable_artifact_version"
+    },
+    "release_id": {
+      "$ref": "#/$defs/release_id"
+    },
+    "release_phase": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/run_phase"
+    },
+    "source_release_tag_identity": {
+      "$ref": "#/$defs/source_release_tag_identity"
+    },
+    "active_artifacts": {
+      "$comment": "Explicit scientific-artifact selections only; this array is not a glob, directory, or discovery rule. Locators do not replace artifact identities.",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/active_artifact_selection"
+      },
+      "uniqueItems": true
+    },
+    "rejected_inputs": {
+      "$comment": "Explicit rejected-input selections only. Raw bytes and integrity digests belong outside this selection record and are bound later by the Artifact Manifest.",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/rejected_input_selection"
+      },
+      "uniqueItems": true
+    },
+    "environment_reference": {
+      "$comment": "A selected scientific Environment Contract identity, not a venv path, OS identity, build ID, or container ID. NOT_APPLICABLE is limited to non-research infrastructure profiles in DEVELOPMENT or INSTRUMENT_VALIDATION.",
+      "$ref": "#/$defs/environment_reference"
+    },
+    "governing_profile_version": {
+      "const": "release-integrity-profile-v0.1"
+    },
+    "enabled_dependency_extras": {
+      "$comment": "The caller supplies the complete explicit extras selection. An empty array enables no extras; no schema default is inserted.",
+      "type": "array",
+      "items": {
+        "$ref": "urn:frontier-agent-containment:schema:reproducibility-manifest:0.1.0#/$defs/machine_identifier"
+      },
+      "uniqueItems": true
+    }
+  },
+  "required": [
+    "profile_version",
+    "release_id",
+    "release_phase",
+    "source_release_tag_identity",
+    "active_artifacts",
+    "rejected_inputs",
+    "environment_reference",
+    "governing_profile_version",
+    "enabled_dependency_extras"
+  ],
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "release_phase": {
+            "const": "DEVELOPMENT"
+          }
+        },
+        "required": [
+          "release_phase"
+        ]
+      },
+      "then": {
+        "properties": {
+          "release_id": {
+            "pattern": "^release:development-v(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$"
+          },
+          "source_release_tag_identity": {
+            "pattern": "^research-release-development-v(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "release_phase": {
+            "const": "INSTRUMENT_VALIDATION"
+          }
+        },
+        "required": [
+          "release_phase"
+        ]
+      },
+      "then": {
+        "properties": {
+          "release_id": {
+            "pattern": "^release:instrument-validation-v(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$"
+          },
+          "source_release_tag_identity": {
+            "pattern": "^research-release-instrument-validation-v(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "release_phase": {
+            "const": "PILOT"
+          }
+        },
+        "required": [
+          "release_phase"
+        ]
+      },
+      "then": {
+        "properties": {
+          "release_id": {
+            "pattern": "^release:pilot-v(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$"
+          },
+          "source_release_tag_identity": {
+            "pattern": "^research-release-pilot-v(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$"
+          },
+          "active_artifacts": {
+            "minItems": 1
+          },
+          "environment_reference": {
+            "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/environment_id"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "release_phase": {
+            "const": "CONFIRMATORY"
+          }
+        },
+        "required": [
+          "release_phase"
+        ]
+      },
+      "then": {
+        "properties": {
+          "release_id": {
+            "pattern": "^release:confirmatory-v(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$"
+          },
+          "source_release_tag_identity": {
+            "pattern": "^research-release-confirmatory-v(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$"
+          },
+          "active_artifacts": {
+            "minItems": 1
+          },
+          "environment_reference": {
+            "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/environment_id"
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "release_id": {
+      "allOf": [
+        {
+          "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/stable_typed_identifier"
+        },
+        {
+          "type": "string",
+          "maxLength": 200,
+          "pattern": "^release:(?:development|instrument-validation|pilot|confirmatory)-v(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$"
+        }
+      ]
+    },
+    "source_release_tag_identity": {
+      "type": "string",
+      "maxLength": 200,
+      "pattern": "^research-release-(?:development|instrument-validation|pilot|confirmatory)-v(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$"
+    },
+    "environment_reference": {
+      "oneOf": [
+        {
+          "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/environment_id"
+        },
+        {
+          "const": "NOT_APPLICABLE"
+        }
+      ]
+    },
+    "active_artifact_selection": {
+      "type": "object",
+      "properties": {
+        "artifact_family": {
+          "$ref": "urn:frontier-agent-containment:schema:artifact-manifest:0.1.0#/$defs/machine_identifier"
+        },
+        "artifact_id": {
+          "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/stable_typed_identifier"
+        },
+        "locator": {
+          "$ref": "urn:frontier-agent-containment:schema:artifact-manifest:0.1.0#/$defs/relative_locator"
+        },
+        "expected_artifact_version": {
+          "$comment": "Optional exact selection guard; later assembly verifies equality to the selected artifact rather than choosing a latest version.",
+          "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/executable_artifact_version"
+        }
+      },
+      "required": [
+        "artifact_family",
+        "artifact_id",
+        "locator"
+      ],
+      "additionalProperties": false
+    },
+    "rejected_input_selection": {
+      "type": "object",
+      "properties": {
+        "rejected_input_id": {
+          "$ref": "urn:frontier-agent-containment:schema:artifact-manifest:0.1.0#/$defs/rejected_input/properties/rejected_input_id"
+        },
+        "locator": {
+          "$ref": "urn:frontier-agent-containment:schema:artifact-manifest:0.1.0#/$defs/relative_locator"
+        }
+      },
+      "required": [
+        "rejected_input_id",
+        "locator"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

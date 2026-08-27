@@ -1,0 +1,289 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:frontier-agent-containment:schema:release-build-record:0.1.0",
+  "title": "Release Build Record Contract",
+  "$comment": "Acquired controlled-runtime build metadata only. Structural validity does not authenticate the supplied environment facts, dependency artifacts, or package provenance; prove exact reconstruction or OS hermeticity; or establish scientific validity or security. The record's canonical content digest remains external in the Reproducibility Manifest. Dynamic build_id/release_id version equality and aggregate/component OS equality remain later Stage 12E semantic checks.",
+  "type": "object",
+  "properties": {
+    "build_id": {
+      "$ref": "#/$defs/build_id"
+    },
+    "build_version": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/executable_artifact_version"
+    },
+    "release_id": {
+      "$ref": "urn:frontier-agent-containment:schema:release-profile:0.1.0#/$defs/release_id"
+    },
+    "python_implementation": {
+      "$ref": "urn:frontier-agent-containment:schema:reproducibility-manifest:0.1.0#/$defs/bounded_identity"
+    },
+    "python_version": {
+      "$ref": "#/$defs/exact_python_version"
+    },
+    "python_build_string": {
+      "$comment": "Complete acquired interpreter build string. It is bounded but not normalized or treated as an artifact identifier.",
+      "$ref": "#/$defs/bounded_metadata_string"
+    },
+    "os_system": {
+      "$ref": "#/$defs/os_component"
+    },
+    "os_release_identity": {
+      "$ref": "#/$defs/os_component"
+    },
+    "kernel_release": {
+      "$ref": "#/$defs/os_component"
+    },
+    "libc_identity": {
+      "$ref": "#/$defs/os_component"
+    },
+    "architecture": {
+      "$ref": "urn:frontier-agent-containment:schema:reproducibility-manifest:0.1.0#/$defs/bounded_identity"
+    },
+    "os_runtime_identity": {
+      "$comment": "Deterministic aggregate lexical form. JSON Schema does not prove that its four arbitrary values equal the separate component fields; Stage 12E acquisition/assembly must check that equality without coercion.",
+      "$ref": "#/$defs/os_runtime_identity"
+    },
+    "locale_identity": {
+      "$comment": "Exact selected locale identity without normalization.",
+      "$ref": "urn:frontier-agent-containment:schema:reproducibility-manifest:0.1.0#/$defs/bounded_identity"
+    },
+    "timezone_identity": {
+      "$comment": "Exact selected timezone identity, including stable slash-containing zone names where applicable; no normalization or source precedence is implied.",
+      "$ref": "#/$defs/timezone_identity"
+    },
+    "environment_reference": {
+      "$comment": "Scientific Environment Contract identity, not a venv path, host identity, build identity, or container identity.",
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/environment_id"
+    },
+    "environment_mode": {
+      "type": "string",
+      "enum": [
+        "DEVELOPMENT_TOOLING",
+        "CONTROLLED_RUNTIME"
+      ]
+    },
+    "system_site_packages_enabled": {
+      "type": "boolean"
+    },
+    "user_site_packages_enabled": {
+      "type": "boolean"
+    },
+    "dependency_scope": {
+      "const": "FULL_TRANSITIVE_RUNTIME"
+    },
+    "dependencies": {
+      "$comment": "Exact resolved runtime dependency records for the selected full transitive closure. The schema detects exact duplicate objects only; same-Name semantic conflicts remain a later acquisition check.",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/dependency_record"
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "container_image_identity": {
+      "$comment": "Optional because v0.1 permits a clean virtual environment without a container.",
+      "$ref": "urn:frontier-agent-containment:schema:reproducibility-manifest:0.1.0#/$defs/environment_record/properties/container_image_identity"
+    }
+  },
+  "required": [
+    "build_id",
+    "build_version",
+    "release_id",
+    "python_implementation",
+    "python_version",
+    "python_build_string",
+    "os_system",
+    "os_release_identity",
+    "kernel_release",
+    "libc_identity",
+    "architecture",
+    "os_runtime_identity",
+    "locale_identity",
+    "timezone_identity",
+    "environment_reference",
+    "environment_mode",
+    "system_site_packages_enabled",
+    "user_site_packages_enabled",
+    "dependency_scope",
+    "dependencies"
+  ],
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "environment_mode": {
+            "const": "CONTROLLED_RUNTIME"
+          }
+        },
+        "required": [
+          "environment_mode"
+        ]
+      },
+      "then": {
+        "properties": {
+          "system_site_packages_enabled": {
+            "const": false
+          },
+          "user_site_packages_enabled": {
+            "const": false
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "release_id": {
+            "pattern": "^release:development-"
+          }
+        },
+        "required": [
+          "release_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "build_id": {
+            "pattern": "^build:development-"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "release_id": {
+            "pattern": "^release:instrument-validation-"
+          }
+        },
+        "required": [
+          "release_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "build_id": {
+            "pattern": "^build:instrument-validation-"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "release_id": {
+            "pattern": "^release:pilot-"
+          }
+        },
+        "required": [
+          "release_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "build_id": {
+            "pattern": "^build:pilot-"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "release_id": {
+            "pattern": "^release:confirmatory-"
+          }
+        },
+        "required": [
+          "release_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "build_id": {
+            "pattern": "^build:confirmatory-"
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "build_id": {
+      "allOf": [
+        {
+          "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/build_id"
+        },
+        {
+          "type": "string",
+          "maxLength": 200,
+          "pattern": "^build:(?:development|instrument-validation|pilot|confirmatory)-v(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$"
+        }
+      ]
+    },
+    "exact_python_version": {
+      "type": "string",
+      "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$"
+    },
+    "bounded_metadata_string": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1000,
+      "pattern": "^[^\\u0000-\\u001F\\u007F]+$"
+    },
+    "os_component": {
+      "$comment": "Already machine-safe acquired value. Unsupported source characters fail; no replacement, escaping, transliteration, or normalization is performed.",
+      "type": "string",
+      "maxLength": 120,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+    },
+    "os_runtime_identity": {
+      "allOf": [
+        {
+          "$ref": "urn:frontier-agent-containment:schema:reproducibility-manifest:0.1.0#/$defs/bounded_identity"
+        },
+        {
+          "type": "string",
+          "pattern": "^system-[A-Za-z0-9][A-Za-z0-9._-]*\\+release-[A-Za-z0-9][A-Za-z0-9._-]*\\+kernel-[A-Za-z0-9][A-Za-z0-9._-]*\\+libc-[A-Za-z0-9][A-Za-z0-9._-]*$"
+        }
+      ]
+    },
+    "timezone_identity": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200,
+      "pattern": "^[^\\u0000-\\u001F\\u007F]+$"
+    },
+    "distribution_filename": {
+      "$comment": "Filename only, never a path. Path separators, absolute paths, and traversal forms are not representable.",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 255,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._+-]*$"
+    },
+    "dependency_record": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "$comment": "Exact authoritative distribution Name; no package-name normalization is performed.",
+          "$ref": "urn:frontier-agent-containment:schema:reproducibility-manifest:0.1.0#/$defs/machine_identifier"
+        },
+        "version": {
+          "$ref": "urn:frontier-agent-containment:schema:reproducibility-manifest:0.1.0#/$defs/concrete_version"
+        },
+        "distribution_filename": {
+          "$ref": "#/$defs/distribution_filename"
+        },
+        "distribution_digest": {
+          "$comment": "SHA-256 of the original distribution artifact where supplied; not an installed-directory, RECORD-aggregate, or import-file hash.",
+          "$ref": "urn:frontier-agent-containment:schema:reproducibility-manifest:0.1.0#/$defs/sha256_digest"
+        }
+      },
+      "required": [
+        "name",
+        "version"
+      ],
+      "additionalProperties": false
+    }
+  }
+}
