@@ -17,6 +17,9 @@ dependencies = [
 test = [
     "pytest>=7.4",
 ]
+release-integrity = [
+    "packaging==24.0",
+]
 
 [tool.setuptools.packages.find]
 where = ["src"]
