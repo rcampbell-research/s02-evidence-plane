@@ -1,0 +1,235 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:frontier-agent-containment:schema:artifact-manifest:0.1.0",
+  "title": "Artifact Manifest Contract",
+  "$comment": "Binds declared artifact identities and locators to canonical content digests. Schema validity does not prove digest correctness, artifact truth, reference existence, completeness, authenticity, immutability, authorization, or system security. The manifest's own digest is external.",
+  "type": "object",
+  "properties": {
+    "manifest_version": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/executable_artifact_version"
+    },
+    "scope": {
+      "$ref": "#/$defs/manifest_scope"
+    },
+    "canonicalization_id": {
+      "const": "RFC8785-JCS"
+    },
+    "digest_algorithm": {
+      "const": "SHA-256"
+    },
+    "artifacts": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/artifact_entry"
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "rejected_inputs": {
+      "$comment": "Rejected input records carry exact-byte forensic digests and never canonical artifact digests.",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/rejected_input"
+      },
+      "uniqueItems": true
+    }
+  },
+  "required": [
+    "manifest_version",
+    "scope",
+    "canonicalization_id",
+    "digest_algorithm",
+    "artifacts",
+    "rejected_inputs"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "manifest_scope": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/release_scope"
+        },
+        {
+          "$ref": "#/$defs/campaign_scope"
+        },
+        {
+          "$ref": "#/$defs/run_scope"
+        }
+      ]
+    },
+    "release_scope": {
+      "type": "object",
+      "properties": {
+        "scope_type": {
+          "const": "RELEASE"
+        }
+      },
+      "required": [
+        "scope_type"
+      ],
+      "additionalProperties": false
+    },
+    "campaign_scope": {
+      "type": "object",
+      "properties": {
+        "scope_type": {
+          "const": "CAMPAIGN"
+        },
+        "experiment_id": {
+          "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/experiment_id"
+        },
+        "campaign_id": {
+          "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/campaign_id"
+        }
+      },
+      "required": [
+        "scope_type",
+        "experiment_id",
+        "campaign_id"
+      ],
+      "additionalProperties": false
+    },
+    "run_scope": {
+      "type": "object",
+      "properties": {
+        "scope_type": {
+          "const": "RUN"
+        },
+        "experiment_id": {
+          "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/experiment_id"
+        },
+        "run_id": {
+          "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/run_id"
+        }
+      },
+      "required": [
+        "scope_type",
+        "experiment_id",
+        "run_id"
+      ],
+      "additionalProperties": false
+    },
+    "machine_identifier": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+    },
+    "relative_locator": {
+      "$comment": "Repository/artifact-relative locator only. A locator is not artifact identity and is not part of the referenced artifact's content digest.",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 500,
+      "pattern": "^(?!/)(?![A-Za-z]:[\\\\/])(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*\\\\)[A-Za-z0-9._-]+(?:/[A-Za-z0-9._-]+)*$"
+    },
+    "project_schema_id": {
+      "type": "string",
+      "maxLength": 240,
+      "pattern": "^urn:frontier-agent-containment:schema:[a-z][a-z0-9-]*:[0-9]+\\.[0-9]+\\.[0-9]+(?:[-+][0-9A-Za-z.-]+)?$"
+    },
+    "phase_context": {
+      "oneOf": [
+        {
+          "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/run_phase"
+        },
+        {
+          "const": "NOT_APPLICABLE"
+        }
+      ]
+    },
+    "sha256_digest": {
+      "$comment": "Syntax-only SHA-256 integrity identifier. Presence does not establish truth, authenticity, completeness, immutability, authorization, historical existence, or security.",
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "artifact_entry": {
+      "$comment": "Represents one structurally and semantically valid, unambiguous, JCS-eligible artifact. Stage 12D will verify identity, schema, and digest coherence.",
+      "type": "object",
+      "properties": {
+        "artifact_family": {
+          "$ref": "#/$defs/machine_identifier"
+        },
+        "artifact_id": {
+          "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/stable_typed_identifier"
+        },
+        "artifact_version": {
+          "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/executable_artifact_version"
+        },
+        "locator": {
+          "$ref": "#/$defs/relative_locator"
+        },
+        "schema_id": {
+          "$ref": "#/$defs/project_schema_id"
+        },
+        "schema_version": {
+          "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/executable_artifact_version"
+        },
+        "lifecycle_state": {
+          "$comment": "Lifecycle metadata only; FROZEN does not mean immutable, authentic, or experimentally accepted.",
+          "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/artifact_lifecycle_state"
+        },
+        "phase_context": {
+          "$ref": "#/$defs/phase_context"
+        },
+        "content_digest": {
+          "$comment": "Declared SHA-256 digest of the complete artifact's RFC 8785 JCS UTF-8 bytes; this schema validates syntax only.",
+          "$ref": "#/$defs/sha256_digest"
+        }
+      },
+      "required": [
+        "artifact_family",
+        "artifact_id",
+        "artifact_version",
+        "locator",
+        "schema_id",
+        "schema_version",
+        "lifecycle_state",
+        "phase_context",
+        "content_digest"
+      ],
+      "additionalProperties": false
+    },
+    "rejected_input": {
+      "$comment": "Preserves exact rejected bytes by forensic digest without registering a canonical scientific artifact.",
+      "type": "object",
+      "properties": {
+        "rejected_input_id": {
+          "type": "string",
+          "maxLength": 200,
+          "pattern": "^rejected:[a-z0-9](?:[a-z0-9._-]*[a-z0-9])?$"
+        },
+        "locator": {
+          "$ref": "#/$defs/relative_locator"
+        },
+        "rejection_class": {
+          "$ref": "#/$defs/machine_identifier"
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2000
+        },
+        "digest_scope": {
+          "const": "FORENSIC_RAW_BYTES"
+        },
+        "forensic_byte_digest": {
+          "$comment": "SHA-256 over exact original bytes; it is not a canonical artifact digest.",
+          "$ref": "#/$defs/sha256_digest"
+        },
+        "phase_context": {
+          "$ref": "#/$defs/phase_context"
+        }
+      },
+      "required": [
+        "rejected_input_id",
+        "locator",
+        "rejection_class",
+        "description",
+        "digest_scope",
+        "forensic_byte_digest",
+        "phase_context"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

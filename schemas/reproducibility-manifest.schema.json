@@ -1,0 +1,628 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:frontier-agent-containment:schema:reproducibility-manifest:0.1.0",
+  "title": "Reproducibility Manifest Contract",
+  "$comment": "Declares a frozen research package and provenance bindings. Its presence or schema validity does not prove package completeness, observation truth, producer authenticity, immutable storage, reference existence, or perfect reproducibility. The manifest's own digest remains external.",
+  "type": "object",
+  "properties": {
+    "reproducibility_version": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/executable_artifact_version"
+    },
+    "release_phase": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/run_phase"
+    },
+    "repository_object_format": {
+      "type": "string",
+      "enum": [
+        "SHA-1",
+        "SHA-256"
+      ]
+    },
+    "repository_commit_sha": {
+      "$ref": "#/$defs/git_object_id"
+    },
+    "repository_tree_sha": {
+      "$ref": "#/$defs/git_object_id"
+    },
+    "release_tag_identity": {
+      "$ref": "#/$defs/release_tag_identity"
+    },
+    "release_tag_object_sha": {
+      "$ref": "#/$defs/git_object_id"
+    },
+    "release_tag_target_commit_sha": {
+      "$comment": "Stage 12D will verify equality with repository_commit_sha and local annotated-tag provenance.",
+      "$ref": "#/$defs/git_object_id"
+    },
+    "artifact_manifest_locator": {
+      "$comment": "Locator only; the Artifact Manifest identity and content are bound separately.",
+      "$ref": "#/$defs/relative_locator"
+    },
+    "artifact_manifest_digest": {
+      "$comment": "Declared SHA-256 digest of the complete Artifact Manifest JCS bytes; syntax is checked here and content equality later.",
+      "$ref": "#/$defs/sha256_digest"
+    },
+    "governing_documents": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/governing_document"
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "schema_set": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/schema_entry"
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "environment": {
+      "$ref": "#/$defs/environment_record"
+    },
+    "dependencies": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/dependency_entry"
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "scenario_subset": {
+      "type": "array",
+      "items": {
+        "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/scenario_id"
+      },
+      "uniqueItems": true
+    },
+    "control_subset": {
+      "$comment": "Treatments are identified by Control Condition, not by filenames or raw atomic-control labels.",
+      "type": "array",
+      "items": {
+        "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/control_condition_id"
+      },
+      "uniqueItems": true
+    },
+    "instrument_configuration_id": {
+      "$comment": "Identity only; presence does not prove acceptance, S0 validity, or M3 independence.",
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/instrument_configuration_id"
+    },
+    "instrument_acceptance_reference": {
+      "$comment": "The frozen Instrument Acceptance Contract has no intrinsic manifest ID. This remains an external opaque reference and does not prove acceptance.",
+      "$ref": "#/$defs/acceptance_reference_or_not_applicable"
+    },
+    "capability_evaluation_reference": {
+      "$comment": "Reuses the Campaign's generic condition identity; no new capability-evaluation identity is invented.",
+      "$ref": "#/$defs/capability_reference_or_not_applicable"
+    },
+    "analysis_configuration_id": {
+      "$comment": "References pre-analysis configuration only and contains no statistical result.",
+      "$ref": "#/$defs/analysis_reference_or_not_applicable"
+    },
+    "campaign_id": {
+      "$ref": "#/$defs/campaign_reference_or_not_applicable"
+    },
+    "scheduled_run_ids": {
+      "type": "array",
+      "items": {
+        "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/scheduled_run_id"
+      },
+      "uniqueItems": true
+    },
+    "run_ids": {
+      "type": "array",
+      "items": {
+        "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/run_id"
+      },
+      "uniqueItems": true
+    },
+    "repetition_identities": {
+      "$comment": "Preserves declared seed availability without fabricating deterministic seed behavior.",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/repetition_identity"
+      },
+      "uniqueItems": true
+    },
+    "model_provider_identities": {
+      "$comment": "May be empty only when no model participated; Stage 12D determines consistency with the declared package.",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/model_provider_identity"
+      },
+      "uniqueItems": true
+    },
+    "reproducibility_limitations": {
+      "$comment": "Records unavailable provider-controlled artifacts or other bounded reconstruction limits without fabricating values.",
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 2000
+      },
+      "uniqueItems": true
+    }
+  },
+  "required": [
+    "reproducibility_version",
+    "release_phase",
+    "repository_object_format",
+    "repository_commit_sha",
+    "repository_tree_sha",
+    "release_tag_identity",
+    "release_tag_object_sha",
+    "release_tag_target_commit_sha",
+    "artifact_manifest_locator",
+    "artifact_manifest_digest",
+    "governing_documents",
+    "schema_set",
+    "environment",
+    "dependencies",
+    "scenario_subset",
+    "control_subset",
+    "instrument_configuration_id",
+    "instrument_acceptance_reference",
+    "capability_evaluation_reference",
+    "analysis_configuration_id",
+    "campaign_id",
+    "scheduled_run_ids",
+    "run_ids",
+    "repetition_identities",
+    "model_provider_identities",
+    "reproducibility_limitations"
+  ],
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "release_phase": {
+            "enum": [
+              "PILOT",
+              "CONFIRMATORY"
+            ]
+          }
+        },
+        "required": [
+          "release_phase"
+        ]
+      },
+      "then": {
+        "properties": {
+          "scenario_subset": {
+            "minItems": 1
+          },
+          "control_subset": {
+            "minItems": 1
+          },
+          "instrument_acceptance_reference": {
+            "$ref": "#/$defs/instrument_acceptance_reference"
+          },
+          "campaign_id": {
+            "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/campaign_id"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "release_phase": {
+            "const": "CONFIRMATORY"
+          }
+        },
+        "required": [
+          "release_phase"
+        ]
+      },
+      "then": {
+        "properties": {
+          "capability_evaluation_reference": {
+            "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/condition_id"
+          },
+          "analysis_configuration_id": {
+            "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/analysis_configuration_id"
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "machine_identifier": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+    },
+    "bounded_identity": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 240,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._+-]*$"
+    },
+    "relative_locator": {
+      "$comment": "Repository/artifact-relative locator only; never an artifact identity.",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 500,
+      "pattern": "^(?!/)(?![A-Za-z]:[\\\\/])(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*\\\\)[A-Za-z0-9._-]+(?:/[A-Za-z0-9._-]+)*$"
+    },
+    "sha256_digest": {
+      "$comment": "Syntax-only SHA-256 integrity identifier; it does not prove truth, authenticity, completeness, immutability, authorization, historical existence, or security.",
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "git_object_id": {
+      "type": "string",
+      "oneOf": [
+        {
+          "pattern": "^[0-9a-f]{40}$"
+        },
+        {
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      ]
+    },
+    "release_tag_identity": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200,
+      "pattern": "^(?!(?:latest|current)$)[A-Za-z0-9][A-Za-z0-9._/-]{0,199}$"
+    },
+    "project_schema_id": {
+      "type": "string",
+      "maxLength": 240,
+      "pattern": "^urn:frontier-agent-containment:schema:[a-z][a-z0-9-]*:[0-9]+\\.[0-9]+\\.[0-9]+(?:[-+][0-9A-Za-z.-]+)?$"
+    },
+    "concrete_version": {
+      "$comment": "Exact resolved version only; open ranges and mutable aliases are prohibited.",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^(?!(?:latest|current|UNAVAILABLE|NOT_REPORTED)$)(?!.*(?:>=|<=|~=|\\^|\\*|>|<|=|\\s))[0-9A-Za-z][0-9A-Za-z._+-]*$"
+    },
+    "governing_document": {
+      "type": "object",
+      "properties": {
+        "document_id": {
+          "$ref": "#/$defs/machine_identifier"
+        },
+        "document_version": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^[vV]?[0-9]+(?:\\.[0-9]+)+(?:[-+][0-9A-Za-z.-]+)?$"
+        },
+        "frozen_tag_identity": {
+          "$ref": "#/$defs/release_tag_identity"
+        },
+        "content_digest": {
+          "$ref": "#/$defs/sha256_digest"
+        }
+      },
+      "required": [
+        "document_id",
+        "document_version",
+        "frozen_tag_identity",
+        "content_digest"
+      ],
+      "additionalProperties": false
+    },
+    "schema_entry": {
+      "type": "object",
+      "properties": {
+        "schema_id": {
+          "$ref": "#/$defs/project_schema_id"
+        },
+        "schema_version": {
+          "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/executable_artifact_version"
+        },
+        "content_digest": {
+          "$ref": "#/$defs/sha256_digest"
+        }
+      },
+      "required": [
+        "schema_id",
+        "schema_version",
+        "content_digest"
+      ],
+      "additionalProperties": false
+    },
+    "environment_record": {
+      "$comment": "Describes the frozen execution environment selected later; the Stage 12B development venv is not implicitly the final research environment.",
+      "type": "object",
+      "properties": {
+        "python_version": {
+          "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/executable_artifact_version"
+        },
+        "os_runtime_identity": {
+          "$ref": "#/$defs/bounded_identity"
+        },
+        "architecture": {
+          "$ref": "#/$defs/bounded_identity"
+        },
+        "environment_reference": {
+          "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/environment_id"
+        },
+        "build_identity": {
+          "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/build_id"
+        },
+        "environment_content_digest": {
+          "$ref": "#/$defs/sha256_digest"
+        },
+        "build_content_digest": {
+          "$ref": "#/$defs/sha256_digest"
+        },
+        "container_image_identity": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500,
+          "pattern": "^\\S+$"
+        }
+      },
+      "required": [
+        "python_version",
+        "os_runtime_identity",
+        "architecture",
+        "environment_reference",
+        "build_identity",
+        "environment_content_digest",
+        "build_content_digest"
+      ],
+      "additionalProperties": false
+    },
+    "dependency_entry": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "$ref": "#/$defs/machine_identifier"
+        },
+        "version": {
+          "$ref": "#/$defs/concrete_version"
+        },
+        "distribution_digest": {
+          "$ref": "#/$defs/sha256_digest"
+        }
+      },
+      "required": [
+        "name",
+        "version"
+      ],
+      "additionalProperties": false
+    },
+    "instrument_acceptance_reference": {
+      "type": "string",
+      "pattern": "^acceptance:[a-z0-9][a-z0-9._-]*$",
+      "maxLength": 200
+    },
+    "acceptance_reference_or_not_applicable": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/instrument_acceptance_reference"
+        },
+        {
+          "const": "NOT_APPLICABLE"
+        }
+      ]
+    },
+    "capability_reference_or_not_applicable": {
+      "oneOf": [
+        {
+          "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/condition_id"
+        },
+        {
+          "const": "NOT_APPLICABLE"
+        }
+      ]
+    },
+    "analysis_reference_or_not_applicable": {
+      "oneOf": [
+        {
+          "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/analysis_configuration_id"
+        },
+        {
+          "const": "NOT_APPLICABLE"
+        }
+      ]
+    },
+    "campaign_reference_or_not_applicable": {
+      "oneOf": [
+        {
+          "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/campaign_id"
+        },
+        {
+          "const": "NOT_APPLICABLE"
+        }
+      ]
+    },
+    "repetition_identity": {
+      "$comment": "Compatible with the frozen Run Manifest seed/repetition representation and adds scheduled/run scope without requiring a fabricated seed.",
+      "type": "object",
+      "properties": {
+        "scheduled_run_id": {
+          "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/scheduled_run_id"
+        },
+        "run_id": {
+          "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/run_id"
+        },
+        "repetition_id": {
+          "$ref": "#/$defs/machine_identifier"
+        },
+        "seed_status": {
+          "type": "string",
+          "enum": [
+            "AVAILABLE",
+            "UNAVAILABLE"
+          ]
+        },
+        "seed_value": {
+          "oneOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "$ref": "#/$defs/machine_identifier"
+            }
+          ]
+        }
+      },
+      "required": [
+        "repetition_id",
+        "seed_status"
+      ],
+      "additionalProperties": false,
+      "anyOf": [
+        {
+          "required": [
+            "scheduled_run_id"
+          ]
+        },
+        {
+          "required": [
+            "run_id"
+          ]
+        }
+      ],
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "seed_status": {
+                "const": "AVAILABLE"
+              }
+            },
+            "required": [
+              "seed_status"
+            ]
+          },
+          "then": {
+            "required": [
+              "seed_value"
+            ]
+          },
+          "else": {
+            "not": {
+              "required": [
+                "seed_value"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "provider_runtime_identity": {
+      "type": "object",
+      "properties": {
+        "identity_status": {
+          "type": "string",
+          "enum": [
+            "REPORTED",
+            "UNAVAILABLE",
+            "NOT_REPORTED"
+          ]
+        },
+        "runtime_identifier": {
+          "$ref": "#/$defs/bounded_identity"
+        }
+      },
+      "required": [
+        "identity_status"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "identity_status": {
+                "const": "REPORTED"
+              }
+            },
+            "required": [
+              "identity_status"
+            ]
+          },
+          "then": {
+            "required": [
+              "runtime_identifier"
+            ]
+          },
+          "else": {
+            "not": {
+              "required": [
+                "runtime_identifier"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "model_provider_identity": {
+      "$comment": "Records all available identity information without treating provider labels as proof of deterministic replay.",
+      "type": "object",
+      "properties": {
+        "agent_condition_id": {
+          "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/agent_condition_id"
+        },
+        "model_identifier": {
+          "$ref": "#/$defs/bounded_identity"
+        },
+        "provider_runtime_identity": {
+          "$ref": "#/$defs/provider_runtime_identity"
+        },
+        "version_status": {
+          "type": "string",
+          "enum": [
+            "REPORTED",
+            "UNAVAILABLE",
+            "NOT_REPORTED"
+          ]
+        },
+        "model_version": {
+          "$ref": "#/$defs/concrete_version"
+        },
+        "limitation": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2000
+        }
+      },
+      "required": [
+        "agent_condition_id",
+        "model_identifier",
+        "provider_runtime_identity",
+        "version_status"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "version_status": {
+                "const": "REPORTED"
+              }
+            },
+            "required": [
+              "version_status"
+            ]
+          },
+          "then": {
+            "required": [
+              "model_version"
+            ]
+          },
+          "else": {
+            "required": [
+              "limitation"
+            ],
+            "not": {
+              "required": [
+                "model_version"
+              ]
+            }
+          }
+        }
+      ]
+    }
+  }
+}
