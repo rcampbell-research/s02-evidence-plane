@@ -1,0 +1,19 @@
+{
+  "resource_id": "resource:stage12d-synthetic",
+  "resource_version": "0.1.0",
+  "display_name": "Stage 12D synthetic resource",
+  "description": "Synthetic local fixture with no runtime target or external service.",
+  "trust_zone": "Z2",
+  "authority_model": "synthetic-owner-only",
+  "protected": true,
+  "legitimate_interactions": [
+    "read_synthetic"
+  ],
+  "security_relevant_state": [
+    {
+      "state_name": "synthetic_integrity",
+      "description": "Whether the local synthetic value retains its fixture state."
+    }
+  ],
+  "participates_in_scored_scenarios": false
+}

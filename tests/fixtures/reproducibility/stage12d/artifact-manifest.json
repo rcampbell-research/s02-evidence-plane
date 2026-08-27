@@ -1,0 +1,22 @@
+{
+  "manifest_version": "0.1.0",
+  "scope": {
+    "scope_type": "RELEASE"
+  },
+  "canonicalization_id": "RFC8785-JCS",
+  "digest_algorithm": "SHA-256",
+  "artifacts": [
+    {
+      "artifact_family": "resource",
+      "artifact_id": "resource:stage12d-synthetic",
+      "artifact_version": "0.1.0",
+      "locator": "artifacts/artifact.resource.json",
+      "schema_id": "urn:frontier-agent-containment:schema:resource:0.1.0",
+      "schema_version": "0.1.0",
+      "lifecycle_state": "FROZEN",
+      "phase_context": "DEVELOPMENT",
+      "content_digest": "sha256:981b6a60f7c6778bf945e4f2615ef1e873630ca1e733b6f9e4cd9543dd5fbc81"
+    }
+  ],
+  "rejected_inputs": []
+}

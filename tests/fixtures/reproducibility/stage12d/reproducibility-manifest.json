@@ -1,0 +1,57 @@
+{
+  "reproducibility_version": "0.1.0",
+  "release_phase": "DEVELOPMENT",
+  "repository_object_format": "SHA-1",
+  "repository_commit_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "repository_tree_sha": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "release_tag_identity": "stage12d-synthetic-v0.1",
+  "release_tag_object_sha": "cccccccccccccccccccccccccccccccccccccccc",
+  "release_tag_target_commit_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "artifact_manifest_locator": "manifests/artifact-manifest.json",
+  "artifact_manifest_digest": "sha256:48ffea4837ebb682a114cbfc6d29729e11e1229df0de4c25584ab734fb6f1c63",
+  "governing_documents": [
+    {
+      "document_id": "integrity-reproducibility-clarification",
+      "document_version": "v0.1",
+      "frozen_tag_identity": "integrity-reproducibility-clarification-v0.1",
+      "content_digest": "sha256:2381a308297613a67e553c9e0024de324ed79de5c7fc54671e1a418a9f9122d0"
+    }
+  ],
+  "schema_set": [
+    {
+      "schema_id": "urn:frontier-agent-containment:schema:resource:0.1.0",
+      "schema_version": "0.1.0",
+      "content_digest": "sha256:83f8cea04ce19b935dc8c85f209048492feb0440864700640675e99ccf6b0772"
+    }
+  ],
+  "environment": {
+    "python_version": "3.12.3",
+    "os_runtime_identity": "synthetic-linux-runtime",
+    "architecture": "x86_64",
+    "environment_reference": "env:stage12d-development",
+    "build_identity": "build:stage12d-development",
+    "environment_content_digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+    "build_content_digest": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+  },
+  "dependencies": [
+    {
+      "name": "rfc8785",
+      "version": "0.1.4",
+      "distribution_digest": "sha256:520d690b448ecf0703691c76e1a34a24ddcd4fc5bc41d589cb7c58ec651bcd48"
+    }
+  ],
+  "scenario_subset": [],
+  "control_subset": [],
+  "instrument_configuration_id": "instrument:stage12d-development",
+  "instrument_acceptance_reference": "NOT_APPLICABLE",
+  "capability_evaluation_reference": "NOT_APPLICABLE",
+  "analysis_configuration_id": "NOT_APPLICABLE",
+  "campaign_id": "NOT_APPLICABLE",
+  "scheduled_run_ids": [],
+  "run_ids": [],
+  "repetition_identities": [],
+  "model_provider_identities": [],
+  "reproducibility_limitations": [
+    "Synthetic DEVELOPMENT fixture; no runtime or hosted model participated."
+  ]
+}

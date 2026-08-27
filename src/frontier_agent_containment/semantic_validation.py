@@ -17,6 +17,7 @@ from collections import Counter
 from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
 from enum import Enum
+from types import MappingProxyType
 from typing import Any, Final, TypeAlias
 
 from jsonschema.exceptions import SchemaError, ValidationError
@@ -85,7 +86,9 @@ class SemanticValidationError(ValueError):
 
 
 @dataclass(frozen=True, slots=True)
-class _FamilySpec:
+class ArtifactFamilySpec:
+    """Stable read-only metadata for one executable artifact family."""
+
     schema_id: str
     identity_field: str | None
     version_field: str
@@ -102,71 +105,71 @@ class _ArtifactRecord:
 
 _SCHEMA_PREFIX: Final = "urn:frontier-agent-containment:schema:"
 
-SUPPORTED_ARTIFACT_FAMILIES: Final[Mapping[str, _FamilySpec]] = {
-    "resource": _FamilySpec(
+SUPPORTED_ARTIFACT_FAMILIES: Final[Mapping[str, ArtifactFamilySpec]] = MappingProxyType({
+    "resource": ArtifactFamilySpec(
         f"{_SCHEMA_PREFIX}resource:0.1.0", "resource_id", "resource_version"
     ),
-    "benign_task": _FamilySpec(
+    "benign_task": ArtifactFamilySpec(
         f"{_SCHEMA_PREFIX}benign-task:0.1.0", "task_id", "task_version"
     ),
-    "capability_envelope": _FamilySpec(
+    "capability_envelope": ArtifactFamilySpec(
         f"{_SCHEMA_PREFIX}capability-envelope:0.1.0",
         "capability_envelope_id",
         "envelope_version",
     ),
-    "scenario": _FamilySpec(
+    "scenario": ArtifactFamilySpec(
         f"{_SCHEMA_PREFIX}scenario:0.1.0", "scenario_id", "scenario_version"
     ),
-    "policy": _FamilySpec(
+    "policy": ArtifactFamilySpec(
         f"{_SCHEMA_PREFIX}policy:0.1.0", "policy_id", "policy_version"
     ),
-    "control": _FamilySpec(
+    "control": ArtifactFamilySpec(
         f"{_SCHEMA_PREFIX}control:0.1.0", "control_id", "control_version"
     ),
-    "control_condition": _FamilySpec(
+    "control_condition": ArtifactFamilySpec(
         f"{_SCHEMA_PREFIX}control-condition:0.1.0",
         "control_condition_id",
         "condition_version",
     ),
-    "agent_model_condition": _FamilySpec(
+    "agent_model_condition": ArtifactFamilySpec(
         f"{_SCHEMA_PREFIX}agent-model-condition:0.1.0",
         "agent_condition_id",
         "condition_version",
     ),
-    "autonomy_condition": _FamilySpec(
+    "autonomy_condition": ArtifactFamilySpec(
         f"{_SCHEMA_PREFIX}autonomy-condition:0.1.0",
         "autonomy_condition_id",
         "condition_version",
     ),
-    "environment": _FamilySpec(
+    "environment": ArtifactFamilySpec(
         f"{_SCHEMA_PREFIX}environment:0.1.0",
         "environment_id",
         "environment_version",
     ),
-    "scheduled_run": _FamilySpec(
+    "scheduled_run": ArtifactFamilySpec(
         f"{_SCHEMA_PREFIX}scheduled-run:0.1.0",
         "scheduled_run_id",
         "scheduled_run_version",
     ),
-    "run_manifest": _FamilySpec(
+    "run_manifest": ArtifactFamilySpec(
         f"{_SCHEMA_PREFIX}run-manifest:0.1.0",
         "run_id",
         "run_manifest_version",
     ),
-    "instrument_configuration": _FamilySpec(
+    "instrument_configuration": ArtifactFamilySpec(
         f"{_SCHEMA_PREFIX}instrument-configuration:0.1.0",
         "instrument_configuration_id",
         "configuration_version",
     ),
-    "capability_evaluation": _FamilySpec(
+    "capability_evaluation": ArtifactFamilySpec(
         f"{_SCHEMA_PREFIX}capability-evaluation:0.1.0",
         "evaluation_configuration_id",
         "evaluation_version",
     ),
-    "campaign": _FamilySpec(
+    "campaign": ArtifactFamilySpec(
         f"{_SCHEMA_PREFIX}campaign:0.1.0", "campaign_id", "campaign_version"
     ),
-    "validation_case": _FamilySpec(
+    "validation_case": ArtifactFamilySpec(
         f"{_SCHEMA_PREFIX}validation-case:0.1.0",
         "validation_case_id",
         "validation_case_version",
@@ -175,28 +178,34 @@ SUPPORTED_ARTIFACT_FAMILIES: Final[Mapping[str, _FamilySpec]] = {
     # intrinsic artifact identity. Records therefore remain unkeyed and are
     # selected only through an exact, unique campaign-compatible match. The
     # opaque Campaign reference string is not claimed to be content-resolved.
-    "instrument_acceptance": _FamilySpec(
+    "instrument_acceptance": ArtifactFamilySpec(
         f"{_SCHEMA_PREFIX}instrument-acceptance:0.1.0",
         None,
         "acceptance_version",
     ),
-    "analysis_manifest": _FamilySpec(
+    "analysis_manifest": ArtifactFamilySpec(
         f"{_SCHEMA_PREFIX}analysis-manifest:0.1.0",
         "analysis_configuration_id",
         "analysis_version",
     ),
-    "evidence_event": _FamilySpec(
+    "evidence_event": ArtifactFamilySpec(
         f"{_SCHEMA_PREFIX}evidence-event:0.1.0", "event_id", "event_version"
     ),
     # Derived outcome contracts have no intrinsic global artifact IDs. Their
     # active-set semantic identities are constructed below from frozen fields.
-    "derived_action_outcome": _FamilySpec(
+    "derived_action_outcome": ArtifactFamilySpec(
         f"{_SCHEMA_PREFIX}derived-action-outcome:0.1.0", None, "outcome_version"
     ),
-    "derived_run_outcome": _FamilySpec(
+    "derived_run_outcome": ArtifactFamilySpec(
         f"{_SCHEMA_PREFIX}derived-run-outcome:0.1.0", None, "outcome_version"
     ),
-}
+})
+
+
+def get_artifact_family_spec(family: str) -> ArtifactFamilySpec:
+    """Return immutable metadata for *family* or raise ``KeyError`` explicitly."""
+
+    return SUPPORTED_ARTIFACT_FAMILIES[family]
 
 
 class _ArtifactRegistry:

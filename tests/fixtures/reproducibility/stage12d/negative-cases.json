@@ -1,0 +1,85 @@
+{
+  "description": "Declarative mutation names mapped to fixed test helpers; this file contains no executable code.",
+  "cases": [
+    {
+      "case_id": "artifact_digest_mismatch",
+      "mutation": "artifact_digest_mismatch",
+      "expected_code": "MANIFEST_DIGEST_MISMATCH"
+    },
+    {
+      "case_id": "artifact_id_mismatch",
+      "mutation": "artifact_id_mismatch",
+      "expected_code": "MANIFEST_IDENTITY_MISMATCH"
+    },
+    {
+      "case_id": "artifact_version_mismatch",
+      "mutation": "artifact_version_mismatch",
+      "expected_code": "MANIFEST_VERSION_MISMATCH"
+    },
+    {
+      "case_id": "schema_id_mismatch",
+      "mutation": "schema_id_mismatch",
+      "expected_code": "MANIFEST_SCHEMA_BINDING_INVALID"
+    },
+    {
+      "case_id": "missing_artifact_locator",
+      "mutation": "missing_artifact_locator",
+      "expected_code": "MANIFEST_INCOMPLETE"
+    },
+    {
+      "case_id": "unlisted_supplied_artifact",
+      "mutation": "unlisted_supplied_artifact",
+      "expected_code": "MANIFEST_INCOMPLETE"
+    },
+    {
+      "case_id": "duplicate_semantic_artifact_identity",
+      "mutation": "duplicate_semantic_artifact_identity",
+      "expected_code": "MANIFEST_DUPLICATE_IDENTITY"
+    },
+    {
+      "case_id": "forensic_digest_mismatch",
+      "mutation": "forensic_digest_mismatch",
+      "expected_code": "MANIFEST_DIGEST_MISMATCH"
+    },
+    {
+      "case_id": "artifact_manifest_digest_mismatch",
+      "mutation": "artifact_manifest_digest_mismatch",
+      "expected_code": "MANIFEST_DIGEST_MISMATCH"
+    },
+    {
+      "case_id": "schema_digest_mismatch",
+      "mutation": "schema_digest_mismatch",
+      "expected_code": "MANIFEST_DIGEST_MISMATCH"
+    },
+    {
+      "case_id": "missing_schema",
+      "mutation": "missing_schema",
+      "expected_code": "MANIFEST_REFERENCE_INVALID"
+    },
+    {
+      "case_id": "dependency_missing_from_manifest",
+      "mutation": "dependency_missing_from_manifest",
+      "expected_code": "MANIFEST_INCOMPLETE"
+    },
+    {
+      "case_id": "dependency_missing_from_resolved_set",
+      "mutation": "dependency_missing_from_resolved_set",
+      "expected_code": "REPRODUCIBILITY_DEPENDENCY_INVALID"
+    },
+    {
+      "case_id": "dependency_version_mismatch",
+      "mutation": "dependency_version_mismatch",
+      "expected_code": "REPRODUCIBILITY_DEPENDENCY_INVALID"
+    },
+    {
+      "case_id": "repository_commit_mismatch",
+      "mutation": "repository_commit_mismatch",
+      "expected_code": "REPRODUCIBILITY_PROVENANCE_INVALID"
+    },
+    {
+      "case_id": "governing_document_digest_mismatch",
+      "mutation": "governing_document_digest_mismatch",
+      "expected_code": "REPRODUCIBILITY_PROVENANCE_INVALID"
+    }
+  ]
+}

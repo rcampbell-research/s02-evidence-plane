@@ -1,0 +1,10 @@
+{
+  "fixture_provenance": "Constants were frozen from RFC 8785 bytes and independently checked with sha256sum; document and rejected-input constants are exact-byte sha256sum results.",
+  "resource_canonical_digest": "sha256:981b6a60f7c6778bf945e4f2615ef1e873630ca1e733b6f9e4cd9543dd5fbc81",
+  "artifact_manifest_canonical_digest": "sha256:48ffea4837ebb682a114cbfc6d29729e11e1229df0de4c25584ab734fb6f1c63",
+  "resource_schema_canonical_digest": "sha256:83f8cea04ce19b935dc8c85f209048492feb0440864700640675e99ccf6b0772",
+  "common_schema_canonical_digest": "sha256:75e63da4100df93a1f46c1ca4e843adb42b27c907d801d9f2511a172e778a321",
+  "clarification_exact_byte_document_digest": "sha256:2381a308297613a67e553c9e0024de324ed79de5c7fc54671e1a418a9f9122d0",
+  "rejected_duplicate_key_forensic_digest": "sha256:2da88a03ebf7a079df5d34fe68401c218980e10d2dffdf4eab743f649d0af938",
+  "expected_positive_finding_count": 0
+}
