@@ -11,7 +11,10 @@ import pytest
 from jsonschema.exceptions import ValidationError
 
 from frontier_agent_containment.schema_validation import (
+    DuplicateSchemaIdError,
+    SchemaStoreError,
     check_draft_2020_12_schema,
+    load_json,
     load_schema_store,
     validate_instance,
 )
@@ -21,12 +24,34 @@ ROOT = Path(__file__).resolve().parents[2]
 DRAFT_2020_12 = "https://json-schema.org/draft/2020-12/schema"
 SCHEMA_PATHS = {
     path.name.removesuffix(".schema.json"): path
-    for path in (ROOT / "schemas").glob("*.schema.json")
+    for path in sorted((ROOT / "schemas").glob("*.schema.json"))
 }
-SCHEMA_IDS = {
-    name: f"urn:frontier-agent-containment:schema:{name}:0.1.0"
-    for name in SCHEMA_PATHS
-}
+
+
+def _declared_schema_ids_by_locator(
+    schema_paths: dict[str, Path],
+) -> dict[str, str]:
+    identities: dict[str, str] = {}
+    locators_by_identity: dict[str, str] = {}
+    for locator, path in schema_paths.items():
+        document = load_json(path)
+        if not isinstance(document, dict):
+            raise SchemaStoreError(f"schema document is not an object: {path}")
+        schema_id = document.get("$id")
+        if not isinstance(schema_id, str) or not schema_id:
+            raise SchemaStoreError(f"schema from {path} lacks a nonempty string $id")
+        if schema_id in locators_by_identity:
+            previous = locators_by_identity[schema_id]
+            raise DuplicateSchemaIdError(
+                f"duplicate schema $id {schema_id!r} declared by locators "
+                f"{previous!r} and {locator!r}"
+            )
+        identities[locator] = schema_id
+        locators_by_identity[schema_id] = locator
+    return identities
+
+
+SCHEMA_IDS = _declared_schema_ids_by_locator(SCHEMA_PATHS)
 STAGE8_SCHEMAS = [
     "capability-evaluation",
     "campaign",

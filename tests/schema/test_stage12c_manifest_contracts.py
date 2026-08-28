@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from copy import deepcopy
 from pathlib import Path
 from typing import Any
@@ -10,8 +11,11 @@ import pytest
 from jsonschema.exceptions import ValidationError
 
 from frontier_agent_containment.schema_validation import (
+    DuplicateSchemaIdError,
+    SchemaStoreError,
     UnknownSchemaReferenceError,
     check_draft_2020_12_schema,
+    load_json,
     load_schema_store,
     validate_instance,
 )
@@ -21,12 +25,34 @@ ROOT = Path(__file__).resolve().parents[2]
 DRAFT_2020_12 = "https://json-schema.org/draft/2020-12/schema"
 SCHEMA_PATHS = {
     path.name.removesuffix(".schema.json"): path
-    for path in (ROOT / "schemas").glob("*.schema.json")
+    for path in sorted((ROOT / "schemas").glob("*.schema.json"))
 }
-SCHEMA_IDS = {
-    name: f"urn:frontier-agent-containment:schema:{name}:0.1.0"
-    for name in SCHEMA_PATHS
-}
+
+
+def _declared_schema_ids_by_locator(
+    schema_paths: dict[str, Path],
+) -> dict[str, str]:
+    identities: dict[str, str] = {}
+    locators_by_identity: dict[str, str] = {}
+    for locator, path in schema_paths.items():
+        document = load_json(path)
+        if not isinstance(document, dict):
+            raise SchemaStoreError(f"schema document is not an object: {path}")
+        schema_id = document.get("$id")
+        if not isinstance(schema_id, str) or not schema_id:
+            raise SchemaStoreError(f"schema from {path} lacks a nonempty string $id")
+        if schema_id in locators_by_identity:
+            previous = locators_by_identity[schema_id]
+            raise DuplicateSchemaIdError(
+                f"duplicate schema $id {schema_id!r} declared by locators "
+                f"{previous!r} and {locator!r}"
+            )
+        identities[locator] = schema_id
+        locators_by_identity[schema_id] = locator
+    return identities
+
+
+SCHEMA_IDS = _declared_schema_ids_by_locator(SCHEMA_PATHS)
 STAGE12C_SCHEMAS = ["artifact-manifest", "reproducibility-manifest"]
 DIGEST_A = "sha256:" + ("a" * 64)
 DIGEST_B = "sha256:" + ("b" * 64)
@@ -47,6 +73,64 @@ def schemas(schema_store: dict[str, Any]) -> dict[str, dict[str, Any]]:
         name: schema_store[schema_id]
         for name, schema_id in SCHEMA_IDS.items()
     }
+
+
+def _write_minimal_schema(path: Path, schema_id: str) -> None:
+    path.write_text(
+        json.dumps(
+            {
+                "$schema": DRAFT_2020_12,
+                "$id": schema_id,
+                "type": "object",
+                "additionalProperties": False,
+            },
+            sort_keys=True,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+
+def test_all_schema_discovery_uses_unique_declared_ids(
+    schema_store: dict[str, Any],
+) -> None:
+    assert len(SCHEMA_PATHS) == len(SCHEMA_IDS) == len(schema_store)
+    assert set(SCHEMA_IDS.values()) == set(schema_store)
+    for locator, path in SCHEMA_PATHS.items():
+        document = load_json(path)
+        assert isinstance(document, dict)
+        assert SCHEMA_IDS[locator] == document["$id"]
+
+
+def test_version_qualified_schema_locator_uses_declared_id(tmp_path: Path) -> None:
+    locator = "instrument-acceptance-v0.2.0"
+    path = tmp_path / f"{locator}.schema.json"
+    declared_id = (
+        "urn:frontier-agent-containment:schema:instrument-acceptance:0.2.0"
+    )
+    filename_derived_id = (
+        "urn:frontier-agent-containment:schema:"
+        "instrument-acceptance-v0.2.0:0.1.0"
+    )
+    _write_minimal_schema(path, declared_id)
+
+    identities = _declared_schema_ids_by_locator({locator: path})
+    store = load_schema_store([path])
+
+    assert identities == {locator: declared_id}
+    assert set(store) == {declared_id}
+    assert filename_derived_id not in identities.values()
+
+
+def test_schema_discovery_rejects_duplicate_declared_ids(tmp_path: Path) -> None:
+    schema_id = "urn:frontier-agent-containment:schema:duplicate-probe:0.1.0"
+    first = tmp_path / "first.schema.json"
+    second = tmp_path / "second.schema.json"
+    _write_minimal_schema(first, schema_id)
+    _write_minimal_schema(second, schema_id)
+
+    with pytest.raises(DuplicateSchemaIdError, match="duplicate schema \\$id"):
+        _declared_schema_ids_by_locator({"first": first, "second": second})
 
 
 def valid_artifact_entry() -> dict[str, Any]:
