@@ -444,18 +444,28 @@ def test_historical_campaign_acceptance_behavior_is_unchanged(
 
 
 @pytest.mark.parametrize(
-    "reference", ["acceptance:example-001", "acceptance:different"]
+    ("reference", "expected_code"),
+    [
+        ("acceptance:example-001", None),
+        ("acceptance:different", SemanticErrorCode.REFERENCE_INVALID),
+    ],
 )
-def test_campaign_bound_prospective_acceptance_is_transitionally_unresolved(
-    reference: str, schema_store: dict[str, Any]
+def test_campaign_bound_prospective_acceptance_uses_exact_resolution(
+    reference: str,
+    expected_code: SemanticErrorCode | None,
+    schema_store: dict[str, Any],
 ) -> None:
     findings = _validate(_prospective_gating_set(reference=reference), schema_store)
-    transition = _transition_findings(findings)
-    assert len(transition) == 1
-    assert transition[0].message == TRANSITION_MESSAGE
+    assert not _transition_findings(findings)
+    if expected_code is None:
+        assert findings == ()
+    else:
+        assert len(findings) == 1
+        assert findings[0].code == expected_code
+        assert findings[0].field_path == "/instrument_acceptance_reference"
 
 
-def test_multiple_prospective_acceptances_are_not_arbitrarily_selected(
+def test_multiple_prospective_acceptances_resolve_the_exact_target(
     schema_store: dict[str, Any]
 ) -> None:
     artifacts = _prospective_gating_set()
@@ -463,32 +473,32 @@ def test_multiple_prospective_acceptances_are_not_arbitrarily_selected(
     second["instrument_acceptance_id"] = "acceptance:example-002"
     artifacts["instrument_acceptance"].append(second)
     findings = _validate(artifacts, schema_store)
-    assert len(_transition_findings(findings)) == 1
-    assert any(
-        finding.code == SemanticErrorCode.ACCEPTANCE_INVALID for finding in findings
-    )
+    assert findings == ()
+    assert not _transition_findings(findings)
 
 
-def test_mixed_historical_and_prospective_acceptances_fail_closed(
+def test_mixed_historical_and_prospective_acceptances_use_exact_target(
     schema_store: dict[str, Any]
 ) -> None:
     historical = gating_artifact_set()["instrument_acceptance"][0]
     artifacts = _prospective_gating_set()
     artifacts["instrument_acceptance"].append(historical)
     findings = _validate(artifacts, schema_store)
-    assert len(_transition_findings(findings)) == 1
-    assert any(
-        finding.code == SemanticErrorCode.ACCEPTANCE_INVALID for finding in findings
-    )
+    assert findings == ()
+    assert not _transition_findings(findings)
 
 
-def test_transition_findings_are_deterministic(schema_store: dict[str, Any]) -> None:
+def test_superseding_exact_reference_findings_are_deterministic(
+    schema_store: dict[str, Any],
+) -> None:
     artifacts = _prospective_gating_set(reference="acceptance:different")
     first = _validate(artifacts, schema_store)
     second = _validate(artifacts, schema_store)
     third = _validate(artifacts, schema_store)
     assert first == second == third
-    assert len(_transition_findings(first)) == 1
+    assert not _transition_findings(first)
+    assert len(first) == 1
+    assert first[0].code == SemanticErrorCode.REFERENCE_INVALID
 
 
 def test_version_aware_validation_does_not_mutate_inputs(

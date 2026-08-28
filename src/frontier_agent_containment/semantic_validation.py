@@ -2240,40 +2240,70 @@ def _validate_campaign_acceptance(
         if phase == "PILOT"
         else "ACCEPTED_FOR_CONFIRMATORY"
     )
-    prospective_linked = any(
-        acceptance.version == "0.2.0"
-        and acceptance.artifact["campaign_id"] == campaign.identity
-        and acceptance.artifact["instrument_configuration_id"]
-        == campaign.artifact["instrument_configuration_id"]
-        and acceptance.artifact["environment_id"]
-        == campaign.artifact["environment_id"]
-        and acceptance.artifact["acceptance_state"] == expected_state
-        and acceptance.artifact.get("accepted_for_phase") == phase
-        for acceptance in registry.records.get("instrument_acceptance", [])
-    )
-    if prospective_linked:
-        _add_stage10_finding(
-            campaign,
-            findings,
-            SemanticErrorCode.PROVENANCE_UNRESOLVED,
-            _pointer("instrument_acceptance_reference"),
-            (
-                "Instrument Acceptance 0.2.0 exact reference resolution is "
-                "deferred to Identity-3."
-            ),
-            "instrument_acceptance",
-            None,
+
+    def associated(acceptance: _ArtifactRecord) -> bool:
+        return (
+            acceptance.artifact["campaign_id"] == campaign.identity
+            and acceptance.artifact["instrument_configuration_id"]
+            == campaign.artifact["instrument_configuration_id"]
+            and acceptance.artifact["environment_id"]
+            == campaign.artifact["environment_id"]
         )
+
+    def is_compatible(acceptance: _ArtifactRecord) -> bool:
+        return (
+            associated(acceptance)
+            and acceptance.artifact["acceptance_state"] == expected_state
+            and acceptance.artifact.get("accepted_for_phase") == phase
+        )
+
+    reference = campaign.artifact.get("instrument_acceptance_reference")
+    acceptance_records = registry.records.get("instrument_acceptance", [])
+    prospective_records = [
+        acceptance
+        for acceptance in acceptance_records
+        if acceptance.version == "0.2.0"
+    ]
+    prospective_mode = reference is not None and (
+        any(acceptance.identity == reference for acceptance in prospective_records)
+        or any(associated(acceptance) for acceptance in prospective_records)
+    )
+    if prospective_mode:
+        target = registry.resolve("instrument_acceptance", reference)
+        if target is None or target.version != "0.2.0":
+            _add_stage10_finding(
+                campaign,
+                findings,
+                SemanticErrorCode.REFERENCE_INVALID,
+                _pointer("instrument_acceptance_reference"),
+                (
+                    f"instrument_acceptance reference {reference!r} does not "
+                    "resolve exactly once in the active artifact set"
+                ),
+                "instrument_acceptance",
+                reference,
+            )
+            return
+        if not is_compatible(target):
+            _add_stage10_finding(
+                campaign,
+                findings,
+                SemanticErrorCode.ACCEPTANCE_INVALID,
+                _pointer("instrument_acceptance_reference"),
+                (
+                    "referenced Instrument Acceptance is incompatible with "
+                    f"{phase} Campaign requirements"
+                ),
+                "instrument_acceptance",
+                target.identity,
+            )
+        return
+
     compatible = [
         acceptance
         for acceptance in _records(registry, "instrument_acceptance")
-        if acceptance.artifact["instrument_configuration_id"]
-        == campaign.artifact["instrument_configuration_id"]
-        and acceptance.artifact["environment_id"]
-        == campaign.artifact["environment_id"]
-        and acceptance.artifact["campaign_id"] == campaign.identity
-        and acceptance.artifact["acceptance_state"] == expected_state
-        and acceptance.artifact.get("accepted_for_phase") == phase
+        if (reference is None or acceptance.version == "0.1.0")
+        and is_compatible(acceptance)
     ]
     if len(compatible) != 1:
         _add_stage10_finding(
