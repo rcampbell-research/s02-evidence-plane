@@ -95,117 +95,259 @@ class ArtifactFamilySpec:
 
 
 @dataclass(frozen=True, slots=True)
+class ArtifactFamilyContractSpec:
+    """Immutable metadata for one exact artifact-family contract version."""
+
+    family: str
+    artifact_version: str
+    schema_id: str
+    identity_field: str | None
+    version_field: str
+
+
+@dataclass(frozen=True, slots=True)
 class _ArtifactRecord:
     family: str
     identity: str
     version: str
+    contract_spec: ArtifactFamilyContractSpec
     artifact: Artifact
     ordinal: int
 
 
 _SCHEMA_PREFIX: Final = "urn:frontier-agent-containment:schema:"
 
-SUPPORTED_ARTIFACT_FAMILIES: Final[Mapping[str, ArtifactFamilySpec]] = MappingProxyType({
-    "resource": ArtifactFamilySpec(
-        f"{_SCHEMA_PREFIX}resource:0.1.0", "resource_id", "resource_version"
-    ),
-    "benign_task": ArtifactFamilySpec(
-        f"{_SCHEMA_PREFIX}benign-task:0.1.0", "task_id", "task_version"
-    ),
-    "capability_envelope": ArtifactFamilySpec(
-        f"{_SCHEMA_PREFIX}capability-envelope:0.1.0",
-        "capability_envelope_id",
-        "envelope_version",
-    ),
-    "scenario": ArtifactFamilySpec(
-        f"{_SCHEMA_PREFIX}scenario:0.1.0", "scenario_id", "scenario_version"
-    ),
-    "policy": ArtifactFamilySpec(
-        f"{_SCHEMA_PREFIX}policy:0.1.0", "policy_id", "policy_version"
-    ),
-    "control": ArtifactFamilySpec(
-        f"{_SCHEMA_PREFIX}control:0.1.0", "control_id", "control_version"
-    ),
-    "control_condition": ArtifactFamilySpec(
-        f"{_SCHEMA_PREFIX}control-condition:0.1.0",
-        "control_condition_id",
-        "condition_version",
-    ),
-    "agent_model_condition": ArtifactFamilySpec(
-        f"{_SCHEMA_PREFIX}agent-model-condition:0.1.0",
-        "agent_condition_id",
-        "condition_version",
-    ),
-    "autonomy_condition": ArtifactFamilySpec(
-        f"{_SCHEMA_PREFIX}autonomy-condition:0.1.0",
-        "autonomy_condition_id",
-        "condition_version",
-    ),
-    "environment": ArtifactFamilySpec(
-        f"{_SCHEMA_PREFIX}environment:0.1.0",
-        "environment_id",
-        "environment_version",
-    ),
-    "scheduled_run": ArtifactFamilySpec(
-        f"{_SCHEMA_PREFIX}scheduled-run:0.1.0",
-        "scheduled_run_id",
-        "scheduled_run_version",
-    ),
-    "run_manifest": ArtifactFamilySpec(
-        f"{_SCHEMA_PREFIX}run-manifest:0.1.0",
-        "run_id",
-        "run_manifest_version",
-    ),
-    "instrument_configuration": ArtifactFamilySpec(
-        f"{_SCHEMA_PREFIX}instrument-configuration:0.1.0",
-        "instrument_configuration_id",
-        "configuration_version",
-    ),
-    "capability_evaluation": ArtifactFamilySpec(
-        f"{_SCHEMA_PREFIX}capability-evaluation:0.1.0",
-        "evaluation_configuration_id",
-        "evaluation_version",
-    ),
-    "campaign": ArtifactFamilySpec(
-        f"{_SCHEMA_PREFIX}campaign:0.1.0", "campaign_id", "campaign_version"
-    ),
-    "validation_case": ArtifactFamilySpec(
-        f"{_SCHEMA_PREFIX}validation-case:0.1.0",
-        "validation_case_id",
-        "validation_case_version",
-    ),
-    # The frozen v0.1 Instrument Acceptance Contract intentionally has no
-    # intrinsic artifact identity. Records therefore remain unkeyed and are
-    # selected only through an exact, unique campaign-compatible match. The
-    # opaque Campaign reference string is not claimed to be content-resolved.
-    "instrument_acceptance": ArtifactFamilySpec(
-        f"{_SCHEMA_PREFIX}instrument-acceptance:0.1.0",
-        None,
-        "acceptance_version",
-    ),
-    "analysis_manifest": ArtifactFamilySpec(
-        f"{_SCHEMA_PREFIX}analysis-manifest:0.1.0",
-        "analysis_configuration_id",
-        "analysis_version",
-    ),
-    "evidence_event": ArtifactFamilySpec(
-        f"{_SCHEMA_PREFIX}evidence-event:0.1.0", "event_id", "event_version"
-    ),
-    # Derived outcome contracts have no intrinsic global artifact IDs. Their
-    # active-set semantic identities are constructed below from frozen fields.
-    "derived_action_outcome": ArtifactFamilySpec(
-        f"{_SCHEMA_PREFIX}derived-action-outcome:0.1.0", None, "outcome_version"
-    ),
-    "derived_run_outcome": ArtifactFamilySpec(
-        f"{_SCHEMA_PREFIX}derived-run-outcome:0.1.0", None, "outcome_version"
-    ),
-})
+_ContractKey: TypeAlias = tuple[str, str]
+_ContractEntry: TypeAlias = tuple[_ContractKey, ArtifactFamilyContractSpec]
+
+
+def _contract_entry(
+    family: str,
+    schema_name: str,
+    identity_field: str | None,
+    version_field: str,
+    artifact_version: str = "0.1.0",
+) -> _ContractEntry:
+    spec = ArtifactFamilyContractSpec(
+        family=family,
+        artifact_version=artifact_version,
+        schema_id=f"{_SCHEMA_PREFIX}{schema_name}:{artifact_version}",
+        identity_field=identity_field,
+        version_field=version_field,
+    )
+    return (family, artifact_version), spec
+
+
+def _build_artifact_family_contract_specs(
+    entries: Iterable[_ContractEntry],
+) -> Mapping[_ContractKey, ArtifactFamilyContractSpec]:
+    """Validate and freeze exact contract metadata without dict overwrites."""
+
+    result: dict[_ContractKey, ArtifactFamilyContractSpec] = {}
+    version_fields: dict[str, str] = {}
+    for key, spec in entries:
+        if key in result:
+            raise ValueError(f"duplicate artifact-family contract key {key!r}")
+        family, artifact_version = key
+        if spec.family != family:
+            raise ValueError(
+                f"contract key family {family!r} disagrees with {spec.family!r}"
+            )
+        if spec.artifact_version != artifact_version:
+            raise ValueError(
+                "contract key version "
+                f"{artifact_version!r} disagrees with {spec.artifact_version!r}"
+            )
+        schema_version = spec.schema_id.rsplit(":", 1)[-1]
+        if schema_version != artifact_version:
+            raise ValueError(
+                f"schema ID {spec.schema_id!r} disagrees with contract version "
+                f"{artifact_version!r}"
+            )
+        prior_version_field = version_fields.get(family)
+        if prior_version_field is not None and prior_version_field != spec.version_field:
+            raise ValueError(
+                f"artifact family {family!r} uses inconsistent version fields "
+                f"{prior_version_field!r} and {spec.version_field!r}"
+            )
+        version_fields[family] = spec.version_field
+        result[key] = spec
+    return MappingProxyType(result)
+
+
+ARTIFACT_FAMILY_CONTRACT_SPECS: Final[
+    Mapping[_ContractKey, ArtifactFamilyContractSpec]
+] = _build_artifact_family_contract_specs(
+    (
+        _contract_entry("resource", "resource", "resource_id", "resource_version"),
+        _contract_entry("benign_task", "benign-task", "task_id", "task_version"),
+        _contract_entry(
+            "capability_envelope",
+            "capability-envelope",
+            "capability_envelope_id",
+            "envelope_version",
+        ),
+        _contract_entry("scenario", "scenario", "scenario_id", "scenario_version"),
+        _contract_entry("policy", "policy", "policy_id", "policy_version"),
+        _contract_entry("control", "control", "control_id", "control_version"),
+        _contract_entry(
+            "control_condition",
+            "control-condition",
+            "control_condition_id",
+            "condition_version",
+        ),
+        _contract_entry(
+            "agent_model_condition",
+            "agent-model-condition",
+            "agent_condition_id",
+            "condition_version",
+        ),
+        _contract_entry(
+            "autonomy_condition",
+            "autonomy-condition",
+            "autonomy_condition_id",
+            "condition_version",
+        ),
+        _contract_entry(
+            "environment",
+            "environment",
+            "environment_id",
+            "environment_version",
+        ),
+        _contract_entry(
+            "scheduled_run",
+            "scheduled-run",
+            "scheduled_run_id",
+            "scheduled_run_version",
+        ),
+        _contract_entry(
+            "run_manifest", "run-manifest", "run_id", "run_manifest_version"
+        ),
+        _contract_entry(
+            "instrument_configuration",
+            "instrument-configuration",
+            "instrument_configuration_id",
+            "configuration_version",
+        ),
+        _contract_entry(
+            "capability_evaluation",
+            "capability-evaluation",
+            "evaluation_configuration_id",
+            "evaluation_version",
+        ),
+        _contract_entry(
+            "campaign", "campaign", "campaign_id", "campaign_version"
+        ),
+        _contract_entry(
+            "validation_case",
+            "validation-case",
+            "validation_case_id",
+            "validation_case_version",
+        ),
+        # Historical Instrument Acceptance is intentionally identityless.
+        _contract_entry(
+            "instrument_acceptance",
+            "instrument-acceptance",
+            None,
+            "acceptance_version",
+        ),
+        _contract_entry(
+            "analysis_manifest",
+            "analysis-manifest",
+            "analysis_configuration_id",
+            "analysis_version",
+        ),
+        _contract_entry(
+            "evidence_event", "evidence-event", "event_id", "event_version"
+        ),
+        # Historical derived outcomes retain separate scientific linkage keys.
+        _contract_entry(
+            "derived_action_outcome",
+            "derived-action-outcome",
+            None,
+            "outcome_version",
+        ),
+        _contract_entry(
+            "derived_run_outcome",
+            "derived-run-outcome",
+            None,
+            "outcome_version",
+        ),
+        _contract_entry(
+            "instrument_acceptance",
+            "instrument-acceptance",
+            "instrument_acceptance_id",
+            "acceptance_version",
+            "0.2.0",
+        ),
+        _contract_entry(
+            "derived_action_outcome",
+            "derived-action-outcome",
+            "derived_action_outcome_id",
+            "outcome_version",
+            "0.2.0",
+        ),
+        _contract_entry(
+            "derived_run_outcome",
+            "derived-run-outcome",
+            "derived_run_outcome_id",
+            "outcome_version",
+            "0.2.0",
+        ),
+    )
+)
+
+
+def _derive_family_version_fields(
+    contract_specs: Mapping[_ContractKey, ArtifactFamilyContractSpec],
+) -> Mapping[str, str]:
+    version_fields: dict[str, str] = {}
+    for spec in contract_specs.values():
+        existing = version_fields.get(spec.family)
+        if existing is not None and existing != spec.version_field:
+            raise ValueError(
+                f"artifact family {spec.family!r} uses inconsistent version fields "
+                f"{existing!r} and {spec.version_field!r}"
+            )
+        version_fields[spec.family] = spec.version_field
+    return MappingProxyType(dict(sorted(version_fields.items())))
+
+
+_ARTIFACT_FAMILY_VERSION_FIELDS: Final[Mapping[str, str]] = (
+    _derive_family_version_fields(ARTIFACT_FAMILY_CONTRACT_SPECS)
+)
+
+
+SUPPORTED_ARTIFACT_FAMILIES: Final[Mapping[str, ArtifactFamilySpec]] = (
+    MappingProxyType(
+        {
+            family: ArtifactFamilySpec(
+                schema_id=ARTIFACT_FAMILY_CONTRACT_SPECS[(family, "0.1.0")].schema_id,
+                identity_field=ARTIFACT_FAMILY_CONTRACT_SPECS[
+                    (family, "0.1.0")
+                ].identity_field,
+                version_field=ARTIFACT_FAMILY_CONTRACT_SPECS[
+                    (family, "0.1.0")
+                ].version_field,
+            )
+            for family in _ARTIFACT_FAMILY_VERSION_FIELDS
+        }
+    )
+)
 
 
 def get_artifact_family_spec(family: str) -> ArtifactFamilySpec:
     """Return immutable metadata for *family* or raise ``KeyError`` explicitly."""
 
     return SUPPORTED_ARTIFACT_FAMILIES[family]
+
+
+def get_artifact_family_contract_spec(
+    family: str, artifact_version: str
+) -> ArtifactFamilyContractSpec:
+    """Return metadata for one exact family/version or raise ``KeyError``."""
+
+    return ARTIFACT_FAMILY_CONTRACT_SPECS[(family, artifact_version)]
 
 
 class _ArtifactRegistry:
@@ -227,23 +369,25 @@ class _ArtifactRegistry:
         unique_agent_records: list[_ArtifactRecord] = []
 
         for family in sorted(SUPPORTED_ARTIFACT_FAMILIES):
-            spec = SUPPORTED_ARTIFACT_FAMILIES[family]
-            if spec.identity_field is None:
-                self.primary[family] = {}
-                continue
             grouped: dict[str, list[_ArtifactRecord]] = {}
             for record in records.get(family, []):
+                if record.contract_spec.identity_field is None:
+                    continue
                 grouped.setdefault(record.identity, []).append(record)
 
             unique: dict[str, _ArtifactRecord] = {}
             for identity in sorted(grouped):
-                group = grouped[identity]
+                group = sorted(
+                    grouped[identity], key=lambda record: (record.version, record.ordinal)
+                )
                 if len(group) == 1:
                     unique[identity] = group[0]
                     if family == "agent_model_condition":
                         unique_agent_records.append(group[0])
                     continue
                 versions = ", ".join(sorted(record.version for record in group))
+                identity_field = group[0].contract_spec.identity_field
+                assert identity_field is not None
                 findings.append(
                     SemanticFinding(
                         code=SemanticErrorCode.DUPLICATE_IDENTITY,
@@ -253,7 +397,7 @@ class _ArtifactRegistry:
                         ),
                         artifact_family=family,
                         artifact_id=identity,
-                        field_path=_pointer(spec.identity_field),
+                        field_path=_pointer(identity_field),
                     )
                 )
             self.primary[family] = unique
@@ -379,8 +523,8 @@ def validate_artifact_set(
 
     for family in sorted(artifacts):
         supplied = tuple(artifacts[family])
-        spec = SUPPORTED_ARTIFACT_FAMILIES.get(family)
-        if spec is None:
+        version_field = _ARTIFACT_FAMILY_VERSION_FIELDS.get(family)
+        if version_field is None:
             for ordinal, artifact in enumerate(supplied):
                 findings.append(
                     SemanticFinding(
@@ -395,20 +539,100 @@ def validate_artifact_set(
                 )
             continue
 
-        schema = schema_store.get(spec.schema_id)
+        reported_unsupported_identity_claims: set[str] = set()
         for ordinal, artifact in enumerate(supplied):
-            label = (
-                _best_effort_identity(
-                    artifact, ordinal, preferred=spec.identity_field
+            label = f"<{family}:{ordinal}>"
+            version_path = _pointer(version_field)
+            if not isinstance(artifact, Mapping):
+                findings.append(
+                    SemanticFinding(
+                        code=SemanticErrorCode.SCHEMA_INVALID,
+                        message="artifact must be a mapping/object for contract dispatch",
+                        artifact_family=family,
+                        artifact_id=label,
+                        field_path="/",
+                    )
                 )
-                if spec.identity_field is not None
-                else f"<{family}:{ordinal}>"
-            )
+                continue
+            if version_field not in artifact:
+                findings.append(
+                    SemanticFinding(
+                        code=SemanticErrorCode.SCHEMA_INVALID,
+                        message=f"required version field {version_field!r} is absent",
+                        artifact_family=family,
+                        artifact_id=label,
+                        field_path=version_path,
+                    )
+                )
+                continue
+            artifact_version = artifact[version_field]
+            if not isinstance(artifact_version, str):
+                findings.append(
+                    SemanticFinding(
+                        code=SemanticErrorCode.VERSION_INVALID,
+                        message=f"version field {version_field!r} must be a string",
+                        artifact_family=family,
+                        artifact_id=label,
+                        field_path=version_path,
+                    )
+                )
+                continue
+            try:
+                contract_spec = get_artifact_family_contract_spec(
+                    family, artifact_version
+                )
+            except KeyError:
+                findings.append(
+                    SemanticFinding(
+                        code=SemanticErrorCode.VERSION_INVALID,
+                        message=(
+                            f"artifact version {artifact_version!r} has no registered "
+                            f"contract for family {family!r}"
+                        ),
+                        artifact_family=family,
+                        artifact_id=label,
+                        field_path=version_path,
+                    )
+                )
+                legacy_identity_field = SUPPORTED_ARTIFACT_FAMILIES[
+                    family
+                ].identity_field
+                if legacy_identity_field is not None:
+                    candidate = artifact.get(legacy_identity_field)
+                    matching_claims = sum(
+                        1
+                        for item in supplied
+                        if isinstance(item, Mapping)
+                        and item.get(legacy_identity_field) == candidate
+                    )
+                    if (
+                        isinstance(candidate, str)
+                        and matching_claims > 1
+                        and candidate not in reported_unsupported_identity_claims
+                    ):
+                        reported_unsupported_identity_claims.add(candidate)
+                        findings.append(
+                            SemanticFinding(
+                                code=SemanticErrorCode.DUPLICATE_IDENTITY,
+                                message=(
+                                    f"active {family} identity claim {candidate!r} "
+                                    "is duplicated across contract versions"
+                                ),
+                                artifact_family=family,
+                                artifact_id=label,
+                                field_path=_pointer(legacy_identity_field),
+                            )
+                        )
+                continue
+
+            schema = schema_store.get(contract_spec.schema_id)
             if schema is None:
                 findings.append(
                     SemanticFinding(
                         code=SemanticErrorCode.SCHEMA_INVALID,
-                        message=f"required local schema {spec.schema_id!r} is absent",
+                        message=(
+                            f"required local schema {contract_spec.schema_id!r} is absent"
+                        ),
                         artifact_family=family,
                         artifact_id=label,
                         field_path="/",
@@ -445,15 +669,17 @@ def validate_artifact_set(
                 )
                 continue
 
+            identity = (
+                artifact[contract_spec.identity_field]
+                if contract_spec.identity_field is not None
+                else label
+            )
             valid_records[family].append(
                 _ArtifactRecord(
                     family=family,
-                    identity=(
-                        artifact[spec.identity_field]
-                        if spec.identity_field is not None
-                        else label
-                    ),
-                    version=artifact[spec.version_field],
+                    identity=identity,
+                    version=artifact_version,
+                    contract_spec=contract_spec,
                     artifact=artifact,
                     ordinal=ordinal,
                 )
@@ -2014,6 +2240,30 @@ def _validate_campaign_acceptance(
         if phase == "PILOT"
         else "ACCEPTED_FOR_CONFIRMATORY"
     )
+    prospective_linked = any(
+        acceptance.version == "0.2.0"
+        and acceptance.artifact["campaign_id"] == campaign.identity
+        and acceptance.artifact["instrument_configuration_id"]
+        == campaign.artifact["instrument_configuration_id"]
+        and acceptance.artifact["environment_id"]
+        == campaign.artifact["environment_id"]
+        and acceptance.artifact["acceptance_state"] == expected_state
+        and acceptance.artifact.get("accepted_for_phase") == phase
+        for acceptance in registry.records.get("instrument_acceptance", [])
+    )
+    if prospective_linked:
+        _add_stage10_finding(
+            campaign,
+            findings,
+            SemanticErrorCode.PROVENANCE_UNRESOLVED,
+            _pointer("instrument_acceptance_reference"),
+            (
+                "Instrument Acceptance 0.2.0 exact reference resolution is "
+                "deferred to Identity-3."
+            ),
+            "instrument_acceptance",
+            None,
+        )
     compatible = [
         acceptance
         for acceptance in _records(registry, "instrument_acceptance")
@@ -3470,16 +3720,16 @@ def _add_postrun_finding(
 
 
 def _records(registry: _ArtifactRegistry, family: str) -> list[_ArtifactRecord]:
-    if SUPPORTED_ARTIFACT_FAMILIES[family].identity_field is None:
-        return sorted(
-            registry.records.get(family, []),
-            key=lambda record: (record.identity, record.version, record.ordinal),
-        )
+    identityless = [
+        record
+        for record in registry.records.get(family, [])
+        if record.contract_spec.identity_field is None
+    ]
+    identified = list(registry.primary.get(family, {}).values())
     return sorted(
-        registry.primary.get(family, {}).values(),
+        [*identityless, *identified],
         key=lambda record: (record.identity, record.version, record.ordinal),
     )
-
 
 def _require_reference(
     owner: _ArtifactRecord,
