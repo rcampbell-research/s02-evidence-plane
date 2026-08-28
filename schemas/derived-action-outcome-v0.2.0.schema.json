@@ -1,0 +1,188 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:frontier-agent-containment:schema:derived-action-outcome:0.2.0",
+  "title": "Evaluator-Derived Action Outcome Contract",
+  "$comment": "An evaluator-derived terminal action/effect conclusion. It references, but never overwrites, authoritative evidence. Reference syntax validation does not establish event existence, same-run linkage, effect-event class, or attribution correctness.",
+  "type": "object",
+  "properties": {
+    "outcome_version": {
+      "allOf": [
+        {
+          "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/executable_artifact_version"
+        },
+        {"const": "0.2.0"}
+      ]
+    },
+    "derived_action_outcome_id": {
+      "allOf": [
+        {
+          "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/stable_typed_identifier"
+        },
+        {"type": "string", "pattern": "^actionoutcome:"}
+      ]
+    },
+    "experiment_id": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/experiment_id"
+    },
+    "run_id": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/run_id"
+    },
+    "action_id": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/action_id"
+    },
+    "terminal_outcome": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/terminal_action_outcome"
+    },
+    "evidence_event_ids": {
+      "type": "array",
+      "items": {
+        "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/event_id"
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "derivation_rule_id": {
+      "$ref": "#/$defs/local_identifier"
+    },
+    "derivation_description": {
+      "$ref": "#/$defs/description"
+    },
+    "evaluator_source_id": {
+      "$comment": "Identifies the evaluator, never the agent under test.",
+      "$ref": "#/$defs/local_identifier"
+    },
+    "derivation_sequence_number": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "architecture_validity": {
+      "$comment": "Explicit action-outcome validity state required for traceable derivation; it does not independently prove architecture validity.",
+      "type": "string",
+      "enum": [
+        "VALID_FOR_ACTION_OUTCOME",
+        "INVALID_FOR_ACTION_OUTCOME",
+        "UNKNOWN_FOR_ACTION_OUTCOME"
+      ]
+    },
+    "evidence_completeness": {
+      "$comment": "Completeness declaration for this action/effect assessment, not a substitute for validating the observation path.",
+      "type": "string",
+      "enum": [
+        "COMPLETE_FOR_ACTION_OUTCOME",
+        "INCOMPLETE_FOR_ACTION_OUTCOME"
+      ]
+    },
+    "blocking_control_id": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/control_id"
+    },
+    "blocking_control_condition_id": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/control_condition_id"
+    },
+    "nonexecution_reason": {
+      "$ref": "#/$defs/description"
+    },
+    "effect_event_ids": {
+      "type": "array",
+      "items": {
+        "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/event_id"
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "error_reason": {
+      "$ref": "#/$defs/description"
+    },
+    "inconclusive_reason": {
+      "$ref": "#/$defs/description"
+    },
+    "termination_reason": {
+      "$ref": "#/$defs/description"
+    }
+  },
+  "required": [
+    "outcome_version",
+    "derived_action_outcome_id",
+    "experiment_id",
+    "run_id",
+    "action_id",
+    "terminal_outcome",
+    "evidence_event_ids",
+    "derivation_rule_id",
+    "derivation_description",
+    "evaluator_source_id",
+    "derivation_sequence_number",
+    "architecture_validity",
+    "evidence_completeness"
+  ],
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {"terminal_outcome": {"const": "UNAUTHORIZED_BLOCKED"}},
+        "required": ["terminal_outcome"]
+      },
+      "then": {
+        "required": ["blocking_control_id", "blocking_control_condition_id"]
+      },
+      "else": {
+        "not": {
+          "anyOf": [
+            {"required": ["blocking_control_id"]},
+            {"required": ["blocking_control_condition_id"]}
+          ]
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {"terminal_outcome": {"const": "UNAUTHORIZED_NOT_EXECUTED_OTHER"}},
+        "required": ["terminal_outcome"]
+      },
+      "then": {"required": ["nonexecution_reason"]},
+      "else": {"not": {"required": ["nonexecution_reason"]}}
+    },
+    {
+      "if": {
+        "properties": {"terminal_outcome": {"const": "UNAUTHORIZED_EXECUTED"}},
+        "required": ["terminal_outcome"]
+      },
+      "then": {"required": ["effect_event_ids"]},
+      "else": {"not": {"required": ["effect_event_ids"]}}
+    },
+    {
+      "if": {
+        "properties": {"terminal_outcome": {"const": "CONTROL_ERROR"}},
+        "required": ["terminal_outcome"]
+      },
+      "then": {"required": ["error_reason"]},
+      "else": {"not": {"required": ["error_reason"]}}
+    },
+    {
+      "if": {
+        "properties": {"terminal_outcome": {"const": "INCONCLUSIVE"}},
+        "required": ["terminal_outcome"]
+      },
+      "then": {"required": ["inconclusive_reason"]},
+      "else": {"not": {"required": ["inconclusive_reason"]}}
+    },
+    {
+      "if": {
+        "properties": {"terminal_outcome": {"const": "AGENT_ABORTED"}},
+        "required": ["terminal_outcome"]
+      },
+      "then": {"required": ["termination_reason"]},
+      "else": {"not": {"required": ["termination_reason"]}}
+    }
+  ],
+  "$defs": {
+    "local_identifier": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+    },
+    "description": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 4096
+    }
+  }
+}
