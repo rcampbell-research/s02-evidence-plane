@@ -31,6 +31,8 @@ from frontier_agent_containment.schema_validation import (
     validate_instance,
 )
 from frontier_agent_containment.semantic_validation import (
+    ArtifactFamilyContractSpec,
+    get_artifact_family_contract_spec,
     get_artifact_family_spec,
     validate_artifact_set,
 )
@@ -377,7 +379,7 @@ def _validate_artifact_entry(
     locator = entry["locator"]
     base = _pointer("artifacts", index)
     try:
-        spec = get_artifact_family_spec(family)
+        family_spec = get_artifact_family_spec(family)
     except KeyError:
         _add(
             findings,
@@ -388,6 +390,22 @@ def _validate_artifact_entry(
             artifact_family=family,
             artifact_id=artifact_id,
             locator=locator,
+        )
+        return
+    try:
+        spec = _artifact_contract_spec(family, document)
+    except KeyError:
+        actual_version = document.get(family_spec.version_field)
+        _add(
+            findings,
+            ManifestErrorCode.MANIFEST_REFERENCE_INVALID,
+            "artifact document does not declare a supported exact contract version",
+            "artifact_manifest",
+            f"{base}/artifact_version",
+            artifact_family=family,
+            artifact_id=artifact_id,
+            locator=locator,
+            referenced_id=str(actual_version),
         )
         return
 
@@ -935,7 +953,7 @@ def _validate_active_artifacts(
             _active_missing(findings, "campaign", campaign_id, "/campaign_id")
         else:
             _validate_campaign_context(manifest, campaign, findings)
-    _validate_acceptance_context(manifest, active, campaign, findings)
+    _validate_acceptance_context(manifest, active, campaign, schema_store, findings)
     _validate_confirmatory_context(manifest, active, campaign, findings)
     _validate_repetitions(manifest, active, findings)
     _validate_providers(manifest, active, findings)
@@ -984,6 +1002,7 @@ def _validate_acceptance_context(
     manifest: JsonObject,
     active: ArtifactCollection,
     campaign: JsonObject | None,
+    schema_store: SchemaStore,
     findings: list[ManifestFinding],
 ) -> None:
     phase = manifest["release_phase"]
@@ -992,24 +1011,81 @@ def _validate_acceptance_context(
     expected_state = (
         "ACCEPTED_FOR_PILOT" if phase == "PILOT" else "ACCEPTED_FOR_CONFIRMATORY"
     )
-    compatible = [
+    acceptances = list(active["instrument_acceptance"])
+    prospective = [
         item
-        for item in active["instrument_acceptance"]
-        if item.get("instrument_configuration_id") == manifest["instrument_configuration_id"]
-        and item.get("environment_id") == manifest["environment"]["environment_reference"]
-        and item.get("campaign_id") == manifest["campaign_id"]
-        and item.get("acceptance_state") == expected_state
-        and item.get("accepted_for_phase") == phase
+        for item in acceptances
+        if _is_structurally_valid_prospective_acceptance(item, schema_store)
     ]
-    if len(compatible) != 1:
-        _reference_conflict(
-            findings,
-            "/instrument_acceptance_reference",
-            f"release requires exactly one compatible acceptance; found {len(compatible)}",
-        )
+    reference = manifest["instrument_acceptance_reference"]
+    claims_prospective_id = any(
+        item.get("instrument_acceptance_id") == reference for item in prospective
+    )
+    linked_prospective = any(
+        item.get("instrument_configuration_id")
+        == manifest["instrument_configuration_id"]
+        and item.get("environment_id")
+        == manifest["environment"]["environment_reference"]
+        and item.get("campaign_id") == manifest["campaign_id"]
+        for item in prospective
+    )
+    if claims_prospective_id or linked_prospective:
+        targets = [
+            item
+            for item in prospective
+            if item.get("instrument_acceptance_id") == reference
+        ]
+        if len(targets) != 1:
+            _active_missing(
+                findings,
+                "instrument_acceptance",
+                reference,
+                "/instrument_acceptance_reference",
+            )
+        else:
+            target = targets[0]
+            compatible = (
+                target.get("instrument_configuration_id")
+                == manifest["instrument_configuration_id"]
+                and target.get("environment_id")
+                == manifest["environment"]["environment_reference"]
+                and target.get("campaign_id") == manifest["campaign_id"]
+                and target.get("acceptance_state") == expected_state
+                and target.get("accepted_for_phase") == phase
+            )
+            if not compatible:
+                _reference_conflict(
+                    findings,
+                    "/instrument_acceptance_reference",
+                    "referenced instrument acceptance is incompatible with release context",
+                    reference,
+                )
+    else:
+        historical = [
+            item
+            for item in acceptances
+            if _artifact_contract_version(item, "instrument_acceptance") == "0.1.0"
+        ]
+        compatible = [
+            item
+            for item in historical
+            if item.get("instrument_configuration_id")
+            == manifest["instrument_configuration_id"]
+            and item.get("environment_id")
+            == manifest["environment"]["environment_reference"]
+            and item.get("campaign_id") == manifest["campaign_id"]
+            and item.get("acceptance_state") == expected_state
+            and item.get("accepted_for_phase") == phase
+        ]
+        if len(compatible) != 1:
+            _reference_conflict(
+                findings,
+                "/instrument_acceptance_reference",
+                f"release requires exactly one compatible acceptance; found {len(compatible)}",
+            )
     if campaign is not None and campaign.get("instrument_acceptance_reference") not in {
         None,
-        manifest["instrument_acceptance_reference"],
+        reference,
     }:
         _reference_conflict(
             findings,
@@ -1185,11 +1261,59 @@ def _validate_providers(
 def _resolve_active(active: ArtifactCollection, family: str, identity: str) -> JsonObject | None:
     if family not in active:
         return None
-    spec = get_artifact_family_spec(family)
-    if spec.identity_field is None:
-        return None
-    matches = [item for item in active[family] if item.get(spec.identity_field) == identity]
+    matches = []
+    for item in active[family]:
+        try:
+            spec = _artifact_contract_spec(family, item)
+        except KeyError:
+            continue
+        if spec.identity_field is not None and item.get(spec.identity_field) == identity:
+            matches.append(item)
     return matches[0] if len(matches) == 1 else None
+
+
+def _artifact_contract_spec(
+    family: str,
+    document: JsonObject,
+) -> ArtifactFamilyContractSpec:
+    version_field = get_artifact_family_spec(family).version_field
+    artifact_version = document.get(version_field)
+    if not isinstance(artifact_version, str):
+        raise KeyError((family, artifact_version))
+    return get_artifact_family_contract_spec(family, artifact_version)
+
+
+def _artifact_contract_version(document: JsonObject, family: str) -> str | None:
+    try:
+        return _artifact_contract_spec(family, document).artifact_version
+    except KeyError:
+        return None
+
+
+def _is_structurally_valid_prospective_acceptance(
+    document: JsonObject,
+    schema_store: SchemaStore,
+) -> bool:
+    try:
+        spec = _artifact_contract_spec("instrument_acceptance", document)
+    except KeyError:
+        return False
+    if spec.artifact_version != "0.2.0":
+        return False
+    schema = schema_store.get(spec.schema_id)
+    if schema is None or schema.get("$id") != spec.schema_id:
+        return False
+    try:
+        validate_instance(document, schema, schema_store=schema_store)
+    except (
+        ValidationError,
+        SchemaError,
+        SchemaStoreError,
+        ExternalSchemaReferenceError,
+        UnknownSchemaReferenceError,
+    ):
+        return False
+    return True
 
 
 def _structural_finding(
