@@ -1,0 +1,231 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:frontier-agent-containment:schema:s0-runtime-acceptance:0.1.0",
+  "title": "S0 Runtime Acceptance Contract",
+  "$comment": "Subordinate result structure for future IV-R1. A conforming object is representational only and does not prove S0 safety or constitute Instrument Acceptance.",
+  "type": "object",
+  "properties": {
+    "schema_version": {"$ref": "#/$defs/contract_version"},
+    "acceptance_version": {"$ref": "#/$defs/contract_version"},
+    "s0_acceptance_id": {
+      "type": "string",
+      "pattern": "^s0accept:[a-z0-9](?:[a-z0-9._-]*[a-z0-9])?$"
+    },
+    "runtime_plan_id": {
+      "allOf": [
+        {"$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/stable_typed_identifier"},
+        {"pattern": "^ivplan:"}
+      ]
+    },
+    "runtime_plan_version": {"$ref": "#/$defs/contract_version"},
+    "runtime_plan_digest": {"$ref": "#/$defs/sha256_digest"},
+    "instrument_configuration_id": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/instrument_configuration_id"
+    },
+    "instrument_configuration_version": {"$ref": "#/$defs/contract_version"},
+    "s0_declaration_id": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/condition_id"
+    },
+    "s0_declaration_version": {"$ref": "#/$defs/contract_version"},
+    "environment_id": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/environment_id"
+    },
+    "environment_version": {"$ref": "#/$defs/contract_version"},
+    "environment_build_id": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/build_id"
+    },
+    "component_build_bindings": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/component_build_binding"},
+      "minItems": 21,
+      "maxItems": 21,
+      "uniqueItems": true
+    },
+    "validation_set_id": {"$ref": "#/$defs/local_identifier"},
+    "validation_set_version": {"$ref": "#/$defs/contract_version"},
+    "acceptance_state": {
+      "type": "string",
+      "enum": ["S0_ACCEPTED", "S0_REJECTED"]
+    },
+    "validation_results": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/validation_result"},
+      "minItems": 13,
+      "maxItems": 13,
+      "uniqueItems": true
+    },
+    "configuration_digest": {"$ref": "#/$defs/sha256_digest"},
+    "acceptance_authority_id": {
+      "allOf": [
+        {"$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/stable_typed_identifier"},
+        {"pattern": "^authority:"}
+      ]
+    },
+    "producer_component_id": {"$ref": "#/$defs/local_identifier"},
+    "decision_rule_id": {"$ref": "#/$defs/local_identifier"},
+    "decision_rule_version": {"$ref": "#/$defs/contract_version"},
+    "lifecycle_state": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/artifact_lifecycle_state"
+    },
+    "unresolved_conditions": {
+      "type": "array",
+      "items": {"type": "string", "minLength": 1, "maxLength": 4096},
+      "uniqueItems": true
+    }
+  },
+  "required": [
+    "schema_version",
+    "acceptance_version",
+    "s0_acceptance_id",
+    "runtime_plan_id",
+    "runtime_plan_version",
+    "runtime_plan_digest",
+    "instrument_configuration_id",
+    "instrument_configuration_version",
+    "s0_declaration_id",
+    "s0_declaration_version",
+    "environment_id",
+    "environment_version",
+    "environment_build_id",
+    "component_build_bindings",
+    "validation_set_id",
+    "validation_set_version",
+    "acceptance_state",
+    "validation_results",
+    "configuration_digest",
+    "acceptance_authority_id",
+    "producer_component_id",
+    "decision_rule_id",
+    "decision_rule_version",
+    "lifecycle_state",
+    "unresolved_conditions"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "contract_version": {
+      "allOf": [
+        {"$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/executable_artifact_version"},
+        {"const": "0.1.0"}
+      ]
+    },
+    "local_identifier": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+    },
+    "sha256_digest": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "component_build_binding": {
+      "type": "object",
+      "properties": {
+        "component_id": {"$ref": "#/$defs/local_identifier"},
+        "component_version": {"$ref": "#/$defs/contract_version"},
+        "build_id": {
+          "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/build_id"
+        }
+      },
+      "required": ["component_id", "component_version", "build_id"],
+      "additionalProperties": false
+    },
+    "s0_property_category": {
+      "type": "string",
+      "enum": [
+        "NETWORK_DEFAULT_DENY",
+        "CONTROLLED_EGRESS",
+        "HOST_FILESYSTEM_ISOLATION",
+        "SECRET_ISOLATION",
+        "PROCESS_RESOURCE_CONTAINMENT",
+        "TIMEOUT_WATCHDOG",
+        "ACTION_MEDIATION",
+        "OBSERVER_VISIBILITY",
+        "EXTERNAL_ENFORCEMENT_LOCATION",
+        "RESET_DETERMINISM",
+        "CLEAN_STATE_RESTORATION",
+        "FAILURE_CONTAINMENT",
+        "CONFIGURATION_IDENTITY_BINDING"
+      ]
+    },
+    "validation_result": {
+      "type": "object",
+      "properties": {
+        "validation_case_ids": {
+          "type": "array",
+          "items": {
+            "allOf": [
+              {"$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/validation_case_id"},
+              {"pattern": "^valcase:iv-v1-[a-z0-9]+(?:-[a-z0-9]+)*$"}
+            ]
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "validation_case_version": {"$ref": "#/$defs/contract_version"},
+        "applicability_class": {
+          "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/validation_applicability_class"
+        },
+        "property_category": {"$ref": "#/$defs/s0_property_category"},
+        "expected_condition": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096
+        },
+        "result_state": {
+          "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/validation_result_state"
+        },
+        "evidence_event_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/event_id"
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "authoritative_source_registration_ids": {
+          "type": "array",
+          "items": {
+            "allOf": [
+              {"$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/stable_typed_identifier"},
+              {"pattern": "^source:"}
+            ]
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "not_applicable_reason": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096
+        }
+      },
+      "required": [
+        "validation_case_ids",
+        "validation_case_version",
+        "applicability_class",
+        "property_category",
+        "expected_condition",
+        "result_state",
+        "evidence_event_ids",
+        "authoritative_source_registration_ids"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "result_state": {"const": "VALIDATION_NOT_APPLICABLE"}
+            },
+            "required": ["result_state"]
+          },
+          "then": {
+            "properties": {
+              "applicability_class": {"const": "MANDATORY_CONDITIONAL"}
+            },
+            "required": ["not_applicable_reason"]
+          },
+          "else": {"not": {"required": ["not_applicable_reason"]}}
+        }
+      ]
+    }
+  }
+}

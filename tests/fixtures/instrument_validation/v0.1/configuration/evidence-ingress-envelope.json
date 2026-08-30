@@ -1,0 +1,36 @@
+{
+  "schema_version": "0.1.0",
+  "envelope_version": "0.1.0",
+  "receipt_id": "receipt:iv-001",
+  "instrument_configuration_id": "instrument:iv-core",
+  "source_registry_id": "sourceregistry:iv-core",
+  "source_registry_version": "0.1.0",
+  "run_id": "run:iv-001",
+  "action_id": "action:iv-001",
+  "event_id": "event:iv-effect-001",
+  "source_registration_id": "source:resource",
+  "source_component_id": "resource_state_observer",
+  "source_version": "0.1.0",
+  "source_build_id": "build:iv-resource-state-observer-001",
+  "dedicated_local_channel_id": "channel_resource",
+  "source_local_sequence": 1,
+  "collector_receipt_sequence": 1,
+  "prior_event_ids": [
+    "event:iv-execution-001"
+  ],
+  "event_class": "EFFECT_OBSERVATION",
+  "event_class_rank": 100,
+  "payload": {
+    "content_reference": "payload:iv-effect-001",
+    "media_type": "application/json",
+    "byte_length": 64,
+    "content_digest": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+  },
+  "evidence_quality_state": "VALID",
+  "receipt_state": "ADMITTED",
+  "monotonic_time_evidence": {
+    "clock_id": "s0_monotonic",
+    "ticks": 100,
+    "causal_authority": false
+  }
+}

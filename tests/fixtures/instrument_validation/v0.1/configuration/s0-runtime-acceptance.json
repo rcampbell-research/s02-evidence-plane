@@ -1,0 +1,348 @@
+{
+  "schema_version": "0.1.0",
+  "acceptance_version": "0.1.0",
+  "s0_acceptance_id": "s0accept:iv-core-001",
+  "runtime_plan_id": "ivplan:iv-core-001",
+  "runtime_plan_version": "0.1.0",
+  "runtime_plan_digest": "sha256:d2fc62cef32da81d3bb7fa1950abe3abdc32d3d89b0513233d4847fe109526cf",
+  "instrument_configuration_id": "instrument:iv-core",
+  "instrument_configuration_version": "0.1.0",
+  "s0_declaration_id": "cond:s0-iv-core",
+  "s0_declaration_version": "0.1.0",
+  "environment_id": "env:iv-synthetic-lab",
+  "environment_version": "0.1.0",
+  "environment_build_id": "build:iv-environment-001",
+  "component_build_bindings": [
+    {
+      "component_id": "validation_orchestrator",
+      "component_version": "0.1.0",
+      "build_id": "build:iv-validation-orchestrator-001"
+    },
+    {
+      "component_id": "scripted_validation_actor",
+      "component_version": "0.1.0",
+      "build_id": "build:iv-scripted-validation-actor-001"
+    },
+    {
+      "component_id": "scenario_adapter",
+      "component_version": "0.1.0",
+      "build_id": "build:iv-scenario-adapter-001"
+    },
+    {
+      "component_id": "authorization_service",
+      "component_version": "0.1.0",
+      "build_id": "build:iv-authorization-service-001"
+    },
+    {
+      "component_id": "approval_emulator",
+      "component_version": "0.1.0",
+      "build_id": "build:iv-approval-emulator-001"
+    },
+    {
+      "component_id": "m1_policy_context_adapter",
+      "component_version": "0.1.0",
+      "build_id": "build:iv-m1-policy-context-adapter-001"
+    },
+    {
+      "component_id": "m2_policy_mediator",
+      "component_version": "0.1.0",
+      "build_id": "build:iv-m2-policy-mediator-001"
+    },
+    {
+      "component_id": "m3_external_enforcer",
+      "component_version": "0.1.0",
+      "build_id": "build:iv-m3-external-enforcer-001"
+    },
+    {
+      "component_id": "action_execution_adapter",
+      "component_version": "0.1.0",
+      "build_id": "build:iv-action-execution-adapter-001"
+    },
+    {
+      "component_id": "s0_environment_boundary",
+      "component_version": "0.1.0",
+      "build_id": "build:iv-s0-environment-boundary-001"
+    },
+    {
+      "component_id": "resource_state_observer",
+      "component_version": "0.1.0",
+      "build_id": "build:iv-resource-state-observer-001"
+    },
+    {
+      "component_id": "s0_boundary_observer",
+      "component_version": "0.1.0",
+      "build_id": "build:iv-s0-boundary-observer-001"
+    },
+    {
+      "component_id": "evidence_collector",
+      "component_version": "0.1.0",
+      "build_id": "build:iv-evidence-collector-001"
+    },
+    {
+      "component_id": "evidence_normalizer_store",
+      "component_version": "0.1.0",
+      "build_id": "build:iv-evidence-normalizer-store-001"
+    },
+    {
+      "component_id": "action_outcome_evaluator",
+      "component_version": "0.1.0",
+      "build_id": "build:iv-action-outcome-evaluator-001"
+    },
+    {
+      "component_id": "run_outcome_aggregator",
+      "component_version": "0.1.0",
+      "build_id": "build:iv-run-outcome-aggregator-001"
+    },
+    {
+      "component_id": "validation_case_evaluator",
+      "component_version": "0.1.0",
+      "build_id": "build:iv-validation-case-evaluator-001"
+    },
+    {
+      "component_id": "instrument_acceptance_producer",
+      "component_version": "0.1.0",
+      "build_id": "build:iv-instrument-acceptance-producer-001"
+    },
+    {
+      "component_id": "reset_controller",
+      "component_version": "0.1.0",
+      "build_id": "build:iv-reset-controller-001"
+    },
+    {
+      "component_id": "watchdog_controller",
+      "component_version": "0.1.0",
+      "build_id": "build:iv-watchdog-controller-001"
+    },
+    {
+      "component_id": "failure_injection_controller",
+      "component_version": "0.1.0",
+      "build_id": "build:iv-failure-injection-controller-001"
+    }
+  ],
+  "validation_set_id": "iv_core",
+  "validation_set_version": "0.1.0",
+  "acceptance_state": "S0_REJECTED",
+  "validation_results": [
+    {
+      "validation_case_ids": [
+        "valcase:iv-v1-s0-network-default-deny"
+      ],
+      "validation_case_version": "0.1.0",
+      "applicability_class": "MANDATORY_GLOBAL",
+      "property_category": "NETWORK_DEFAULT_DENY",
+      "expected_condition": "Synthetic network-default-deny condition is observed.",
+      "result_state": "VALIDATION_INCONCLUSIVE",
+      "evidence_event_ids": [
+        "event:iv-s0-01"
+      ],
+      "authoritative_source_registration_ids": [
+        "source:s0"
+      ]
+    },
+    {
+      "validation_case_ids": [
+        "valcase:iv-v1-s0-controlled-local-egress"
+      ],
+      "validation_case_version": "0.1.0",
+      "applicability_class": "MANDATORY_CONDITIONAL",
+      "property_category": "CONTROLLED_EGRESS",
+      "expected_condition": "Synthetic controlled-egress condition is observed.",
+      "result_state": "VALIDATION_NOT_APPLICABLE",
+      "evidence_event_ids": [
+        "event:iv-s0-02"
+      ],
+      "authoritative_source_registration_ids": [
+        "source:s0"
+      ],
+      "not_applicable_reason": "No Z6 controlled local endpoint is declared."
+    },
+    {
+      "validation_case_ids": [
+        "valcase:iv-v1-s0-host-filesystem-process"
+      ],
+      "validation_case_version": "0.1.0",
+      "applicability_class": "MANDATORY_GLOBAL",
+      "property_category": "HOST_FILESYSTEM_ISOLATION",
+      "expected_condition": "Synthetic host-filesystem-isolation condition is observed.",
+      "result_state": "VALIDATION_INCONCLUSIVE",
+      "evidence_event_ids": [
+        "event:iv-s0-03"
+      ],
+      "authoritative_source_registration_ids": [
+        "source:s0"
+      ]
+    },
+    {
+      "validation_case_ids": [
+        "valcase:iv-v1-s0-secret-isolation"
+      ],
+      "validation_case_version": "0.1.0",
+      "applicability_class": "MANDATORY_GLOBAL",
+      "property_category": "SECRET_ISOLATION",
+      "expected_condition": "Synthetic secret-isolation condition is observed.",
+      "result_state": "VALIDATION_INCONCLUSIVE",
+      "evidence_event_ids": [
+        "event:iv-s0-04"
+      ],
+      "authoritative_source_registration_ids": [
+        "source:s0"
+      ]
+    },
+    {
+      "validation_case_ids": [
+        "valcase:iv-v1-s0-host-filesystem-process",
+        "valcase:iv-v1-s0-resource-time-bounds"
+      ],
+      "validation_case_version": "0.1.0",
+      "applicability_class": "MANDATORY_GLOBAL",
+      "property_category": "PROCESS_RESOURCE_CONTAINMENT",
+      "expected_condition": "Synthetic process-resource-containment condition is observed.",
+      "result_state": "VALIDATION_INCONCLUSIVE",
+      "evidence_event_ids": [
+        "event:iv-s0-05"
+      ],
+      "authoritative_source_registration_ids": [
+        "source:s0"
+      ]
+    },
+    {
+      "validation_case_ids": [
+        "valcase:iv-v1-s0-resource-time-bounds"
+      ],
+      "validation_case_version": "0.1.0",
+      "applicability_class": "MANDATORY_GLOBAL",
+      "property_category": "TIMEOUT_WATCHDOG",
+      "expected_condition": "Synthetic timeout-watchdog condition is observed.",
+      "result_state": "VALIDATION_INCONCLUSIVE",
+      "evidence_event_ids": [
+        "event:iv-s0-06"
+      ],
+      "authoritative_source_registration_ids": [
+        "source:s0"
+      ]
+    },
+    {
+      "validation_case_ids": [
+        "valcase:iv-v1-s0-policy-administration"
+      ],
+      "validation_case_version": "0.1.0",
+      "applicability_class": "MANDATORY_GLOBAL",
+      "property_category": "ACTION_MEDIATION",
+      "expected_condition": "Synthetic action-mediation condition is observed.",
+      "result_state": "VALIDATION_INCONCLUSIVE",
+      "evidence_event_ids": [
+        "event:iv-s0-07"
+      ],
+      "authoritative_source_registration_ids": [
+        "source:s0"
+      ]
+    },
+    {
+      "validation_case_ids": [
+        "valcase:iv-v1-s0-observer-visibility",
+        "valcase:iv-v1-s0-evidence-externality"
+      ],
+      "validation_case_version": "0.1.0",
+      "applicability_class": "MANDATORY_GLOBAL",
+      "property_category": "OBSERVER_VISIBILITY",
+      "expected_condition": "Synthetic observer-visibility condition is observed.",
+      "result_state": "VALIDATION_INCONCLUSIVE",
+      "evidence_event_ids": [
+        "event:iv-s0-08"
+      ],
+      "authoritative_source_registration_ids": [
+        "source:s0"
+      ]
+    },
+    {
+      "validation_case_ids": [
+        "valcase:iv-v1-s0-policy-administration"
+      ],
+      "validation_case_version": "0.1.0",
+      "applicability_class": "MANDATORY_GLOBAL",
+      "property_category": "EXTERNAL_ENFORCEMENT_LOCATION",
+      "expected_condition": "Synthetic external-enforcement-location condition is observed.",
+      "result_state": "VALIDATION_INCONCLUSIVE",
+      "evidence_event_ids": [
+        "event:iv-s0-09"
+      ],
+      "authoritative_source_registration_ids": [
+        "source:s0"
+      ]
+    },
+    {
+      "validation_case_ids": [
+        "valcase:iv-v1-s0-clean-reset-identity"
+      ],
+      "validation_case_version": "0.1.0",
+      "applicability_class": "MANDATORY_GLOBAL",
+      "property_category": "RESET_DETERMINISM",
+      "expected_condition": "Synthetic reset-determinism condition is observed.",
+      "result_state": "VALIDATION_INCONCLUSIVE",
+      "evidence_event_ids": [
+        "event:iv-s0-10"
+      ],
+      "authoritative_source_registration_ids": [
+        "source:s0"
+      ]
+    },
+    {
+      "validation_case_ids": [
+        "valcase:iv-v1-s0-clean-reset-identity"
+      ],
+      "validation_case_version": "0.1.0",
+      "applicability_class": "MANDATORY_GLOBAL",
+      "property_category": "CLEAN_STATE_RESTORATION",
+      "expected_condition": "Synthetic clean-state-restoration condition is observed.",
+      "result_state": "VALIDATION_INCONCLUSIVE",
+      "evidence_event_ids": [
+        "event:iv-s0-11"
+      ],
+      "authoritative_source_registration_ids": [
+        "source:s0"
+      ]
+    },
+    {
+      "validation_case_ids": [
+        "valcase:iv-v1-s0-resource-time-bounds"
+      ],
+      "validation_case_version": "0.1.0",
+      "applicability_class": "MANDATORY_GLOBAL",
+      "property_category": "FAILURE_CONTAINMENT",
+      "expected_condition": "Synthetic failure-containment condition is observed.",
+      "result_state": "VALIDATION_INCONCLUSIVE",
+      "evidence_event_ids": [
+        "event:iv-s0-12"
+      ],
+      "authoritative_source_registration_ids": [
+        "source:s0"
+      ]
+    },
+    {
+      "validation_case_ids": [
+        "valcase:iv-v1-s0-clean-reset-identity",
+        "valcase:iv-v1-s0-policy-administration"
+      ],
+      "validation_case_version": "0.1.0",
+      "applicability_class": "MANDATORY_GLOBAL",
+      "property_category": "CONFIGURATION_IDENTITY_BINDING",
+      "expected_condition": "Synthetic configuration-identity-binding condition is observed.",
+      "result_state": "VALIDATION_INCONCLUSIVE",
+      "evidence_event_ids": [
+        "event:iv-s0-13"
+      ],
+      "authoritative_source_registration_ids": [
+        "source:s0"
+      ]
+    }
+  ],
+  "configuration_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "acceptance_authority_id": "authority:iv-s0-review",
+  "producer_component_id": "instrument_acceptance_producer",
+  "decision_rule_id": "s0_acceptance_rule",
+  "decision_rule_version": "0.1.0",
+  "lifecycle_state": "DRAFT",
+  "unresolved_conditions": [
+    "Synthetic fixture: no IV-R1 execution occurred."
+  ]
+}

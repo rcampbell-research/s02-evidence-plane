@@ -1,0 +1,167 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:frontier-agent-containment:schema:evidence-ingress-envelope:0.1.0",
+  "title": "Evidence Ingress Envelope Contract",
+  "$comment": "Subordinate raw receipt metadata before normalization to Evidence Event. Source binding is local process/configuration registration, not a cryptographic signature or a claim that the payload is true.",
+  "type": "object",
+  "properties": {
+    "schema_version": {"$ref": "#/$defs/contract_version"},
+    "envelope_version": {"$ref": "#/$defs/contract_version"},
+    "receipt_id": {"$ref": "#/$defs/receipt_id"},
+    "instrument_configuration_id": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/instrument_configuration_id"
+    },
+    "source_registry_id": {
+      "allOf": [
+        {"$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/stable_typed_identifier"},
+        {"pattern": "^sourceregistry:"}
+      ]
+    },
+    "source_registry_version": {"$ref": "#/$defs/contract_version"},
+    "run_id": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/run_id"
+    },
+    "action_id": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/action_id"
+    },
+    "event_id": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/event_id"
+    },
+    "source_registration_id": {"$ref": "#/$defs/source_registration_id"},
+    "source_component_id": {"$ref": "#/$defs/local_identifier"},
+    "source_version": {"$ref": "#/$defs/contract_version"},
+    "source_build_id": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/build_id"
+    },
+    "dedicated_local_channel_id": {"$ref": "#/$defs/local_identifier"},
+    "source_local_sequence": {"type": "integer", "minimum": 1},
+    "collector_receipt_sequence": {"type": "integer", "minimum": 1},
+    "prior_event_ids": {
+      "type": "array",
+      "items": {
+        "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/event_id"
+      },
+      "uniqueItems": true
+    },
+    "event_class": {"$ref": "#/$defs/event_class"},
+    "event_class_rank": {"$ref": "#/$defs/event_class_rank"},
+    "payload": {"$ref": "#/$defs/payload"},
+    "evidence_quality_state": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/evidence_quality_state"
+    },
+    "receipt_state": {
+      "type": "string",
+      "enum": ["RECEIVED", "ADMITTED", "REJECTED"]
+    },
+    "duplicate_of_receipt_id": {"$ref": "#/$defs/receipt_id"},
+    "replay_of_receipt_id": {"$ref": "#/$defs/receipt_id"},
+    "conflicts_with_receipt_ids": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/receipt_id"},
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "monotonic_time_evidence": {
+      "type": "object",
+      "properties": {
+        "clock_id": {"$ref": "#/$defs/local_identifier"},
+        "ticks": {"type": "integer", "minimum": 0},
+        "causal_authority": {"const": false}
+      },
+      "required": ["clock_id", "ticks", "causal_authority"],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "schema_version",
+    "envelope_version",
+    "receipt_id",
+    "instrument_configuration_id",
+    "source_registry_id",
+    "source_registry_version",
+    "run_id",
+    "event_id",
+    "source_registration_id",
+    "source_component_id",
+    "source_version",
+    "source_build_id",
+    "dedicated_local_channel_id",
+    "source_local_sequence",
+    "collector_receipt_sequence",
+    "prior_event_ids",
+    "event_class",
+    "event_class_rank",
+    "payload",
+    "evidence_quality_state",
+    "receipt_state"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "contract_version": {
+      "allOf": [
+        {"$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/executable_artifact_version"},
+        {"const": "0.1.0"}
+      ]
+    },
+    "local_identifier": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+    },
+    "receipt_id": {
+      "allOf": [
+        {"$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/stable_typed_identifier"},
+        {"pattern": "^receipt:"}
+      ]
+    },
+    "source_registration_id": {
+      "allOf": [
+        {"$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/stable_typed_identifier"},
+        {"pattern": "^source:"}
+      ]
+    },
+    "event_class": {
+      "type": "string",
+      "enum": [
+        "RUN_INITIALIZATION",
+        "RUN_START",
+        "ACTION_REQUEST",
+        "AUTHORIZATION",
+        "APPROVAL_REQUEST",
+        "APPROVAL_DECISION",
+        "CONTROL_DECISION",
+        "EXECUTION_ATTEMPT",
+        "EXECUTION_COMPLETION",
+        "EFFECT_OBSERVATION",
+        "CONTROL_ERROR",
+        "RUN_TERMINATION",
+        "ACTION_OUTCOME_DERIVATION",
+        "RUN_OUTCOME_DERIVATION"
+      ]
+    },
+    "event_class_rank": {
+      "type": "integer",
+      "enum": [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140]
+    },
+    "payload": {
+      "type": "object",
+      "properties": {
+        "content_reference": {
+          "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/stable_typed_identifier"
+        },
+        "media_type": {"type": "string", "enum": ["application/json"]},
+        "byte_length": {"type": "integer", "minimum": 0},
+        "content_digest": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        }
+      },
+      "required": [
+        "content_reference",
+        "media_type",
+        "byte_length",
+        "content_digest"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

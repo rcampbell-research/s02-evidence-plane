@@ -215,8 +215,8 @@ def test_all_schemas_load_by_unique_declared_id(
         for key in ("historical_id", "prospective_id")
     }
 
-    assert len(SCHEMA_PATHS) == 29
-    assert len(documents) == len(declared_ids) == len(schema_store) == 29
+    assert len(SCHEMA_PATHS) == 32
+    assert len(documents) == len(declared_ids) == len(schema_store) == 32
     assert len(declared_ids) == len(set(declared_ids))
     assert affected_ids <= set(schema_store)
     assert set(declared_ids) == set(schema_store)
@@ -240,10 +240,10 @@ def test_duplicate_declared_schema_id_fails(
     with pytest.raises(DuplicateSchemaIdError, match="duplicate schema \\$id"):
         load_schema_store([path, path])
 
-    assert len(schema_store) == 29
+    assert len(schema_store) == 32
 
 
-def test_all_29_schemas_are_valid_draft_2020_12(
+def test_all_32_schemas_are_valid_draft_2020_12(
     schema_store: dict[str, Any],
 ) -> None:
     for schema in schema_store.values():
