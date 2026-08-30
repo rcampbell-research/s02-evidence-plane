@@ -1,0 +1,29 @@
+{
+  "architecture": "x86_64",
+  "build_id": "build:confirmatory-v0.1",
+  "build_version": "0.1.0",
+  "dependencies": [
+    {
+      "distribution_digest": "sha256:ba59926159d2aa256eb8739b8da7e2b574b960e1202c6d624cbe981cef996c91",
+      "distribution_filename": "rfc8785-0.1.4-py3-none-any.whl",
+      "name": "rfc8785",
+      "version": "0.1.4"
+    }
+  ],
+  "dependency_scope": "FULL_TRANSITIVE_RUNTIME",
+  "environment_mode": "CONTROLLED_RUNTIME",
+  "environment_reference": "env:synthetic-lab",
+  "kernel_release": "6.8.0",
+  "libc_identity": "glibc_2.39",
+  "locale_identity": "C.UTF-8",
+  "os_release_identity": "Ubuntu_24.04",
+  "os_runtime_identity": "system-Linux+release-Ubuntu_24.04+kernel-6.8.0+libc-glibc_2.39",
+  "os_system": "Linux",
+  "python_build_string": "main Aug 1 2026",
+  "python_implementation": "CPython",
+  "python_version": "3.12.3",
+  "release_id": "release:confirmatory-v0.1",
+  "system_site_packages_enabled": false,
+  "timezone_identity": "UTC",
+  "user_site_packages_enabled": false
+}

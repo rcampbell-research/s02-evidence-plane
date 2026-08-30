@@ -1,0 +1,31 @@
+{
+  "architecture": "x86_64",
+  "build_id": "build:development-v0.1",
+  "build_version": "0.1.0",
+  "dependencies": [
+    {
+      "name": "a-pkg",
+      "version": "1.0.1"
+    },
+    {
+      "name": "a_pkg",
+      "version": "1.0.2"
+    }
+  ],
+  "dependency_scope": "FULL_TRANSITIVE_RUNTIME",
+  "environment_mode": "DEVELOPMENT_TOOLING",
+  "environment_reference": "env:synthetic-lab",
+  "kernel_release": "6.8.0",
+  "libc_identity": "glibc_2.39",
+  "locale_identity": "C.UTF-8",
+  "os_release_identity": "Ubuntu_24.04",
+  "os_runtime_identity": "system-Linux+release-Ubuntu_24.04+kernel-6.8.0+libc-glibc_2.39",
+  "os_system": "Linux",
+  "python_build_string": "main Aug 1 2026",
+  "python_implementation": "CPython",
+  "python_version": "3.12.3",
+  "release_id": "release:development-v0.1",
+  "system_site_packages_enabled": true,
+  "timezone_identity": "UTC",
+  "user_site_packages_enabled": false
+}

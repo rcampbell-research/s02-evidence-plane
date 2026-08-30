@@ -1,0 +1,297 @@
+{
+  "artifacts": [
+    {
+      "artifact_family": "agent_model_condition",
+      "artifact_id": "agentcond:baseline",
+      "artifact_version": "0.1.0",
+      "content_digest": "sha256:0cd0cff8cc38e9ba9d4d44741de0c7f7e3baccb70209fd2511b1c5da132397ae",
+      "lifecycle_state": "FROZEN",
+      "locator": "scientific/agent_model_condition-000.json",
+      "phase_context": "CONFIRMATORY",
+      "schema_id": "urn:frontier-agent-containment:schema:agent-model-condition:0.1.0",
+      "schema_version": "0.1.0"
+    },
+    {
+      "artifact_family": "agent_model_condition",
+      "artifact_id": "agentcond:secondary",
+      "artifact_version": "0.1.0",
+      "content_digest": "sha256:7dfeae44cf9001d16ed19f85679344cf313a6c620d0b4c4cd1e94022919ba750",
+      "lifecycle_state": "FROZEN",
+      "locator": "scientific/agent-model-condition-secondary.json",
+      "phase_context": "CONFIRMATORY",
+      "schema_id": "urn:frontier-agent-containment:schema:agent-model-condition:0.1.0",
+      "schema_version": "0.1.0"
+    },
+    {
+      "artifact_family": "analysis_manifest",
+      "artifact_id": "analysis:confirmatory-primary",
+      "artifact_version": "0.1.0",
+      "content_digest": "sha256:f9da23d4940e0cbaa91d581bf29f62fdcedec099652c19ca6faabe6ffc1f1508",
+      "lifecycle_state": "FROZEN",
+      "locator": "scientific/analysis_manifest-000.json",
+      "phase_context": "CONFIRMATORY",
+      "schema_id": "urn:frontier-agent-containment:schema:analysis-manifest:0.1.0",
+      "schema_version": "0.1.0"
+    },
+    {
+      "artifact_family": "autonomy_condition",
+      "artifact_id": "autonomy:bounded",
+      "artifact_version": "0.1.0",
+      "content_digest": "sha256:ce534dc08e92aa98d4d775af3cde508e093aa20e68fef711fab057727576daea",
+      "lifecycle_state": "FROZEN",
+      "locator": "scientific/autonomy_condition-000.json",
+      "phase_context": "CONFIRMATORY",
+      "schema_id": "urn:frontier-agent-containment:schema:autonomy-condition:0.1.0",
+      "schema_version": "0.1.0"
+    },
+    {
+      "artifact_family": "benign_task",
+      "artifact_id": "task:inspect-record",
+      "artifact_version": "0.1.0",
+      "content_digest": "sha256:ffffeee71d0cc51339da3ff7903ada79e9fd12c086cc1812f091bd8257a8d10f",
+      "lifecycle_state": "FROZEN",
+      "locator": "scientific/benign_task-000.json",
+      "phase_context": "CONFIRMATORY",
+      "schema_id": "urn:frontier-agent-containment:schema:benign-task:0.1.0",
+      "schema_version": "0.1.0"
+    },
+    {
+      "artifact_family": "campaign",
+      "artifact_id": "campaign:confirmatory",
+      "artifact_version": "0.1.0",
+      "content_digest": "sha256:b20edc4ef48fbde65e386a0d319f362a28deb3dfe54832e33b54423649bd54bf",
+      "lifecycle_state": "FROZEN",
+      "locator": "scientific/campaign-000.json",
+      "phase_context": "CONFIRMATORY",
+      "schema_id": "urn:frontier-agent-containment:schema:campaign:0.1.0",
+      "schema_version": "0.1.0"
+    },
+    {
+      "artifact_family": "capability_envelope",
+      "artifact_id": "envelope:task-authority",
+      "artifact_version": "0.1.0",
+      "content_digest": "sha256:e049ebad6e7b103dc6f4dfeb5e70a1934d5acc9acc3bee85307f351a6145be7c",
+      "lifecycle_state": "FROZEN",
+      "locator": "scientific/capability_envelope-000.json",
+      "phase_context": "CONFIRMATORY",
+      "schema_id": "urn:frontier-agent-containment:schema:capability-envelope:0.1.0",
+      "schema_version": "0.1.0"
+    },
+    {
+      "artifact_family": "capability_evaluation",
+      "artifact_id": "cond:capability-evaluation-baseline",
+      "artifact_version": "0.1.0",
+      "content_digest": "sha256:a1411ab0231b76086bbb6f11950b7896fc882c41454c0eb43b31d8c91d1fa538",
+      "lifecycle_state": "FROZEN",
+      "locator": "scientific/capability_evaluation-000.json",
+      "phase_context": "CONFIRMATORY",
+      "schema_id": "urn:frontier-agent-containment:schema:capability-evaluation:0.1.0",
+      "schema_version": "0.1.0"
+    },
+    {
+      "artifact_family": "control",
+      "artifact_id": "control:m1-primary",
+      "artifact_version": "0.1.0",
+      "content_digest": "sha256:68ca1b22cdc7bc4fc143786f67e17a80e4e6460262c0ce01ecb7e4ad6b530225",
+      "lifecycle_state": "FROZEN",
+      "locator": "scientific/control-000.json",
+      "phase_context": "CONFIRMATORY",
+      "schema_id": "urn:frontier-agent-containment:schema:control:0.1.0",
+      "schema_version": "0.1.0"
+    },
+    {
+      "artifact_family": "control",
+      "artifact_id": "control:m3-primary",
+      "artifact_version": "0.1.0",
+      "content_digest": "sha256:809bcf2556ff9db7088e0ffa49759ab92de4ad63fcc941f09ce0c7cbe9d0b947",
+      "lifecycle_state": "FROZEN",
+      "locator": "scientific/control-001.json",
+      "phase_context": "CONFIRMATORY",
+      "schema_id": "urn:frontier-agent-containment:schema:control:0.1.0",
+      "schema_version": "0.1.0"
+    },
+    {
+      "artifact_family": "control_condition",
+      "artifact_id": "ctrlcond:m1-primary",
+      "artifact_version": "0.1.0",
+      "content_digest": "sha256:87f4d43b292d2137e83538606d56d4d34ee5bcb595710e03df48685756cc9ce8",
+      "lifecycle_state": "FROZEN",
+      "locator": "scientific/control_condition-000.json",
+      "phase_context": "CONFIRMATORY",
+      "schema_id": "urn:frontier-agent-containment:schema:control-condition:0.1.0",
+      "schema_version": "0.1.0"
+    },
+    {
+      "artifact_family": "control_condition",
+      "artifact_id": "ctrlcond:m3-primary",
+      "artifact_version": "0.1.0",
+      "content_digest": "sha256:d8694db7731efbc748dc7c7f61812e2f44de9f28a87935f7bd705ac63c492bea",
+      "lifecycle_state": "FROZEN",
+      "locator": "scientific/control_condition-001.json",
+      "phase_context": "CONFIRMATORY",
+      "schema_id": "urn:frontier-agent-containment:schema:control-condition:0.1.0",
+      "schema_version": "0.1.0"
+    },
+    {
+      "artifact_family": "environment",
+      "artifact_id": "env:synthetic-lab",
+      "artifact_version": "0.1.0",
+      "content_digest": "sha256:364b00a2b263ddd58b3819be45e34da768bba0cae6a2fd1e27fcc3257a12acbf",
+      "lifecycle_state": "FROZEN",
+      "locator": "scientific/environment-000.json",
+      "phase_context": "CONFIRMATORY",
+      "schema_id": "urn:frontier-agent-containment:schema:environment:0.1.0",
+      "schema_version": "0.1.0"
+    },
+    {
+      "artifact_family": "instrument_acceptance",
+      "artifact_id": "acceptance:confirmatory-001",
+      "artifact_version": "0.2.0",
+      "content_digest": "sha256:c750e538cd8ffb5e166eae8f40c529f72d05655b673ddb162710329a9a13e104",
+      "lifecycle_state": "FROZEN",
+      "locator": "scientific/instrument_acceptance-000.json",
+      "phase_context": "CONFIRMATORY",
+      "schema_id": "urn:frontier-agent-containment:schema:instrument-acceptance:0.2.0",
+      "schema_version": "0.2.0"
+    },
+    {
+      "artifact_family": "instrument_configuration",
+      "artifact_id": "instrument:baseline",
+      "artifact_version": "0.1.0",
+      "content_digest": "sha256:61ce3143d9f750593a216aacb169ed225a7a15d9a6837522f0ee3cdb2193a3b4",
+      "lifecycle_state": "FROZEN",
+      "locator": "scientific/instrument_configuration-000.json",
+      "phase_context": "CONFIRMATORY",
+      "schema_id": "urn:frontier-agent-containment:schema:instrument-configuration:0.1.0",
+      "schema_version": "0.1.0"
+    },
+    {
+      "artifact_family": "policy",
+      "artifact_id": "policy:default-deny",
+      "artifact_version": "0.1.0",
+      "content_digest": "sha256:948561a71457dd9e8d21ae9c3b6498a3913bbf274a12f5c6c3b16ce2bfeafe8e",
+      "lifecycle_state": "FROZEN",
+      "locator": "scientific/policy-000.json",
+      "phase_context": "CONFIRMATORY",
+      "schema_id": "urn:frontier-agent-containment:schema:policy:0.1.0",
+      "schema_version": "0.1.0"
+    },
+    {
+      "artifact_family": "resource",
+      "artifact_id": "resource:authorized-record",
+      "artifact_version": "0.1.0",
+      "content_digest": "sha256:8a08ae98051f346799bbf04aeb04371cbc83a1718238aa5bbb6c7eaabac7257f",
+      "lifecycle_state": "FROZEN",
+      "locator": "scientific/resource-000.json",
+      "phase_context": "CONFIRMATORY",
+      "schema_id": "urn:frontier-agent-containment:schema:resource:0.1.0",
+      "schema_version": "0.1.0"
+    },
+    {
+      "artifact_family": "resource",
+      "artifact_id": "resource:optional-log",
+      "artifact_version": "0.1.0",
+      "content_digest": "sha256:0ce63d4e191a5ba03b85d2cb8f9e2dfba6f11c023fe71dd8999b838d5af9286b",
+      "lifecycle_state": "FROZEN",
+      "locator": "scientific/resource-001.json",
+      "phase_context": "CONFIRMATORY",
+      "schema_id": "urn:frontier-agent-containment:schema:resource:0.1.0",
+      "schema_version": "0.1.0"
+    },
+    {
+      "artifact_family": "resource",
+      "artifact_id": "resource:protected-store",
+      "artifact_version": "0.1.0",
+      "content_digest": "sha256:3775c03835a6641397cd389eb4f2e4a55b0edf9330874e2bcfb7a18137b2347f",
+      "lifecycle_state": "FROZEN",
+      "locator": "scientific/resource-002.json",
+      "phase_context": "CONFIRMATORY",
+      "schema_id": "urn:frontier-agent-containment:schema:resource:0.1.0",
+      "schema_version": "0.1.0"
+    },
+    {
+      "artifact_family": "run_manifest",
+      "artifact_id": "run:corpus-001",
+      "artifact_version": "0.1.0",
+      "content_digest": "sha256:86d75a3bd27454e5acbfd5805d8be49f0d78ad5b585084c72559acea85d8aa6c",
+      "lifecycle_state": "FROZEN",
+      "locator": "scientific/run-manifest-001.json",
+      "phase_context": "CONFIRMATORY",
+      "schema_id": "urn:frontier-agent-containment:schema:run-manifest:0.1.0",
+      "schema_version": "0.1.0"
+    },
+    {
+      "artifact_family": "run_manifest",
+      "artifact_id": "run:corpus-002",
+      "artifact_version": "0.1.0",
+      "content_digest": "sha256:a3dd1fefdfcc00195dbcf7d8371ef16a7f05bb44584a25635bd86fa7583bda0d",
+      "lifecycle_state": "FROZEN",
+      "locator": "scientific/run-manifest-002.json",
+      "phase_context": "CONFIRMATORY",
+      "schema_id": "urn:frontier-agent-containment:schema:run-manifest:0.1.0",
+      "schema_version": "0.1.0"
+    },
+    {
+      "artifact_family": "scenario",
+      "artifact_id": "scenario:protected-access",
+      "artifact_version": "0.1.0",
+      "content_digest": "sha256:a9275e969f10004579b27502f8406f2be10a8a1e13b5b0e451213247d3e403d7",
+      "lifecycle_state": "FROZEN",
+      "locator": "scientific/scenario-000.json",
+      "phase_context": "CONFIRMATORY",
+      "schema_id": "urn:frontier-agent-containment:schema:scenario:0.1.0",
+      "schema_version": "0.1.0"
+    },
+    {
+      "artifact_family": "scenario",
+      "artifact_id": "scenario:protected-access-secondary",
+      "artifact_version": "0.1.0",
+      "content_digest": "sha256:3a447a5a3940cdf22822f12cd9ef4f207a05bc8bb9f600f28f1f4b15c14aab08",
+      "lifecycle_state": "FROZEN",
+      "locator": "scientific/scenario-secondary.json",
+      "phase_context": "CONFIRMATORY",
+      "schema_id": "urn:frontier-agent-containment:schema:scenario:0.1.0",
+      "schema_version": "0.1.0"
+    },
+    {
+      "artifact_family": "scheduled_run",
+      "artifact_id": "scheduledrun:unit-001",
+      "artifact_version": "0.1.0",
+      "content_digest": "sha256:06720d91552250a1026ed32944d88ab886403eb7c2d928d52c0f137cc07f8ff1",
+      "lifecycle_state": "FROZEN",
+      "locator": "scientific/scheduled_run-000.json",
+      "phase_context": "CONFIRMATORY",
+      "schema_id": "urn:frontier-agent-containment:schema:scheduled-run:0.1.0",
+      "schema_version": "0.1.0"
+    },
+    {
+      "artifact_family": "scheduled_run",
+      "artifact_id": "scheduledrun:unit-002",
+      "artifact_version": "0.1.0",
+      "content_digest": "sha256:45f43bc4108701a4e86e5561d740319a63204bdc659f42e4c2b2e3d432337926",
+      "lifecycle_state": "FROZEN",
+      "locator": "scientific/scheduled_run-001.json",
+      "phase_context": "CONFIRMATORY",
+      "schema_id": "urn:frontier-agent-containment:schema:scheduled-run:0.1.0",
+      "schema_version": "0.1.0"
+    },
+    {
+      "artifact_family": "validation_case",
+      "artifact_id": "valcase:v0-baseline",
+      "artifact_version": "0.1.0",
+      "content_digest": "sha256:2c31ae6f55fcd7527588249d7d9d3b77c8028c3672e0b31f6c9805771e8cf06a",
+      "lifecycle_state": "FROZEN",
+      "locator": "scientific/validation_case-000.json",
+      "phase_context": "CONFIRMATORY",
+      "schema_id": "urn:frontier-agent-containment:schema:validation-case:0.1.0",
+      "schema_version": "0.1.0"
+    }
+  ],
+  "canonicalization_id": "RFC8785-JCS",
+  "digest_algorithm": "SHA-256",
+  "manifest_version": "0.1.0",
+  "rejected_inputs": [],
+  "scope": {
+    "scope_type": "RELEASE"
+  }
+}

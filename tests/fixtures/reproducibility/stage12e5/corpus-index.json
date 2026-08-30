@@ -1,0 +1,2103 @@
+{
+  "bases": [
+    {
+      "base_case_id": "stage12e5:valid-confirmatory",
+      "package_path": "bases/confirmatory/package",
+      "phase": "CONFIRMATORY",
+      "rejected_input_paths": [],
+      "trusted_inputs_path": "bases/confirmatory/trusted-inputs.json"
+    },
+    {
+      "base_case_id": "stage12e5:valid-development",
+      "package_path": "bases/development/package",
+      "phase": "DEVELOPMENT",
+      "rejected_input_paths": [
+        {
+          "forensic_sha256": "sha256:3edb5c03e618da91ad9539add20c044bcd34cdb5f84b3142faf8c17307c797bb",
+          "locator": "rejected/a.raw",
+          "path": "bases/development/rejected/a.raw"
+        },
+        {
+          "forensic_sha256": "sha256:3ea107b4b9f781282a2611e2094b7e39af002875ad9af08761fa1c6bce3d2ddc",
+          "locator": "rejected/z.raw",
+          "path": "bases/development/rejected/z.raw"
+        }
+      ],
+      "trusted_inputs_path": "bases/development/trusted-inputs.json"
+    }
+  ],
+  "cases": [
+    {
+      "base_case_id": "stage12e5:valid-development",
+      "case_id": "stage12e5:binding-active-artifact",
+      "expected": {
+        "findings": [
+          {
+            "code": "AUDIT_RELEASE_BINDING_INVALID",
+            "field_path": "/artifact-manifest.json/artifacts",
+            "source": null,
+            "source_code": null,
+            "source_field_path": null
+          },
+          {
+            "code": "AUDIT_VALIDATION_FAILED",
+            "field_path": "/artifact-manifest.json/artifacts",
+            "source": "ManifestFinding",
+            "source_code": "MANIFEST_INCOMPLETE",
+            "source_field_path": "/artifacts"
+          },
+          {
+            "code": "AUDIT_VALIDATION_FAILED",
+            "field_path": "/release-profile/active_artifacts",
+            "source": "ReleaseValidationFinding",
+            "source_code": "RELEASE_ARTIFACT_MANIFEST_INVALID",
+            "source_field_path": "/active_artifacts"
+          },
+          {
+            "code": "AUDIT_RELEASE_BINDING_INVALID",
+            "field_path": "/reproducibility-manifest.json/schema_set",
+            "source": null,
+            "source_code": null,
+            "source_field_path": null
+          },
+          {
+            "code": "AUDIT_VALIDATION_FAILED",
+            "field_path": "/reproducibility-manifest.json/artifact_manifest_digest",
+            "source": "ManifestFinding",
+            "source_code": "MANIFEST_DIGEST_MISMATCH",
+            "source_field_path": "/artifact_manifest_digest"
+          },
+          {
+            "code": "AUDIT_VALIDATION_FAILED",
+            "field_path": "/reproducibility-manifest.json/artifact_manifest_digest",
+            "source": "ManifestFinding",
+            "source_code": "REPRODUCIBILITY_REFERENCE_INVALID",
+            "source_field_path": "/artifact_manifest_digest"
+          }
+        ],
+        "integrity_tag_annotation": null,
+        "passed": false,
+        "release_id": "release:development-v0.1",
+        "release_id_token": "development-v0.1",
+        "reproducibility_manifest_digest": null
+      },
+      "mutation": {
+        "index": 0,
+        "json_pointer": "/artifacts",
+        "kind": "remove-package-array-item",
+        "target": "artifact-manifest.json"
+      }
+    },
+    {
+      "base_case_id": "stage12e5:valid-development",
+      "case_id": "stage12e5:binding-build-id",
+      "expected": {
+        "findings": [
+          {
+            "code": "AUDIT_RELEASE_BINDING_INVALID",
+            "field_path": "/release-build.json/build_id",
+            "source": null,
+            "source_code": null,
+            "source_field_path": null
+          },
+          {
+            "code": "AUDIT_RELEASE_BINDING_INVALID",
+            "field_path": "/reproducibility-manifest.json/environment/build_identity",
+            "source": null,
+            "source_code": null,
+            "source_field_path": null
+          },
+          {
+            "code": "AUDIT_VALIDATION_FAILED",
+            "field_path": "/reproducibility-manifest.json/environment",
+            "source": "ManifestFinding",
+            "source_code": "REPRODUCIBILITY_ENVIRONMENT_INVALID",
+            "source_field_path": "/environment"
+          }
+        ],
+        "integrity_tag_annotation": null,
+        "passed": false,
+        "release_id": "release:development-v0.1",
+        "release_id_token": "development-v0.1",
+        "reproducibility_manifest_digest": null
+      },
+      "mutation": {
+        "json_pointer": "/build_id",
+        "kind": "set-package-json-value",
+        "target": "release-build.json",
+        "value": "build:development-v0.2"
+      }
+    },
+    {
+      "base_case_id": "stage12e5:valid-development",
+      "case_id": "stage12e5:binding-dependency-projection",
+      "expected": {
+        "findings": [
+          {
+            "code": "AUDIT_RELEASE_BINDING_INVALID",
+            "field_path": "/reproducibility-manifest.json/dependencies",
+            "source": null,
+            "source_code": null,
+            "source_field_path": null
+          },
+          {
+            "code": "AUDIT_VALIDATION_FAILED",
+            "field_path": "/reproducibility-manifest.json/dependencies",
+            "source": "ManifestFinding",
+            "source_code": "REPRODUCIBILITY_DEPENDENCY_INVALID",
+            "source_field_path": "/dependencies"
+          }
+        ],
+        "integrity_tag_annotation": null,
+        "passed": false,
+        "release_id": "release:development-v0.1",
+        "release_id_token": "development-v0.1",
+        "reproducibility_manifest_digest": null
+      },
+      "mutation": {
+        "json_pointer": "/dependencies/0/version",
+        "kind": "set-package-json-value",
+        "target": "reproducibility-manifest.json",
+        "value": "9.9.9"
+      }
+    },
+    {
+      "base_case_id": "stage12e5:valid-development",
+      "case_id": "stage12e5:binding-environment-content",
+      "expected": {
+        "findings": [
+          {
+            "code": "AUDIT_RELEASE_BINDING_INVALID",
+            "field_path": "/release-profile/environment_reference",
+            "source": null,
+            "source_code": null,
+            "source_field_path": null
+          },
+          {
+            "code": "AUDIT_VALIDATION_FAILED",
+            "field_path": "/reproducibility-manifest.json/environment",
+            "source": "ManifestFinding",
+            "source_code": "REPRODUCIBILITY_ENVIRONMENT_INVALID",
+            "source_field_path": "/environment"
+          }
+        ],
+        "integrity_tag_annotation": null,
+        "passed": false,
+        "release_id": "release:development-v0.1",
+        "release_id_token": "development-v0.1",
+        "reproducibility_manifest_digest": null
+      },
+      "mutation": {
+        "json_pointer": "/environment_artifact/description",
+        "kind": "set-trusted-json-value",
+        "target": "trusted-inputs",
+        "value": "Changed independently governed synthetic environment."
+      }
+    },
+    {
+      "base_case_id": "stage12e5:valid-development",
+      "case_id": "stage12e5:binding-environment-reference",
+      "expected": {
+        "findings": [
+          {
+            "code": "AUDIT_RELEASE_BINDING_INVALID",
+            "field_path": "/reproducibility-manifest.json/environment/environment_reference",
+            "source": null,
+            "source_code": null,
+            "source_field_path": null
+          },
+          {
+            "code": "AUDIT_VALIDATION_FAILED",
+            "field_path": "/release-build.json/environment_reference",
+            "source": "ReleaseAcquisitionFinding",
+            "source_code": "ACQUISITION_CONSISTENCY_INVALID",
+            "source_field_path": "/environment_reference"
+          },
+          {
+            "code": "AUDIT_VALIDATION_FAILED",
+            "field_path": "/reproducibility-manifest.json/environment",
+            "source": "ManifestFinding",
+            "source_code": "REPRODUCIBILITY_ENVIRONMENT_INVALID",
+            "source_field_path": "/environment"
+          }
+        ],
+        "integrity_tag_annotation": null,
+        "passed": false,
+        "release_id": "release:development-v0.1",
+        "release_id_token": "development-v0.1",
+        "reproducibility_manifest_digest": null
+      },
+      "mutation": {
+        "json_pointer": "/environment_reference",
+        "kind": "set-package-json-value",
+        "target": "release-build.json",
+        "value": "env:other"
+      }
+    },
+    {
+      "base_case_id": "stage12e5:valid-development",
+      "case_id": "stage12e5:binding-governing-document",
+      "expected": {
+        "findings": [
+          {
+            "code": "AUDIT_RELEASE_BINDING_INVALID",
+            "field_path": "/reproducibility-manifest.json/governing_documents",
+            "source": null,
+            "source_code": null,
+            "source_field_path": null
+          },
+          {
+            "code": "AUDIT_VALIDATION_FAILED",
+            "field_path": "/reproducibility-manifest.json/governing_documents",
+            "source": "ManifestFinding",
+            "source_code": "MANIFEST_INCOMPLETE",
+            "source_field_path": "/governing_documents"
+          },
+          {
+            "code": "AUDIT_VALIDATION_FAILED",
+            "field_path": "/reproducibility-manifest.json/governing_documents",
+            "source": "ManifestFinding",
+            "source_code": "MANIFEST_INCOMPLETE",
+            "source_field_path": "/governing_documents"
+          }
+        ],
+        "integrity_tag_annotation": null,
+        "passed": false,
+        "release_id": "release:development-v0.1",
+        "release_id_token": "development-v0.1",
+        "reproducibility_manifest_digest": null
+      },
+      "mutation": {
+        "index": 0,
+        "json_pointer": "/governing_documents",
+        "kind": "remove-package-array-item",
+        "target": "reproducibility-manifest.json"
+      }
+    },
+    {
+      "base_case_id": "stage12e5:valid-development",
+      "case_id": "stage12e5:binding-rejected-input",
+      "expected": {
+        "findings": [
+          {
+            "code": "AUDIT_RELEASE_BINDING_INVALID",
+            "field_path": "/artifact-manifest.json/rejected_inputs",
+            "source": null,
+            "source_code": null,
+            "source_field_path": null
+          },
+          {
+            "code": "AUDIT_VALIDATION_FAILED",
+            "field_path": "/artifact-manifest.json/rejected_inputs",
+            "source": "ManifestFinding",
+            "source_code": "MANIFEST_INCOMPLETE",
+            "source_field_path": "/rejected_inputs"
+          },
+          {
+            "code": "AUDIT_VALIDATION_FAILED",
+            "field_path": "/release-profile/active_artifacts",
+            "source": "ReleaseValidationFinding",
+            "source_code": "RELEASE_ARTIFACT_MANIFEST_INVALID",
+            "source_field_path": "/active_artifacts"
+          },
+          {
+            "code": "AUDIT_VALIDATION_FAILED",
+            "field_path": "/reproducibility-manifest.json/artifact_manifest_digest",
+            "source": "ManifestFinding",
+            "source_code": "MANIFEST_DIGEST_MISMATCH",
+            "source_field_path": "/artifact_manifest_digest"
+          },
+          {
+            "code": "AUDIT_VALIDATION_FAILED",
+            "field_path": "/reproducibility-manifest.json/artifact_manifest_digest",
+            "source": "ManifestFinding",
+            "source_code": "REPRODUCIBILITY_REFERENCE_INVALID",
+            "source_field_path": "/artifact_manifest_digest"
+          }
+        ],
+        "integrity_tag_annotation": null,
+        "passed": false,
+        "release_id": "release:development-v0.1",
+        "release_id_token": "development-v0.1",
+        "reproducibility_manifest_digest": null
+      },
+      "mutation": {
+        "index": 0,
+        "json_pointer": "/rejected_inputs",
+        "kind": "remove-package-array-item",
+        "target": "artifact-manifest.json"
+      }
+    },
+    {
+      "base_case_id": "stage12e5:valid-development",
+      "case_id": "stage12e5:binding-repro-build-identity",
+      "expected": {
+        "findings": [
+          {
+            "code": "AUDIT_RELEASE_BINDING_INVALID",
+            "field_path": "/reproducibility-manifest.json/environment/build_identity",
+            "source": null,
+            "source_code": null,
+            "source_field_path": null
+          },
+          {
+            "code": "AUDIT_VALIDATION_FAILED",
+            "field_path": "/reproducibility-manifest.json/environment",
+            "source": "ManifestFinding",
+            "source_code": "REPRODUCIBILITY_ENVIRONMENT_INVALID",
+            "source_field_path": "/environment"
+          }
+        ],
+        "integrity_tag_annotation": null,
+        "passed": false,
+        "release_id": "release:development-v0.1",
+        "release_id_token": "development-v0.1",
+        "reproducibility_manifest_digest": null
+      },
+      "mutation": {
+        "json_pointer": "/environment/build_identity",
+        "kind": "set-package-json-value",
+        "target": "reproducibility-manifest.json",
+        "value": "build:development-v0.2"
+      }
+    },
+    {
+      "base_case_id": "stage12e5:valid-development",
+      "case_id": "stage12e5:binding-schema-set",
+      "expected": {
+        "findings": [
+          {
+            "code": "AUDIT_RELEASE_BINDING_INVALID",
+            "field_path": "/reproducibility-manifest.json/schema_set",
+            "source": null,
+            "source_code": null,
+            "source_field_path": null
+          },
+          {
+            "code": "AUDIT_VALIDATION_FAILED",
+            "field_path": "/reproducibility-manifest.json/schema_set",
+            "source": "ManifestFinding",
+            "source_code": "MANIFEST_INCOMPLETE",
+            "source_field_path": "/schema_set"
+          }
+        ],
+        "integrity_tag_annotation": null,
+        "passed": false,
+        "release_id": "release:development-v0.1",
+        "release_id_token": "development-v0.1",
+        "reproducibility_manifest_digest": null
+      },
+      "mutation": {
+        "index": 0,
+        "json_pointer": "/schema_set",
+        "kind": "remove-package-array-item",
+        "target": "reproducibility-manifest.json"
+      }
+    },
+    {
+      "base_case_id": "stage12e5:valid-development",
+      "case_id": "stage12e5:binding-source-git",
+      "expected": {
+        "findings": [
+          {
+            "code": "AUDIT_VALIDATION_FAILED",
+            "field_path": "/reproducibility-manifest.json/repository_tree_sha",
+            "source": "ManifestFinding",
+            "source_code": "REPRODUCIBILITY_PROVENANCE_INVALID",
+            "source_field_path": "/repository_tree_sha"
+          }
+        ],
+        "integrity_tag_annotation": null,
+        "passed": false,
+        "release_id": "release:development-v0.1",
+        "release_id_token": "development-v0.1",
+        "reproducibility_manifest_digest": null
+      },
+      "mutation": {
+        "json_pointer": "/git_provenance/repository_tree_sha",
+        "kind": "set-trusted-json-value",
+        "target": "trusted-inputs",
+        "value": "4444444444444444444444444444444444444444"
+      }
+    },
+    {
+      "base_case_id": "stage12e5:valid-confirmatory",
+      "case_id": "stage12e5:dependency-confirmatory-missing-provenance",
+      "expected": {
+        "findings": [
+          {
+            "code": "AUDIT_DEPENDENCY_PROVENANCE_INCOMPLETE",
+            "field_path": "/release-build.json/dependencies",
+            "source": null,
+            "source_code": null,
+            "source_field_path": null
+          },
+          {
+            "code": "AUDIT_RELEASE_BINDING_INVALID",
+            "field_path": "/release-build.json/dependencies",
+            "source": null,
+            "source_code": null,
+            "source_field_path": null
+          },
+          {
+            "code": "AUDIT_RELEASE_BINDING_INVALID",
+            "field_path": "/reproducibility-manifest.json/dependencies",
+            "source": null,
+            "source_code": null,
+            "source_field_path": null
+          },
+          {
+            "code": "AUDIT_VALIDATION_FAILED",
+            "field_path": "/reproducibility-manifest.json/dependencies",
+            "source": "ManifestFinding",
+            "source_code": "REPRODUCIBILITY_DEPENDENCY_INVALID",
+            "source_field_path": "/dependencies"
+          }
+        ],
+        "integrity_tag_annotation": null,
+        "passed": false,
+        "release_id": "release:confirmatory-v0.1",
+        "release_id_token": "confirmatory-v0.1",
+        "reproducibility_manifest_digest": null
+      },
+      "mutation": {
+        "dependency_name": "rfc8785",
+        "kind": "replace-trusted-dependency-provenance",
+        "provenance": null,
+        "target": "runtime_dependency_closure"
+      }
+    },
+    {
+      "base_case_id": "stage12e5:valid-development",
+      "case_id": "stage12e5:dependency-development-empty-limitations",
+      "expected": {
+        "findings": [
+          {
+            "code": "AUDIT_DEPENDENCY_PROVENANCE_INCOMPLETE",
+            "field_path": "/release-build.json/dependencies",
+            "source": null,
+            "source_code": null,
+            "source_field_path": null
+          }
+        ],
+        "integrity_tag_annotation": null,
+        "passed": false,
+        "release_id": "release:development-v0.1",
+        "release_id_token": "development-v0.1",
+        "reproducibility_manifest_digest": null
+      },
+      "mutation": {
+        "json_pointer": "/reproducibility_limitations",
+        "kind": "set-package-json-value",
+        "target": "reproducibility-manifest.json",
+        "value": []
+      }
+    },
+    {
+      "base_case_id": "stage12e5:valid-development",
+      "case_id": "stage12e5:dependency-development-nonempty-limitations",
+      "expected": {
+        "findings": [],
+        "integrity_tag_annotation": "reproducibility-manifest-sha256: sha256:08c3cba4d78ae319294ba0856876c7bfcea84a9d3fe96f8b2e0f702e8d2ba48f",
+        "passed": true,
+        "release_id": "release:development-v0.1",
+        "release_id_token": "development-v0.1",
+        "reproducibility_manifest_digest": "sha256:08c3cba4d78ae319294ba0856876c7bfcea84a9d3fe96f8b2e0f702e8d2ba48f"
+      },
+      "mutation": {
+        "kind": "none",
+        "target": null
+      }
+    },
+    {
+      "base_case_id": "stage12e5:valid-development",
+      "case_id": "stage12e5:dependency-name",
+      "expected": {
+        "findings": [
+          {
+            "code": "AUDIT_RELEASE_BINDING_INVALID",
+            "field_path": "/reproducibility-manifest.json/dependencies",
+            "source": null,
+            "source_code": null,
+            "source_field_path": null
+          },
+          {
+            "code": "AUDIT_VALIDATION_FAILED",
+            "field_path": "/reproducibility-manifest.json/dependencies",
+            "source": "ManifestFinding",
+            "source_code": "MANIFEST_DUPLICATE_IDENTITY",
+            "source_field_path": "/dependencies"
+          },
+          {
+            "code": "AUDIT_VALIDATION_FAILED",
+            "field_path": "/reproducibility-manifest.json/dependencies",
+            "source": "ManifestFinding",
+            "source_code": "MANIFEST_INCOMPLETE",
+            "source_field_path": "/dependencies"
+          }
+        ],
+        "integrity_tag_annotation": null,
+        "passed": false,
+        "release_id": "release:development-v0.1",
+        "release_id_token": "development-v0.1",
+        "reproducibility_manifest_digest": null
+      },
+      "mutation": {
+        "json_pointer": "/dependencies/0/name",
+        "kind": "set-package-json-value",
+        "target": "reproducibility-manifest.json",
+        "value": "a_pkg"
+      }
+    },
+    {
+      "base_case_id": "stage12e5:valid-development",
+      "case_id": "stage12e5:dependency-order",
+      "expected": {
+        "findings": [
+          {
+            "code": "AUDIT_DETERMINISTIC_ORDER_INVALID",
+            "field_path": "/reproducibility-manifest.json/dependencies",
+            "source": null,
+            "source_code": null,
+            "source_field_path": null
+          }
+        ],
+        "integrity_tag_annotation": null,
+        "passed": false,
+        "release_id": "release:development-v0.1",
+        "release_id_token": "development-v0.1",
+        "reproducibility_manifest_digest": null
+      },
+      "mutation": {
+        "derived_file_sha256": "sha256:13559ce283bd90b3499537ab48fc80eaf1557ceb5908560185b6f3300a8ff46a",
+        "json_pointer": "/dependencies",
+        "kind": "reverse-package-array",
+        "target": "reproducibility-manifest.json"
+      }
+    },
+    {
+      "base_case_id": "stage12e5:valid-confirmatory",
+      "case_id": "stage12e5:dependency-provenance-projection",
+      "expected": {
+        "findings": [
+          {
+            "code": "AUDIT_RELEASE_BINDING_INVALID",
+            "field_path": "/release-build.json/dependencies",
+            "source": null,
+            "source_code": null,
+            "source_field_path": null
+          },
+          {
+            "code": "AUDIT_VALIDATION_FAILED",
+            "field_path": "/reproducibility-manifest.json/environment",
+            "source": "ManifestFinding",
+            "source_code": "REPRODUCIBILITY_ENVIRONMENT_INVALID",
+            "source_field_path": "/environment"
+          }
+        ],
+        "integrity_tag_annotation": null,
+        "passed": false,
+        "release_id": "release:confirmatory-v0.1",
+        "release_id_token": "confirmatory-v0.1",
+        "reproducibility_manifest_digest": null
+      },
+      "mutation": {
+        "json_pointer": "/dependencies/0/distribution_digest",
+        "kind": "set-package-json-value",
+        "target": "release-build.json",
+        "value": "sha256:0000000000000000000000000000000000000000000000000000000000000000"
+      }
+    },
+    {
+      "base_case_id": "stage12e5:valid-development",
+      "case_id": "stage12e5:dependency-version",
+      "expected": {
+        "findings": [
+          {
+            "code": "AUDIT_RELEASE_BINDING_INVALID",
+            "field_path": "/reproducibility-manifest.json/dependencies",
+            "source": null,
+            "source_code": null,
+            "source_field_path": null
+          },
+          {
+            "code": "AUDIT_VALIDATION_FAILED",
+            "field_path": "/reproducibility-manifest.json/dependencies",
+            "source": "ManifestFinding",
+            "source_code": "REPRODUCIBILITY_DEPENDENCY_INVALID",
+            "source_field_path": "/dependencies"
+          }
+        ],
+        "integrity_tag_annotation": null,
+        "passed": false,
+        "release_id": "release:development-v0.1",
+        "release_id_token": "development-v0.1",
+        "reproducibility_manifest_digest": null
+      },
+      "mutation": {
+        "json_pointer": "/dependencies/0/version",
+        "kind": "set-package-json-value",
+        "target": "reproducibility-manifest.json",
+        "value": "7.3.9"
+      }
+    },
+    {
+      "base_case_id": "stage12e5:valid-development",
+      "case_id": "stage12e5:json-duplicate-key",
+      "expected": {
+        "findings": [
+          {
+            "code": "AUDIT_JSON_INVALID",
+            "field_path": "/release-build.json",
+            "source": null,
+            "source_code": null,
+            "source_field_path": null
+          }
+        ],
+        "integrity_tag_annotation": null,
+        "passed": false,
+        "release_id": "release:development-v0.1",
+        "release_id_token": "development-v0.1",
+        "reproducibility_manifest_digest": null
+      },
+      "mutation": {
+        "fixture_path": "raw-tampers/duplicate-key.raw",
+        "kind": "replace-package-bytes",
+        "target": "release-build.json"
+      }
+    },
+    {
+      "base_case_id": "stage12e5:valid-development",
+      "case_id": "stage12e5:json-infinity",
+      "expected": {
+        "findings": [
+          {
+            "code": "AUDIT_JSON_INVALID",
+            "field_path": "/release-build.json",
+            "source": null,
+            "source_code": null,
+            "source_field_path": null
+          }
+        ],
+        "integrity_tag_annotation": null,
+        "passed": false,
+        "release_id": "release:development-v0.1",
+        "release_id_token": "development-v0.1",
+        "reproducibility_manifest_digest": null
+      },
+      "mutation": {
+        "fixture_path": "raw-tampers/infinity.raw",
+        "kind": "replace-package-bytes",
+        "target": "release-build.json"
+      }
+    },
+    {
+      "base_case_id": "stage12e5:valid-development",
+      "case_id": "stage12e5:json-malformed-json",
+      "expected": {
+        "findings": [
+          {
+            "code": "AUDIT_JSON_INVALID",
+            "field_path": "/release-build.json",
+            "source": null,
+            "source_code": null,
+            "source_field_path": null
+          }
+        ],
+        "integrity_tag_annotation": null,
+        "passed": false,
+        "release_id": "release:development-v0.1",
+        "release_id_token": "development-v0.1",
+        "reproducibility_manifest_digest": null
+      },
+      "mutation": {
+        "fixture_path": "raw-tampers/malformed-json.raw",
+        "kind": "replace-package-bytes",
+        "target": "release-build.json"
+      }
+    },
+    {
+      "base_case_id": "stage12e5:valid-development",
+      "case_id": "stage12e5:json-malformed-utf8",
+      "expected": {
+        "findings": [
+          {
+            "code": "AUDIT_JSON_INVALID",
+            "field_path": "/release-build.json",
+            "source": null,
+            "source_code": null,
+            "source_field_path": null
+          }
+        ],
+        "integrity_tag_annotation": null,
+        "passed": false,
+        "release_id": "release:development-v0.1",
+        "release_id_token": "development-v0.1",
+        "reproducibility_manifest_digest": null
+      },
+      "mutation": {
+        "fixture_path": "raw-tampers/malformed-utf8.raw",
+        "kind": "replace-package-bytes",
+        "target": "release-build.json"
+      }
+    },
+    {
+      "base_case_id": "stage12e5:valid-development",
+      "case_id": "stage12e5:json-nan",
+      "expected": {
+        "findings": [
+          {
+            "code": "AUDIT_JSON_INVALID",
+            "field_path": "/release-build.json",
+            "source": null,
+            "source_code": null,
+            "source_field_path": null
+          }
+        ],
+        "integrity_tag_annotation": null,
+        "passed": false,
+        "release_id": "release:development-v0.1",
+        "release_id_token": "development-v0.1",
+        "reproducibility_manifest_digest": null
+      },
+      "mutation": {
+        "fixture_path": "raw-tampers/nan.raw",
+        "kind": "replace-package-bytes",
+        "target": "release-build.json"
+      }
+    },
+    {
+      "base_case_id": "stage12e5:valid-development",
+      "case_id": "stage12e5:json-negative-infinity",
+      "expected": {
+        "findings": [
+          {
+            "code": "AUDIT_JSON_INVALID",
+            "field_path": "/release-build.json",
+            "source": null,
+            "source_code": null,
+            "source_field_path": null
+          }
+        ],
+        "integrity_tag_annotation": null,
+        "passed": false,
+        "release_id": "release:development-v0.1",
+        "release_id_token": "development-v0.1",
+        "reproducibility_manifest_digest": null
+      },
+      "mutation": {
+        "fixture_path": "raw-tampers/negative-infinity.raw",
+        "kind": "replace-package-bytes",
+        "target": "release-build.json"
+      }
+    },
+    {
+      "base_case_id": "stage12e5:valid-development",
+      "case_id": "stage12e5:layout-directory-child",
+      "expected": {
+        "findings": [
+          {
+            "code": "AUDIT_PACKAGE_LAYOUT_INVALID",
+            "field_path": "/release-build.json",
+            "source": null,
+            "source_code": null,
+            "source_field_path": null
+          }
+        ],
+        "integrity_tag_annotation": null,
+        "passed": false,
+        "release_id": "release:development-v0.1",
+        "release_id_token": "development-v0.1",
+        "reproducibility_manifest_digest": null
+      },
+      "mutation": {
+        "kind": "directory-package-child",
+        "target": "release-build.json"
+      }
+    },
+    {
+      "base_case_id": "stage12e5:valid-development",
+      "case_id": "stage12e5:layout-extra-child",
+      "expected": {
+        "findings": [
+          {
+            "code": "AUDIT_PACKAGE_LAYOUT_INVALID",
+            "field_path": "/",
+            "source": null,
+            "source_code": null,
+            "source_field_path": null
+          }
+        ],
+        "integrity_tag_annotation": null,
+        "passed": false,
+        "release_id": "release:development-v0.1",
+        "release_id_token": "development-v0.1",
+        "reproducibility_manifest_digest": null
+      },
+      "mutation": {
+        "content_utf8": "unexpected\n",
+        "kind": "add-package-child",
+        "target": "unexpected.txt"
+      }
+    },
+    {
+      "base_case_id": "stage12e5:valid-development",
+      "case_id": "stage12e5:layout-missing-file",
+      "expected": {
+        "findings": [
+          {
+            "code": "AUDIT_PACKAGE_LAYOUT_INVALID",
+            "field_path": "/release-build.json",
+            "source": null,
+            "source_code": null,
+            "source_field_path": null
+          }
+        ],
+        "integrity_tag_annotation": null,
+        "passed": false,
+        "release_id": "release:development-v0.1",
+        "release_id_token": "development-v0.1",
+        "reproducibility_manifest_digest": null
+      },
+      "mutation": {
+        "kind": "remove-package-child",
+        "target": "release-build.json"
+      }
+    },
+    {
+      "base_case_id": "stage12e5:valid-development",
+      "case_id": "stage12e5:layout-symlink-child",
+      "expected": {
+        "findings": [
+          {
+            "code": "AUDIT_PACKAGE_LAYOUT_INVALID",
+            "field_path": "/release-build.json",
+            "source": null,
+            "source_code": null,
+            "source_field_path": null
+          }
+        ],
+        "integrity_tag_annotation": null,
+        "passed": false,
+        "release_id": "release:development-v0.1",
+        "release_id_token": "development-v0.1",
+        "reproducibility_manifest_digest": null
+      },
+      "mutation": {
+        "kind": "symlink-package-child",
+        "link_target": "../outside-release-build.json",
+        "target": "release-build.json"
+      }
+    },
+    {
+      "base_case_id": "stage12e5:valid-development",
+      "case_id": "stage12e5:multi-five-finding-order",
+      "expected": {
+        "findings": [
+          {
+            "code": "AUDIT_PACKAGE_LAYOUT_INVALID",
+            "field_path": "/",
+            "source": null,
+            "source_code": null,
+            "source_field_path": null
+          },
+          {
+            "code": "AUDIT_PHYSICAL_SERIALIZATION_INVALID",
+            "field_path": "/artifact-manifest.json",
+            "source": null,
+            "source_code": null,
+            "source_field_path": null
+          },
+          {
+            "code": "AUDIT_GENERATED_VERSION_INVALID",
+            "field_path": "/reproducibility-manifest.json/reproducibility_version",
+            "source": null,
+            "source_code": null,
+            "source_field_path": null
+          },
+          {
+            "code": "AUDIT_DETERMINISTIC_ORDER_INVALID",
+            "field_path": "/reproducibility-manifest.json/schema_set",
+            "source": null,
+            "source_code": null,
+            "source_field_path": null
+          },
+          {
+            "code": "AUDIT_VALIDATION_FAILED",
+            "field_path": "/reproducibility-manifest.json/environment",
+            "source": "ManifestFinding",
+            "source_code": "REPRODUCIBILITY_ENVIRONMENT_INVALID",
+            "source_field_path": "/environment"
+          }
+        ],
+        "integrity_tag_annotation": null,
+        "passed": false,
+        "release_id": "release:development-v0.1",
+        "release_id_token": "development-v0.1",
+        "reproducibility_manifest_digest": null
+      },
+      "mutation": {
+        "kind": "multi-five-finding-order",
+        "operations": [
+          {
+            "content_utf8": "x",
+            "kind": "add-package-child",
+            "target": "extra"
+          },
+          {
+            "derived_file_sha256": "sha256:accc3d8bad34f44393cbb433eeb9c8dd8bde3b7c557db316d468bd8bd01bcbdc",
+            "kind": "physical-compact-json",
+            "target": "artifact-manifest.json"
+          },
+          {
+            "json_pointer": "/reproducibility_version",
+            "kind": "set-package-json-value",
+            "target": "reproducibility-manifest.json",
+            "value": "7.3.9"
+          },
+          {
+            "derived_file_sha256": "sha256:2a22f940b273edcc7e6a118ffcc9292690df22f17ddde55d265971ffa3621f35",
+            "json_pointer": "/schema_set",
+            "kind": "reverse-package-array",
+            "target": "reproducibility-manifest.json"
+          },
+          {
+            "json_pointer": "/environment/environment_content_digest",
+            "kind": "set-package-json-value",
+            "target": "reproducibility-manifest.json",
+            "value": "sha256:0000000000000000000000000000000000000000000000000000000000000000"
+          }
+        ],
+        "target": null
+      }
+    },
+    {
+      "base_case_id": "stage12e5:valid-development",
+      "case_id": "stage12e5:order-artifacts",
+      "expected": {
+        "findings": [
+          {
+            "code": "AUDIT_DETERMINISTIC_ORDER_INVALID",
+            "field_path": "/artifact-manifest.json/artifacts",
+            "source": null,
+            "source_code": null,
+            "source_field_path": null
+          },
+          {
+            "code": "AUDIT_VALIDATION_FAILED",
+            "field_path": "/reproducibility-manifest.json/artifact_manifest_digest",
+            "source": "ManifestFinding",
+            "source_code": "MANIFEST_DIGEST_MISMATCH",
+            "source_field_path": "/artifact_manifest_digest"
+          }
+        ],
+        "integrity_tag_annotation": null,
+        "passed": false,
+        "release_id": "release:development-v0.1",
+        "release_id_token": "development-v0.1",
+        "reproducibility_manifest_digest": null
+      },
+      "mutation": {
+        "derived_file_sha256": "sha256:ee8fa2bfe426a8d312a0304899a96431faaed56a24825ffea294e56239a17a11",
+        "json_pointer": "/artifacts",
+        "kind": "reverse-package-array",
+        "target": "artifact-manifest.json"
+      }
+    },
+    {
+      "base_case_id": "stage12e5:valid-confirmatory",
+      "case_id": "stage12e5:order-control-subset",
+      "expected": {
+        "findings": [
+          {
+            "code": "AUDIT_DETERMINISTIC_ORDER_INVALID",
+            "field_path": "/reproducibility-manifest.json/control_subset",
+            "source": null,
+            "source_code": null,
+            "source_field_path": null
+          }
+        ],
+        "integrity_tag_annotation": null,
+        "passed": false,
+        "release_id": "release:confirmatory-v0.1",
+        "release_id_token": "confirmatory-v0.1",
+        "reproducibility_manifest_digest": null
+      },
+      "mutation": {
+        "derived_file_sha256": "sha256:195df65f2b37b5ffd12f3956384f951655c2094808cf27f5c28071dea307b748",
+        "json_pointer": "/control_subset",
+        "kind": "reverse-package-array",
+        "target": "reproducibility-manifest.json"
+      }
+    },
+    {
+      "base_case_id": "stage12e5:valid-development",
+      "case_id": "stage12e5:order-dependencies",
+      "expected": {
+        "findings": [
+          {
+            "code": "AUDIT_DETERMINISTIC_ORDER_INVALID",
+            "field_path": "/release-build.json/dependencies",
+            "source": null,
+            "source_code": null,
+            "source_field_path": null
+          },
+          {
+            "code": "AUDIT_VALIDATION_FAILED",
+            "field_path": "/reproducibility-manifest.json/environment",
+            "source": "ManifestFinding",
+            "source_code": "REPRODUCIBILITY_ENVIRONMENT_INVALID",
+            "source_field_path": "/environment"
+          }
+        ],
+        "integrity_tag_annotation": null,
+        "passed": false,
+        "release_id": "release:development-v0.1",
+        "release_id_token": "development-v0.1",
+        "reproducibility_manifest_digest": null
+      },
+      "mutation": {
+        "derived_file_sha256": "sha256:9a273ed83728de3ea16deb8028691c510c92bc688c220f1ab19e837f1d3ca363",
+        "json_pointer": "/dependencies",
+        "kind": "reverse-package-array",
+        "target": "release-build.json"
+      }
+    },
+    {
+      "base_case_id": "stage12e5:valid-development",
+      "case_id": "stage12e5:order-governing-documents",
+      "expected": {
+        "findings": [
+          {
+            "code": "AUDIT_DETERMINISTIC_ORDER_INVALID",
+            "field_path": "/reproducibility-manifest.json/governing_documents",
+            "source": null,
+            "source_code": null,
+            "source_field_path": null
+          }
+        ],
+        "integrity_tag_annotation": null,
+        "passed": false,
+        "release_id": "release:development-v0.1",
+        "release_id_token": "development-v0.1",
+        "reproducibility_manifest_digest": null
+      },
+      "mutation": {
+        "derived_file_sha256": "sha256:d6414672028cce7edea14f11ebdbf9eba91f1189a8ef8fc7b688badcd9ec8ca3",
+        "json_pointer": "/governing_documents",
+        "kind": "reverse-package-array",
+        "target": "reproducibility-manifest.json"
+      }
+    },
+    {
+      "base_case_id": "stage12e5:valid-development",
+      "case_id": "stage12e5:order-limitations",
+      "expected": {
+        "findings": [
+          {
+            "code": "AUDIT_DETERMINISTIC_ORDER_INVALID",
+            "field_path": "/reproducibility-manifest.json/reproducibility_limitations",
+            "source": null,
+            "source_code": null,
+            "source_field_path": null
+          }
+        ],
+        "integrity_tag_annotation": null,
+        "passed": false,
+        "release_id": "release:development-v0.1",
+        "release_id_token": "development-v0.1",
+        "reproducibility_manifest_digest": null
+      },
+      "mutation": {
+        "derived_file_sha256": "sha256:2cb3f8d22d06382252dc53a758a676f4750a1283fb5d7aa03663ed242703c2da",
+        "json_pointer": "/reproducibility_limitations",
+        "kind": "reverse-package-array",
+        "target": "reproducibility-manifest.json"
+      }
+    },
+    {
+      "base_case_id": "stage12e5:valid-confirmatory",
+      "case_id": "stage12e5:order-providers",
+      "expected": {
+        "findings": [
+          {
+            "code": "AUDIT_DETERMINISTIC_ORDER_INVALID",
+            "field_path": "/reproducibility-manifest.json/model_provider_identities",
+            "source": null,
+            "source_code": null,
+            "source_field_path": null
+          }
+        ],
+        "integrity_tag_annotation": null,
+        "passed": false,
+        "release_id": "release:confirmatory-v0.1",
+        "release_id_token": "confirmatory-v0.1",
+        "reproducibility_manifest_digest": null
+      },
+      "mutation": {
+        "derived_file_sha256": "sha256:18cbd8b9bfa5a8d626be833b444a14df644fc437f3f49b74c37af508acf5fbc7",
+        "json_pointer": "/model_provider_identities",
+        "kind": "reverse-package-array",
+        "target": "reproducibility-manifest.json"
+      }
+    },
+    {
+      "base_case_id": "stage12e5:valid-development",
+      "case_id": "stage12e5:order-rejected-inputs",
+      "expected": {
+        "findings": [
+          {
+            "code": "AUDIT_DETERMINISTIC_ORDER_INVALID",
+            "field_path": "/artifact-manifest.json/rejected_inputs",
+            "source": null,
+            "source_code": null,
+            "source_field_path": null
+          },
+          {
+            "code": "AUDIT_VALIDATION_FAILED",
+            "field_path": "/reproducibility-manifest.json/artifact_manifest_digest",
+            "source": "ManifestFinding",
+            "source_code": "MANIFEST_DIGEST_MISMATCH",
+            "source_field_path": "/artifact_manifest_digest"
+          }
+        ],
+        "integrity_tag_annotation": null,
+        "passed": false,
+        "release_id": "release:development-v0.1",
+        "release_id_token": "development-v0.1",
+        "reproducibility_manifest_digest": null
+      },
+      "mutation": {
+        "derived_file_sha256": "sha256:999498188250728dc77e943125991d220e4afa2a79eed8fdb4af83db5896a5d5",
+        "json_pointer": "/rejected_inputs",
+        "kind": "reverse-package-array",
+        "target": "artifact-manifest.json"
+      }
+    },
+    {
+      "base_case_id": "stage12e5:valid-confirmatory",
+      "case_id": "stage12e5:order-repetitions",
+      "expected": {
+        "findings": [
+          {
+            "code": "AUDIT_DETERMINISTIC_ORDER_INVALID",
+            "field_path": "/reproducibility-manifest.json/repetition_identities",
+            "source": null,
+            "source_code": null,
+            "source_field_path": null
+          }
+        ],
+        "integrity_tag_annotation": null,
+        "passed": false,
+        "release_id": "release:confirmatory-v0.1",
+        "release_id_token": "confirmatory-v0.1",
+        "reproducibility_manifest_digest": null
+      },
+      "mutation": {
+        "derived_file_sha256": "sha256:92f51dec59dcf11d2f9d6d7d79b11c9d60e04718eedee61c6feec58c0597ef10",
+        "json_pointer": "/repetition_identities",
+        "kind": "reverse-package-array",
+        "target": "reproducibility-manifest.json"
+      }
+    },
+    {
+      "base_case_id": "stage12e5:valid-confirmatory",
+      "case_id": "stage12e5:order-run-ids",
+      "expected": {
+        "findings": [
+          {
+            "code": "AUDIT_DETERMINISTIC_ORDER_INVALID",
+            "field_path": "/reproducibility-manifest.json/run_ids",
+            "source": null,
+            "source_code": null,
+            "source_field_path": null
+          }
+        ],
+        "integrity_tag_annotation": null,
+        "passed": false,
+        "release_id": "release:confirmatory-v0.1",
+        "release_id_token": "confirmatory-v0.1",
+        "reproducibility_manifest_digest": null
+      },
+      "mutation": {
+        "derived_file_sha256": "sha256:cd92dfbee009165b1e25ccedee32e73b117ad0f4ead10da652ca0c66973512f7",
+        "json_pointer": "/run_ids",
+        "kind": "reverse-package-array",
+        "target": "reproducibility-manifest.json"
+      }
+    },
+    {
+      "base_case_id": "stage12e5:valid-confirmatory",
+      "case_id": "stage12e5:order-scenario-subset",
+      "expected": {
+        "findings": [
+          {
+            "code": "AUDIT_DETERMINISTIC_ORDER_INVALID",
+            "field_path": "/reproducibility-manifest.json/scenario_subset",
+            "source": null,
+            "source_code": null,
+            "source_field_path": null
+          }
+        ],
+        "integrity_tag_annotation": null,
+        "passed": false,
+        "release_id": "release:confirmatory-v0.1",
+        "release_id_token": "confirmatory-v0.1",
+        "reproducibility_manifest_digest": null
+      },
+      "mutation": {
+        "derived_file_sha256": "sha256:80ed682829de2731d7873d796c18eaac77850d274630e8e0ce2565b6b6d4c3a7",
+        "json_pointer": "/scenario_subset",
+        "kind": "reverse-package-array",
+        "target": "reproducibility-manifest.json"
+      }
+    },
+    {
+      "base_case_id": "stage12e5:valid-confirmatory",
+      "case_id": "stage12e5:order-scheduled-run-ids",
+      "expected": {
+        "findings": [
+          {
+            "code": "AUDIT_DETERMINISTIC_ORDER_INVALID",
+            "field_path": "/reproducibility-manifest.json/scheduled_run_ids",
+            "source": null,
+            "source_code": null,
+            "source_field_path": null
+          }
+        ],
+        "integrity_tag_annotation": null,
+        "passed": false,
+        "release_id": "release:confirmatory-v0.1",
+        "release_id_token": "confirmatory-v0.1",
+        "reproducibility_manifest_digest": null
+      },
+      "mutation": {
+        "derived_file_sha256": "sha256:2a85ab1eca33c8d00d5ad6fe1011f2868108586ea7a957064579d44f84b46041",
+        "json_pointer": "/scheduled_run_ids",
+        "kind": "reverse-package-array",
+        "target": "reproducibility-manifest.json"
+      }
+    },
+    {
+      "base_case_id": "stage12e5:valid-development",
+      "case_id": "stage12e5:order-schema-set",
+      "expected": {
+        "findings": [
+          {
+            "code": "AUDIT_DETERMINISTIC_ORDER_INVALID",
+            "field_path": "/reproducibility-manifest.json/schema_set",
+            "source": null,
+            "source_code": null,
+            "source_field_path": null
+          }
+        ],
+        "integrity_tag_annotation": null,
+        "passed": false,
+        "release_id": "release:development-v0.1",
+        "release_id_token": "development-v0.1",
+        "reproducibility_manifest_digest": null
+      },
+      "mutation": {
+        "derived_file_sha256": "sha256:01af2a3bf3e911c3b5d9cb2c52f0f5370f606b477f752a4e46d53a0047235d82",
+        "json_pointer": "/schema_set",
+        "kind": "reverse-package-array",
+        "target": "reproducibility-manifest.json"
+      }
+    },
+    {
+      "base_case_id": "stage12e5:valid-development",
+      "case_id": "stage12e5:package-read-failed",
+      "expected": {
+        "findings": [
+          {
+            "code": "AUDIT_PACKAGE_READ_FAILED",
+            "field_path": "/release-build.json",
+            "source": null,
+            "source_code": null,
+            "source_field_path": null
+          }
+        ],
+        "integrity_tag_annotation": null,
+        "passed": false,
+        "release_id": "release:development-v0.1",
+        "release_id_token": "development-v0.1",
+        "reproducibility_manifest_digest": null
+      },
+      "mutation": {
+        "kind": "inject-read-failure",
+        "target": "release-build.json"
+      }
+    },
+    {
+      "base_case_id": "stage12e5:valid-development",
+      "case_id": "stage12e5:physical-compact-json",
+      "expected": {
+        "findings": [
+          {
+            "code": "AUDIT_PHYSICAL_SERIALIZATION_INVALID",
+            "field_path": "/reproducibility-manifest.json",
+            "source": null,
+            "source_code": null,
+            "source_field_path": null
+          }
+        ],
+        "integrity_tag_annotation": null,
+        "passed": false,
+        "release_id": "release:development-v0.1",
+        "release_id_token": "development-v0.1",
+        "reproducibility_manifest_digest": null
+      },
+      "mutation": {
+        "derived_file_sha256": "sha256:5a92c1717f1d888fddab28468b1250f74d2e04d5a4571c9be96e0c5f7d8c9e2f",
+        "kind": "physical-compact-json",
+        "target": "reproducibility-manifest.json"
+      }
+    },
+    {
+      "base_case_id": "stage12e5:valid-development",
+      "case_id": "stage12e5:physical-crlf",
+      "expected": {
+        "findings": [
+          {
+            "code": "AUDIT_PHYSICAL_SERIALIZATION_INVALID",
+            "field_path": "/reproducibility-manifest.json",
+            "source": null,
+            "source_code": null,
+            "source_field_path": null
+          }
+        ],
+        "integrity_tag_annotation": null,
+        "passed": false,
+        "release_id": "release:development-v0.1",
+        "release_id_token": "development-v0.1",
+        "reproducibility_manifest_digest": null
+      },
+      "mutation": {
+        "derived_file_sha256": "sha256:a03d2f9c7aa1eb8d1850d31c03033eeb7ab3af335ca7cecf537d54c5cf51164d",
+        "kind": "physical-crlf",
+        "target": "reproducibility-manifest.json"
+      }
+    },
+    {
+      "base_case_id": "stage12e5:valid-development",
+      "case_id": "stage12e5:physical-double-terminal-lf",
+      "expected": {
+        "findings": [
+          {
+            "code": "AUDIT_PHYSICAL_SERIALIZATION_INVALID",
+            "field_path": "/reproducibility-manifest.json",
+            "source": null,
+            "source_code": null,
+            "source_field_path": null
+          }
+        ],
+        "integrity_tag_annotation": null,
+        "passed": false,
+        "release_id": "release:development-v0.1",
+        "release_id_token": "development-v0.1",
+        "reproducibility_manifest_digest": null
+      },
+      "mutation": {
+        "derived_file_sha256": "sha256:a4da75cdd2218592b7ef499393e808e287b534df9da36c6bf87e520aa0db0ab2",
+        "kind": "physical-double-terminal-lf",
+        "target": "reproducibility-manifest.json"
+      }
+    },
+    {
+      "base_case_id": "stage12e5:valid-development",
+      "case_id": "stage12e5:physical-escaped-unicode",
+      "expected": {
+        "findings": [
+          {
+            "code": "AUDIT_PHYSICAL_SERIALIZATION_INVALID",
+            "field_path": "/reproducibility-manifest.json",
+            "source": null,
+            "source_code": null,
+            "source_field_path": null
+          }
+        ],
+        "integrity_tag_annotation": null,
+        "passed": false,
+        "release_id": "release:development-v0.1",
+        "release_id_token": "development-v0.1",
+        "reproducibility_manifest_digest": null
+      },
+      "mutation": {
+        "derived_file_sha256": "sha256:5a07ffe0a4fbe98f861d1d5da75f7db3b1695960f401aaa24f1b2b5da9977cab",
+        "kind": "physical-escaped-unicode",
+        "target": "reproducibility-manifest.json"
+      }
+    },
+    {
+      "base_case_id": "stage12e5:valid-development",
+      "case_id": "stage12e5:physical-no-terminal-lf",
+      "expected": {
+        "findings": [
+          {
+            "code": "AUDIT_PHYSICAL_SERIALIZATION_INVALID",
+            "field_path": "/reproducibility-manifest.json",
+            "source": null,
+            "source_code": null,
+            "source_field_path": null
+          }
+        ],
+        "integrity_tag_annotation": null,
+        "passed": false,
+        "release_id": "release:development-v0.1",
+        "release_id_token": "development-v0.1",
+        "reproducibility_manifest_digest": null
+      },
+      "mutation": {
+        "derived_file_sha256": "sha256:0a50d4a6108435381d7f05826da3743da82e087d89d5fcb3ad2bc41b9bbd7ab0",
+        "kind": "physical-no-terminal-lf",
+        "target": "reproducibility-manifest.json"
+      }
+    },
+    {
+      "base_case_id": "stage12e5:valid-development",
+      "case_id": "stage12e5:physical-unsorted-keys",
+      "expected": {
+        "findings": [
+          {
+            "code": "AUDIT_PHYSICAL_SERIALIZATION_INVALID",
+            "field_path": "/reproducibility-manifest.json",
+            "source": null,
+            "source_code": null,
+            "source_field_path": null
+          }
+        ],
+        "integrity_tag_annotation": null,
+        "passed": false,
+        "release_id": "release:development-v0.1",
+        "release_id_token": "development-v0.1",
+        "reproducibility_manifest_digest": null
+      },
+      "mutation": {
+        "derived_file_sha256": "sha256:dfbbf98ce442d488dc7bb2fffedf7c0a9b0d2de80650729c99ee52dfa261f60a",
+        "kind": "physical-unsorted-keys",
+        "target": "reproducibility-manifest.json"
+      }
+    },
+    {
+      "base_case_id": "stage12e5:valid-confirmatory",
+      "case_id": "stage12e5:valid-confirmatory",
+      "expected": {
+        "findings": [],
+        "integrity_tag_annotation": "reproducibility-manifest-sha256: sha256:73a00f1150c45451cb8fdb72f609acf03695f9f907ffc0111a64888a947ee358",
+        "passed": true,
+        "release_id": "release:confirmatory-v0.1",
+        "release_id_token": "confirmatory-v0.1",
+        "reproducibility_manifest_digest": "sha256:73a00f1150c45451cb8fdb72f609acf03695f9f907ffc0111a64888a947ee358"
+      },
+      "mutation": {
+        "kind": "none",
+        "target": null
+      }
+    },
+    {
+      "base_case_id": "stage12e5:valid-development",
+      "case_id": "stage12e5:valid-development",
+      "expected": {
+        "findings": [],
+        "integrity_tag_annotation": "reproducibility-manifest-sha256: sha256:08c3cba4d78ae319294ba0856876c7bfcea84a9d3fe96f8b2e0f702e8d2ba48f",
+        "passed": true,
+        "release_id": "release:development-v0.1",
+        "release_id_token": "development-v0.1",
+        "reproducibility_manifest_digest": "sha256:08c3cba4d78ae319294ba0856876c7bfcea84a9d3fe96f8b2e0f702e8d2ba48f"
+      },
+      "mutation": {
+        "kind": "none",
+        "target": null
+      }
+    },
+    {
+      "base_case_id": "stage12e5:valid-development",
+      "case_id": "stage12e5:validation-build-consistency",
+      "expected": {
+        "findings": [
+          {
+            "code": "AUDIT_VALIDATION_FAILED",
+            "field_path": "/release-build.json/python_version",
+            "source": "ReleaseAcquisitionFinding",
+            "source_code": "ACQUISITION_CONSISTENCY_INVALID",
+            "source_field_path": "/python_version"
+          },
+          {
+            "code": "AUDIT_VALIDATION_FAILED",
+            "field_path": "/reproducibility-manifest.json/environment",
+            "source": "ManifestFinding",
+            "source_code": "REPRODUCIBILITY_ENVIRONMENT_INVALID",
+            "source_field_path": "/environment"
+          }
+        ],
+        "integrity_tag_annotation": null,
+        "passed": false,
+        "release_id": "release:development-v0.1",
+        "release_id_token": "development-v0.1",
+        "reproducibility_manifest_digest": null
+      },
+      "mutation": {
+        "json_pointer": "/python_version",
+        "kind": "set-package-json-value",
+        "target": "release-build.json",
+        "value": "9.9.9"
+      }
+    },
+    {
+      "base_case_id": "stage12e5:valid-development",
+      "case_id": "stage12e5:validation-build-schema",
+      "expected": {
+        "findings": [
+          {
+            "code": "AUDIT_VALIDATION_FAILED",
+            "field_path": "/release-build.json/python_version",
+            "source": "ValidationError",
+            "source_code": "type",
+            "source_field_path": "/python_version"
+          }
+        ],
+        "integrity_tag_annotation": null,
+        "passed": false,
+        "release_id": "release:development-v0.1",
+        "release_id_token": "development-v0.1",
+        "reproducibility_manifest_digest": null
+      },
+      "mutation": {
+        "json_pointer": "/python_version",
+        "kind": "set-package-json-value",
+        "target": "release-build.json",
+        "value": 9
+      }
+    },
+    {
+      "base_case_id": "stage12e5:valid-development",
+      "case_id": "stage12e5:validation-identity5-version",
+      "expected": {
+        "findings": [
+          {
+            "code": "AUDIT_VALIDATION_FAILED",
+            "field_path": "/release-profile/active_artifacts/0/expected_artifact_version",
+            "source": "ReleaseValidationFinding",
+            "source_code": "RELEASE_ARTIFACT_EXPECTED_VERSION_MISMATCH",
+            "source_field_path": "/active_artifacts/0/expected_artifact_version"
+          }
+        ],
+        "integrity_tag_annotation": null,
+        "passed": false,
+        "release_id": "release:development-v0.1",
+        "release_id_token": "development-v0.1",
+        "reproducibility_manifest_digest": null
+      },
+      "mutation": {
+        "json_pointer": "/release_profile/active_artifacts/0/expected_artifact_version",
+        "kind": "set-trusted-json-value",
+        "target": "trusted-inputs",
+        "value": "7.3.9"
+      }
+    },
+    {
+      "base_case_id": "stage12e5:valid-development",
+      "case_id": "stage12e5:validation-repro-environment",
+      "expected": {
+        "findings": [
+          {
+            "code": "AUDIT_VALIDATION_FAILED",
+            "field_path": "/reproducibility-manifest.json/environment",
+            "source": "ManifestFinding",
+            "source_code": "REPRODUCIBILITY_ENVIRONMENT_INVALID",
+            "source_field_path": "/environment"
+          }
+        ],
+        "integrity_tag_annotation": null,
+        "passed": false,
+        "release_id": "release:development-v0.1",
+        "release_id_token": "development-v0.1",
+        "reproducibility_manifest_digest": null
+      },
+      "mutation": {
+        "json_pointer": "/environment/environment_content_digest",
+        "kind": "set-package-json-value",
+        "target": "reproducibility-manifest.json",
+        "value": "sha256:0000000000000000000000000000000000000000000000000000000000000000"
+      }
+    },
+    {
+      "base_case_id": "stage12e5:valid-development",
+      "case_id": "stage12e5:validation-stage12d-artifact-digest",
+      "expected": {
+        "findings": [
+          {
+            "code": "AUDIT_VALIDATION_FAILED",
+            "field_path": "/artifact-manifest.json/artifacts/0/content_digest",
+            "source": "ManifestFinding",
+            "source_code": "MANIFEST_DIGEST_MISMATCH",
+            "source_field_path": "/artifacts/0/content_digest"
+          },
+          {
+            "code": "AUDIT_VALIDATION_FAILED",
+            "field_path": "/release-profile/active_artifacts",
+            "source": "ReleaseValidationFinding",
+            "source_code": "RELEASE_ARTIFACT_MANIFEST_INVALID",
+            "source_field_path": "/active_artifacts"
+          },
+          {
+            "code": "AUDIT_VALIDATION_FAILED",
+            "field_path": "/reproducibility-manifest.json/artifact_manifest_digest",
+            "source": "ManifestFinding",
+            "source_code": "MANIFEST_DIGEST_MISMATCH",
+            "source_field_path": "/artifact_manifest_digest"
+          },
+          {
+            "code": "AUDIT_VALIDATION_FAILED",
+            "field_path": "/reproducibility-manifest.json/artifact_manifest_digest",
+            "source": "ManifestFinding",
+            "source_code": "REPRODUCIBILITY_REFERENCE_INVALID",
+            "source_field_path": "/artifact_manifest_digest"
+          }
+        ],
+        "integrity_tag_annotation": null,
+        "passed": false,
+        "release_id": "release:development-v0.1",
+        "release_id_token": "development-v0.1",
+        "reproducibility_manifest_digest": null
+      },
+      "mutation": {
+        "json_pointer": "/artifacts/0/content_digest",
+        "kind": "set-package-json-value",
+        "target": "artifact-manifest.json",
+        "value": "sha256:0000000000000000000000000000000000000000000000000000000000000000"
+      }
+    },
+    {
+      "base_case_id": "stage12e5:valid-development",
+      "case_id": "stage12e5:version-artifact-manifest",
+      "expected": {
+        "findings": [
+          {
+            "code": "AUDIT_GENERATED_VERSION_INVALID",
+            "field_path": "/artifact-manifest.json/manifest_version",
+            "source": null,
+            "source_code": null,
+            "source_field_path": null
+          },
+          {
+            "code": "AUDIT_VALIDATION_FAILED",
+            "field_path": "/reproducibility-manifest.json/artifact_manifest_digest",
+            "source": "ManifestFinding",
+            "source_code": "MANIFEST_DIGEST_MISMATCH",
+            "source_field_path": "/artifact_manifest_digest"
+          }
+        ],
+        "integrity_tag_annotation": null,
+        "passed": false,
+        "release_id": "release:development-v0.1",
+        "release_id_token": "development-v0.1",
+        "reproducibility_manifest_digest": null
+      },
+      "mutation": {
+        "json_pointer": "/manifest_version",
+        "kind": "set-package-json-value",
+        "target": "artifact-manifest.json",
+        "value": "7.3.9"
+      }
+    },
+    {
+      "base_case_id": "stage12e5:valid-development",
+      "case_id": "stage12e5:version-release-build",
+      "expected": {
+        "findings": [
+          {
+            "code": "AUDIT_GENERATED_VERSION_INVALID",
+            "field_path": "/release-build.json/build_version",
+            "source": null,
+            "source_code": null,
+            "source_field_path": null
+          },
+          {
+            "code": "AUDIT_VALIDATION_FAILED",
+            "field_path": "/reproducibility-manifest.json/environment",
+            "source": "ManifestFinding",
+            "source_code": "REPRODUCIBILITY_ENVIRONMENT_INVALID",
+            "source_field_path": "/environment"
+          }
+        ],
+        "integrity_tag_annotation": null,
+        "passed": false,
+        "release_id": "release:development-v0.1",
+        "release_id_token": "development-v0.1",
+        "reproducibility_manifest_digest": null
+      },
+      "mutation": {
+        "json_pointer": "/build_version",
+        "kind": "set-package-json-value",
+        "target": "release-build.json",
+        "value": "7.3.9"
+      }
+    },
+    {
+      "base_case_id": "stage12e5:valid-development",
+      "case_id": "stage12e5:version-reproducibility-manifest",
+      "expected": {
+        "findings": [
+          {
+            "code": "AUDIT_GENERATED_VERSION_INVALID",
+            "field_path": "/reproducibility-manifest.json/reproducibility_version",
+            "source": null,
+            "source_code": null,
+            "source_field_path": null
+          }
+        ],
+        "integrity_tag_annotation": null,
+        "passed": false,
+        "release_id": "release:development-v0.1",
+        "release_id_token": "development-v0.1",
+        "reproducibility_manifest_digest": null
+      },
+      "mutation": {
+        "json_pointer": "/reproducibility_version",
+        "kind": "set-package-json-value",
+        "target": "reproducibility-manifest.json",
+        "value": "7.3.9"
+      }
+    }
+  ],
+  "corpus_version": "0.1.0",
+  "files": [
+    {
+      "path": "bases/confirmatory/package/artifact-manifest.json",
+      "sha256": "sha256:f22e28ad5f052856554ff9a75b18d403b9f578b13e27f86b3a0dd2f1f4d23bfb"
+    },
+    {
+      "path": "bases/confirmatory/package/release-build.json",
+      "sha256": "sha256:c8e9dafa2598d3dd44f4aef086fcf356101625cfecc288deacc1b80cbe4a4577"
+    },
+    {
+      "path": "bases/confirmatory/package/reproducibility-manifest.json",
+      "sha256": "sha256:aad24148609bc0163361a79e012087fdbdf382713f03b1e588ac4b82bc60df90"
+    },
+    {
+      "path": "bases/confirmatory/trusted-inputs.json",
+      "sha256": "sha256:1e88035832f33abcd98ceaf521ebd45d67b0325b8e3c4f9d3afdd1b99894c568"
+    },
+    {
+      "path": "bases/development/package/artifact-manifest.json",
+      "sha256": "sha256:fcbc10db9cb50230be2664d23a0af1e8d7fbb1a412e22dbac1f72fa67842d3e3"
+    },
+    {
+      "path": "bases/development/package/release-build.json",
+      "sha256": "sha256:c328b0a91a92bd3d125ca1a707e966e4683ad789d975331132fc631c7dc60a88"
+    },
+    {
+      "path": "bases/development/package/reproducibility-manifest.json",
+      "sha256": "sha256:df6ba76dd8d7ffe7834564fa96813b333e1f61f2fe19025c69f0946c9fd9ca5f"
+    },
+    {
+      "path": "bases/development/rejected/a.raw",
+      "sha256": "sha256:3edb5c03e618da91ad9539add20c044bcd34cdb5f84b3142faf8c17307c797bb"
+    },
+    {
+      "path": "bases/development/rejected/z.raw",
+      "sha256": "sha256:3ea107b4b9f781282a2611e2094b7e39af002875ad9af08761fa1c6bce3d2ddc"
+    },
+    {
+      "path": "bases/development/trusted-inputs.json",
+      "sha256": "sha256:204197f117596bf50fb3d11f564e7293b4e99858b7d53fec0d4f558aa8ec7791"
+    },
+    {
+      "path": "raw-tampers/duplicate-key.raw",
+      "sha256": "sha256:70f09e61d50f608b090093a666c8f5995ed46fd99d0a96e33169bfa3a616b451"
+    },
+    {
+      "path": "raw-tampers/infinity.raw",
+      "sha256": "sha256:d9346dd738492643fc39160d1435d89de24bfeb890aca27113bd5301b81b7a45"
+    },
+    {
+      "path": "raw-tampers/malformed-json.raw",
+      "sha256": "sha256:2da55bccecdc74134a6d1bc4ddea9d2a0f11dd710961d9c4ecba632b77889306"
+    },
+    {
+      "path": "raw-tampers/malformed-utf8.raw",
+      "sha256": "sha256:a23333a1f647c223709ce1c650c08e6defca1eac6f3dd11f7fd3e29c5f40d970"
+    },
+    {
+      "path": "raw-tampers/nan.raw",
+      "sha256": "sha256:304474eea3b34071a927952d6e595c7989d205be9f0b768d97b34bdbd551997d"
+    },
+    {
+      "path": "raw-tampers/negative-infinity.raw",
+      "sha256": "sha256:7d206e7beb284554b65e4b486508086cfa104d5f030f48d0a70bf570811ac0f6"
+    }
+  ],
+  "governing_documents": [
+    {
+      "document_id": "research-contract",
+      "path": "docs/research-contract-v0.1.md",
+      "physical_sha256": "sha256:8501a8705adb852e03ff6c45f3da5481bef89a87f5df3cd50cec66218ff37d5b",
+      "provenance": {
+        "document_version": "v0.1",
+        "exact_byte_content_digest": "sha256:8501a8705adb852e03ff6c45f3da5481bef89a87f5df3cd50cec66218ff37d5b",
+        "frozen_tag_identity": "research-contract-v0.1",
+        "frozen_tag_object_sha": "9375ff08239d2bb24ea53ee256f3d547fe15e50f",
+        "frozen_tag_target_commit_sha": "b42c51770daef1770724228679bf6281087c9b32"
+      }
+    },
+    {
+      "document_id": "threat-scenario-spec",
+      "path": "docs/threat-scenario-spec-v0.1.md",
+      "physical_sha256": "sha256:d8e90620f0ddad8c598a5f2c51daffd83e0bcca814957bb04645755de40c1f2b",
+      "provenance": {
+        "document_version": "v0.1",
+        "exact_byte_content_digest": "sha256:d8e90620f0ddad8c598a5f2c51daffd83e0bcca814957bb04645755de40c1f2b",
+        "frozen_tag_identity": "threat-scenario-spec-v0.1",
+        "frozen_tag_object_sha": "5e95686aa4fc4ef1c989a9cb7799101c51e83625",
+        "frozen_tag_target_commit_sha": "43e4fc40ee0d3fb624e43fbc72ee2c2dc11b02fc"
+      }
+    },
+    {
+      "document_id": "control-architecture-spec",
+      "path": "docs/control-architecture-spec-v0.1.md",
+      "physical_sha256": "sha256:08897136a0fc96646b72a30f4cb93b01878a5c61a494881ee70ea550163705ce",
+      "provenance": {
+        "document_version": "v0.1",
+        "exact_byte_content_digest": "sha256:08897136a0fc96646b72a30f4cb93b01878a5c61a494881ee70ea550163705ce",
+        "frozen_tag_identity": "control-architecture-spec-v0.1",
+        "frozen_tag_object_sha": "3a7fbb61cfce7c40dcc28e25136b6c7956d9ee9b",
+        "frozen_tag_target_commit_sha": "4a70cfa21100f86e9b2672f6a368d9686ebc265a"
+      }
+    },
+    {
+      "document_id": "evidence-spec",
+      "path": "docs/evidence-spec-v0.1.md",
+      "physical_sha256": "sha256:dc20d27b87bdc75063ffcf2394a22f79f75dfd1ac87565331e1694570137eb29",
+      "provenance": {
+        "document_version": "v0.1",
+        "exact_byte_content_digest": "sha256:dc20d27b87bdc75063ffcf2394a22f79f75dfd1ac87565331e1694570137eb29",
+        "frozen_tag_identity": "evidence-spec-v0.1",
+        "frozen_tag_object_sha": "dff20985ae77f7399ec9804b402d57f64a24ab8c",
+        "frozen_tag_target_commit_sha": "0695c078623c5d14e9738e136d39806fcf9e8aa1"
+      }
+    },
+    {
+      "document_id": "instrument-validation-spec",
+      "path": "docs/instrument-validation-spec-v0.1.md",
+      "physical_sha256": "sha256:eeba305a0ab5cec3d62de219bf351fd33b7711cdc1b2e13bd706381971c4ddf3",
+      "provenance": {
+        "document_version": "v0.1",
+        "exact_byte_content_digest": "sha256:eeba305a0ab5cec3d62de219bf351fd33b7711cdc1b2e13bd706381971c4ddf3",
+        "frozen_tag_identity": "instrument-validation-spec-v0.1",
+        "frozen_tag_object_sha": "15b1d06ae19354eeddbc308e2646cca58555534e",
+        "frozen_tag_target_commit_sha": "6065cc842453d9e309daa799237f1a46b406b74c"
+      }
+    },
+    {
+      "document_id": "statistical-analysis-plan",
+      "path": "docs/statistical-analysis-plan-v0.1.md",
+      "physical_sha256": "sha256:686b22b3906fddfcb029cb892f76b6e0482be800b87b09941540034dd8693f38",
+      "provenance": {
+        "document_version": "v0.1",
+        "exact_byte_content_digest": "sha256:686b22b3906fddfcb029cb892f76b6e0482be800b87b09941540034dd8693f38",
+        "frozen_tag_identity": "statistical-analysis-plan-v0.1",
+        "frozen_tag_object_sha": "278b71a19225fe1f3244a6f3a04756602dfd5342",
+        "frozen_tag_target_commit_sha": "9ff78fda96ac1214f7a1ea09e65baf10457a5ed3"
+      }
+    },
+    {
+      "document_id": "implementation-contract",
+      "path": "docs/implementation-contract-v0.1.md",
+      "physical_sha256": "sha256:cefa6943a313967b22145c3806d48c0539c0423b9a13695424c3a42ec56ee4ae",
+      "provenance": {
+        "document_version": "v0.1",
+        "exact_byte_content_digest": "sha256:cefa6943a313967b22145c3806d48c0539c0423b9a13695424c3a42ec56ee4ae",
+        "frozen_tag_identity": "implementation-contract-v0.1",
+        "frozen_tag_object_sha": "ca25774ffc64b8062a13a80421b476dffca7738c",
+        "frozen_tag_target_commit_sha": "d5d8abfcea5e30bfa994287278a9357a1a34d271"
+      }
+    },
+    {
+      "document_id": "integrity-reproducibility-spec",
+      "path": "docs/integrity-reproducibility-spec-v0.1.md",
+      "physical_sha256": "sha256:330db7925d9fdc0e896a335f102b059a23a0b0e24bb3d1604cbb7a251bd7515a",
+      "provenance": {
+        "document_version": "v0.1",
+        "exact_byte_content_digest": "sha256:330db7925d9fdc0e896a335f102b059a23a0b0e24bb3d1604cbb7a251bd7515a",
+        "frozen_tag_identity": "integrity-reproducibility-spec-v0.1",
+        "frozen_tag_object_sha": "33b370e3d8d3de83063815e5015e46f9fc42a203",
+        "frozen_tag_target_commit_sha": "9489d9aa1ff1aa9153adb4d57e7dcbc06d293021"
+      }
+    },
+    {
+      "document_id": "integrity-reproducibility-clarification",
+      "path": "docs/integrity-reproducibility-clarification-v0.1.md",
+      "physical_sha256": "sha256:2381a308297613a67e553c9e0024de324ed79de5c7fc54671e1a418a9f9122d0",
+      "provenance": {
+        "document_version": "v0.1",
+        "exact_byte_content_digest": "sha256:2381a308297613a67e553c9e0024de324ed79de5c7fc54671e1a418a9f9122d0",
+        "frozen_tag_identity": "integrity-reproducibility-clarification-v0.1",
+        "frozen_tag_object_sha": "f584a3ca0a17a7786b3835b7b8a71d08d1c719c0",
+        "frozen_tag_target_commit_sha": "018ba0c5bc81644688dd74835a2a5971775f192f"
+      }
+    }
+  ],
+  "required_predecessor": {
+    "commit": "fb779d06746041e910c8998d4e26d52d03653b95",
+    "tag": "implementation-stage12e4-v0.1"
+  },
+  "schemas": [
+    {
+      "canonical_sha256": "sha256:493d29584b3cb7199d9d80421e291265ed6fff65bc219851ac8db34687acd7bb",
+      "path": "schemas/agent-model-condition.schema.json",
+      "physical_sha256": "sha256:eb55f36a1ae7d05bd25dbd363296d74396cdb74563fd2e99d1022d5b50465db5",
+      "schema_id": "urn:frontier-agent-containment:schema:agent-model-condition:0.1.0"
+    },
+    {
+      "canonical_sha256": "sha256:5eba8636f78046a124df6164caa0771aced9621dcd0173a43445d269f650d5ef",
+      "path": "schemas/analysis-manifest.schema.json",
+      "physical_sha256": "sha256:e3d4e9b82d8fb752cac439498a10cdba42fc98c3bd713bc72d1dfc6cd8be88ff",
+      "schema_id": "urn:frontier-agent-containment:schema:analysis-manifest:0.1.0"
+    },
+    {
+      "canonical_sha256": "sha256:147321099c83c10f43e9a5bfde499a8502b955ba7559693d264f84c112631ea7",
+      "path": "schemas/artifact-manifest.schema.json",
+      "physical_sha256": "sha256:9d6a1b7b5a4cdcfe80a72432286e195c82db88b53bef81717e1e0ade03b58d94",
+      "schema_id": "urn:frontier-agent-containment:schema:artifact-manifest:0.1.0"
+    },
+    {
+      "canonical_sha256": "sha256:1f5ef6642dc3742b3c763fbd5c98ae3a2081442b11648cc0d34ccabede15b605",
+      "path": "schemas/autonomy-condition.schema.json",
+      "physical_sha256": "sha256:989d2427c42efdaa06bc793d3da9f5e336bee52b8b777566494c0eacc83bedd3",
+      "schema_id": "urn:frontier-agent-containment:schema:autonomy-condition:0.1.0"
+    },
+    {
+      "canonical_sha256": "sha256:18657debf04aab500248f7d9569c6b93a4974ef2ca1f96ca20f17acd869d896f",
+      "path": "schemas/benign-task.schema.json",
+      "physical_sha256": "sha256:84b2c6e665e5c71574eb12e7c6a8769d2ca37201a8e83d44b0f8461c36f87625",
+      "schema_id": "urn:frontier-agent-containment:schema:benign-task:0.1.0"
+    },
+    {
+      "canonical_sha256": "sha256:b7ca6796cfa3877fad93da3b7133256a76221a032435c72f07c1171c53146d85",
+      "path": "schemas/campaign.schema.json",
+      "physical_sha256": "sha256:6f493d4a5ae2f04d6ebf10a2e69dd050a9d93aa14c8083ca0a498fb487d05dba",
+      "schema_id": "urn:frontier-agent-containment:schema:campaign:0.1.0"
+    },
+    {
+      "canonical_sha256": "sha256:ef05cbc2f072fd0a008b9d08c090e4a5c51e99f8c11617fd7971487bf17fa6cc",
+      "path": "schemas/capability-envelope.schema.json",
+      "physical_sha256": "sha256:af25bad60303c827e36ef6346a0959c1b413d4811479b95055a711ceea005ca8",
+      "schema_id": "urn:frontier-agent-containment:schema:capability-envelope:0.1.0"
+    },
+    {
+      "canonical_sha256": "sha256:146c2d3161820a84d9948a7bc355aa7ef46568852394e279a0b9c910d450c8ca",
+      "path": "schemas/capability-evaluation.schema.json",
+      "physical_sha256": "sha256:58daafc072150ed847b97983046eaaa6d4773c8a568701c3b909df1212da0438",
+      "schema_id": "urn:frontier-agent-containment:schema:capability-evaluation:0.1.0"
+    },
+    {
+      "canonical_sha256": "sha256:75e63da4100df93a1f46c1ca4e843adb42b27c907d801d9f2511a172e778a321",
+      "path": "schemas/common.schema.json",
+      "physical_sha256": "sha256:164ba9851e580428fe189b096c1fdbccffbbda0237265d9a809c25e4cd54fefe",
+      "schema_id": "urn:frontier-agent-containment:schema:common:0.1.0"
+    },
+    {
+      "canonical_sha256": "sha256:4d6c73493a7d6b332c9505df79fd7dcd5428bbbb1b24c3f78e6fd208d0f73ffa",
+      "path": "schemas/control-condition.schema.json",
+      "physical_sha256": "sha256:69f0e7b0d9dd54c825379a30554aa0a0709bede9cf0910357ddc52997682bd05",
+      "schema_id": "urn:frontier-agent-containment:schema:control-condition:0.1.0"
+    },
+    {
+      "canonical_sha256": "sha256:c0b1bf45f060ae0c7296b719594344e7662e3cfafd63d16a824c0b0b6de51b2e",
+      "path": "schemas/control.schema.json",
+      "physical_sha256": "sha256:b6a23cfa6d4c77fa3f85a3510e3a06e36ae8f2e9ff765e6cd8275f6fdf5c39f0",
+      "schema_id": "urn:frontier-agent-containment:schema:control:0.1.0"
+    },
+    {
+      "canonical_sha256": "sha256:44a6a1e5c70707840355fea9ac6d20b710586ca2dc1d1801a7ce458ede8e6af9",
+      "path": "schemas/derived-run-outcome.schema.json",
+      "physical_sha256": "sha256:8621e4b8d7a31f58d276fce7b99dd24b6e439708f5d5b41b676492e8a42fe146",
+      "schema_id": "urn:frontier-agent-containment:schema:derived-run-outcome:0.1.0"
+    },
+    {
+      "canonical_sha256": "sha256:0b357c8a037650b8fa3b78ba57a288d14ce04305662ff1beb8d28bfbaf21a736",
+      "path": "schemas/environment.schema.json",
+      "physical_sha256": "sha256:042520e88275e3dd48dbee92696ed1a6ac397b732454bba421625b3156dcab36",
+      "schema_id": "urn:frontier-agent-containment:schema:environment:0.1.0"
+    },
+    {
+      "canonical_sha256": "sha256:6f6721da86d7df5622e07c943259da62536832a491015a72ed5df5dd50e16e21",
+      "path": "schemas/evidence-event.schema.json",
+      "physical_sha256": "sha256:eff45dc024afcbde9aa98108dfc7ddc1b2f8df5a267c5b4f1ac2c9589eff2db4",
+      "schema_id": "urn:frontier-agent-containment:schema:evidence-event:0.1.0"
+    },
+    {
+      "canonical_sha256": "sha256:9ed4a5ea79fe5849d107c5fd14c165560669a40b9316a4a8601dc9409bfd1d21",
+      "path": "schemas/instrument-acceptance.schema.json",
+      "physical_sha256": "sha256:4961bfe2ba9c9fc9aab7e422d45110b99446fc2b1341863578af94e3ce82537b",
+      "schema_id": "urn:frontier-agent-containment:schema:instrument-acceptance:0.1.0"
+    },
+    {
+      "canonical_sha256": "sha256:5c8a84be733106ecc8679804c1768e801398f11e33208520478106a840de204c",
+      "path": "schemas/instrument-acceptance-v0.2.0.schema.json",
+      "physical_sha256": "sha256:50b78b45f0622455f2f102e4f8b745ef8e170df44727dbe822694921ae08533b",
+      "schema_id": "urn:frontier-agent-containment:schema:instrument-acceptance:0.2.0"
+    },
+    {
+      "canonical_sha256": "sha256:37d169c0ca07c7bd90c16fc1cf79e1103d74b04f73a9c56a20474cecc34e1603",
+      "path": "schemas/instrument-configuration.schema.json",
+      "physical_sha256": "sha256:8016c4fb5cf379497c0c04f32a6edbf87e9dd0fc2524e203a225ecb7a3c3032b",
+      "schema_id": "urn:frontier-agent-containment:schema:instrument-configuration:0.1.0"
+    },
+    {
+      "canonical_sha256": "sha256:8ae9fbe34c1d646063706cad2596e68bfd6bedd3d390edc102f3279820b3b752",
+      "path": "schemas/policy.schema.json",
+      "physical_sha256": "sha256:0f69fd987dffb68a9e467dc57021f1031f53a757820b1fd27915f71233d9724b",
+      "schema_id": "urn:frontier-agent-containment:schema:policy:0.1.0"
+    },
+    {
+      "canonical_sha256": "sha256:aefe5aa8c8e7e6f5d48addc1aae418b866cc01ad45b874ce992e19ca409fc4d9",
+      "path": "schemas/release-build-record.schema.json",
+      "physical_sha256": "sha256:4eefd772911009a36ac153ec50b3e47e9bd5653be6d67fa5e5c9aeef3a9cdaaf",
+      "schema_id": "urn:frontier-agent-containment:schema:release-build-record:0.1.0"
+    },
+    {
+      "canonical_sha256": "sha256:d495c0c33a3a881bf6998fb0ab84673a4932a4b56ff242cbbccb47bbd7e0a307",
+      "path": "schemas/release-profile.schema.json",
+      "physical_sha256": "sha256:72be6d19985795b3dbeeff0483f4a1595444a1f3be42e55569ea79c847004ae1",
+      "schema_id": "urn:frontier-agent-containment:schema:release-profile:0.1.0"
+    },
+    {
+      "canonical_sha256": "sha256:49bdf994ef76daf5b0a22a74ea42a799ab276f4429d3919e0ff4d9e838c12f5b",
+      "path": "schemas/reproducibility-manifest.schema.json",
+      "physical_sha256": "sha256:7b64334d56d39ec4e48754b52463d3828d7bf472a0016a94358dc730a746964a",
+      "schema_id": "urn:frontier-agent-containment:schema:reproducibility-manifest:0.1.0"
+    },
+    {
+      "canonical_sha256": "sha256:83f8cea04ce19b935dc8c85f209048492feb0440864700640675e99ccf6b0772",
+      "path": "schemas/resource.schema.json",
+      "physical_sha256": "sha256:4d22eb7ca75b1b5f5b7b27a8cb155ff7990582e257a4d8a0b11b2c3ae42e9854",
+      "schema_id": "urn:frontier-agent-containment:schema:resource:0.1.0"
+    },
+    {
+      "canonical_sha256": "sha256:099f0a4a076e5689a965f29f5eae32d61bb2504a8ab4b7e3c577bf5d88a9d804",
+      "path": "schemas/run-manifest.schema.json",
+      "physical_sha256": "sha256:805103e4615b7612ea0ea59e2afeeaac067cd841b7c68926c7e9e2b7f67bc494",
+      "schema_id": "urn:frontier-agent-containment:schema:run-manifest:0.1.0"
+    },
+    {
+      "canonical_sha256": "sha256:9da9e9da79b2c79e9d5405f9f571ec8f168859ec71e88c8880cfab327ef5769a",
+      "path": "schemas/scenario.schema.json",
+      "physical_sha256": "sha256:cc9d21d4ce8ea5b44cf8a76bd86f7810c3ee3b6afc42bcfcd0d39800eab43b9d",
+      "schema_id": "urn:frontier-agent-containment:schema:scenario:0.1.0"
+    },
+    {
+      "canonical_sha256": "sha256:3bc3bb28f6dbed8233c5552a35d42adda9359303d3ee4292821cbf9b5998ed6e",
+      "path": "schemas/scheduled-run.schema.json",
+      "physical_sha256": "sha256:9e8e00a4e791a864f6c5701b92c22b242a4e17aa8441febcee19a4774b98fdd8",
+      "schema_id": "urn:frontier-agent-containment:schema:scheduled-run:0.1.0"
+    },
+    {
+      "canonical_sha256": "sha256:bbb8d8ec477684a826be04104aa073d0da1ecd3d2c5b4ff3b9ffcb19f5e7a567",
+      "path": "schemas/validation-case.schema.json",
+      "physical_sha256": "sha256:72631f691acfce717ad074eaef05dc0b03a2eb2ef28e105348a0bd96df7fe00f",
+      "schema_id": "urn:frontier-agent-containment:schema:validation-case:0.1.0"
+    }
+  ]
+}

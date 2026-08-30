@@ -1,0 +1,234 @@
+{
+  "analysis_configuration_id": "analysis:confirmatory-primary",
+  "artifact_manifest_digest": "sha256:e3bbb56c26530d4adfcda2356facef992e1de6c823e92f85eca44fd9ab1265ef",
+  "artifact_manifest_locator": "releases/confirmatory-v0.1/artifact-manifest.json",
+  "campaign_id": "campaign:confirmatory",
+  "capability_evaluation_reference": "cond:capability-evaluation-baseline",
+  "control_subset": [
+    "ctrlcond:m1-primary",
+    "ctrlcond:m3-primary"
+  ],
+  "dependencies": [
+    {
+      "distribution_digest": "sha256:ba59926159d2aa256eb8739b8da7e2b574b960e1202c6d624cbe981cef996c91",
+      "name": "rfc8785",
+      "version": "0.1.4"
+    }
+  ],
+  "environment": {
+    "architecture": "x86_64",
+    "build_content_digest": "sha256:59861c2b88dcb1cb26c26d4227e63aea370753f12e5a84b550e17245b0f81fff",
+    "build_identity": "build:confirmatory-v0.1",
+    "environment_content_digest": "sha256:364b00a2b263ddd58b3819be45e34da768bba0cae6a2fd1e27fcc3257a12acbf",
+    "environment_reference": "env:synthetic-lab",
+    "os_runtime_identity": "system-Linux+release-Ubuntu_24.04+kernel-6.8.0+libc-glibc_2.39",
+    "python_version": "3.12.3"
+  },
+  "governing_documents": [
+    {
+      "content_digest": "sha256:8501a8705adb852e03ff6c45f3da5481bef89a87f5df3cd50cec66218ff37d5b",
+      "document_id": "research-contract",
+      "document_version": "v0.1",
+      "frozen_tag_identity": "research-contract-v0.1"
+    },
+    {
+      "content_digest": "sha256:d8e90620f0ddad8c598a5f2c51daffd83e0bcca814957bb04645755de40c1f2b",
+      "document_id": "threat-scenario-spec",
+      "document_version": "v0.1",
+      "frozen_tag_identity": "threat-scenario-spec-v0.1"
+    },
+    {
+      "content_digest": "sha256:08897136a0fc96646b72a30f4cb93b01878a5c61a494881ee70ea550163705ce",
+      "document_id": "control-architecture-spec",
+      "document_version": "v0.1",
+      "frozen_tag_identity": "control-architecture-spec-v0.1"
+    },
+    {
+      "content_digest": "sha256:dc20d27b87bdc75063ffcf2394a22f79f75dfd1ac87565331e1694570137eb29",
+      "document_id": "evidence-spec",
+      "document_version": "v0.1",
+      "frozen_tag_identity": "evidence-spec-v0.1"
+    },
+    {
+      "content_digest": "sha256:eeba305a0ab5cec3d62de219bf351fd33b7711cdc1b2e13bd706381971c4ddf3",
+      "document_id": "instrument-validation-spec",
+      "document_version": "v0.1",
+      "frozen_tag_identity": "instrument-validation-spec-v0.1"
+    },
+    {
+      "content_digest": "sha256:686b22b3906fddfcb029cb892f76b6e0482be800b87b09941540034dd8693f38",
+      "document_id": "statistical-analysis-plan",
+      "document_version": "v0.1",
+      "frozen_tag_identity": "statistical-analysis-plan-v0.1"
+    },
+    {
+      "content_digest": "sha256:cefa6943a313967b22145c3806d48c0539c0423b9a13695424c3a42ec56ee4ae",
+      "document_id": "implementation-contract",
+      "document_version": "v0.1",
+      "frozen_tag_identity": "implementation-contract-v0.1"
+    },
+    {
+      "content_digest": "sha256:330db7925d9fdc0e896a335f102b059a23a0b0e24bb3d1604cbb7a251bd7515a",
+      "document_id": "integrity-reproducibility-spec",
+      "document_version": "v0.1",
+      "frozen_tag_identity": "integrity-reproducibility-spec-v0.1"
+    },
+    {
+      "content_digest": "sha256:2381a308297613a67e553c9e0024de324ed79de5c7fc54671e1a418a9f9122d0",
+      "document_id": "integrity-reproducibility-clarification",
+      "document_version": "v0.1",
+      "frozen_tag_identity": "integrity-reproducibility-clarification-v0.1"
+    }
+  ],
+  "instrument_acceptance_reference": "acceptance:confirmatory-001",
+  "instrument_configuration_id": "instrument:baseline",
+  "model_provider_identities": [
+    {
+      "agent_condition_id": "agentcond:baseline",
+      "model_identifier": "synthetic-model",
+      "model_version": "2026.01",
+      "provider_runtime_identity": {
+        "identity_status": "REPORTED",
+        "runtime_identifier": "bounded_runtime"
+      },
+      "version_status": "REPORTED"
+    },
+    {
+      "agent_condition_id": "agentcond:secondary",
+      "model_identifier": "synthetic-model",
+      "model_version": "2026.01",
+      "provider_runtime_identity": {
+        "identity_status": "REPORTED",
+        "runtime_identifier": "bounded_runtime"
+      },
+      "version_status": "REPORTED"
+    }
+  ],
+  "release_phase": "CONFIRMATORY",
+  "release_tag_identity": "research-release-confirmatory-v0.1",
+  "release_tag_object_sha": "3333333333333333333333333333333333333333",
+  "release_tag_target_commit_sha": "1111111111111111111111111111111111111111",
+  "repetition_identities": [
+    {
+      "repetition_id": "repetition_001",
+      "scheduled_run_id": "scheduledrun:unit-001",
+      "seed_status": "AVAILABLE",
+      "seed_value": 1729
+    },
+    {
+      "repetition_id": "repetition_001",
+      "scheduled_run_id": "scheduledrun:unit-002",
+      "seed_status": "AVAILABLE",
+      "seed_value": 1729
+    }
+  ],
+  "repository_commit_sha": "1111111111111111111111111111111111111111",
+  "repository_object_format": "SHA-1",
+  "repository_tree_sha": "2222222222222222222222222222222222222222",
+  "reproducibility_limitations": [],
+  "reproducibility_version": "0.1.0",
+  "run_ids": [
+    "run:corpus-001",
+    "run:corpus-002"
+  ],
+  "scenario_subset": [
+    "scenario:protected-access",
+    "scenario:protected-access-secondary"
+  ],
+  "scheduled_run_ids": [
+    "scheduledrun:unit-001",
+    "scheduledrun:unit-002"
+  ],
+  "schema_set": [
+    {
+      "content_digest": "sha256:493d29584b3cb7199d9d80421e291265ed6fff65bc219851ac8db34687acd7bb",
+      "schema_id": "urn:frontier-agent-containment:schema:agent-model-condition:0.1.0",
+      "schema_version": "0.1.0"
+    },
+    {
+      "content_digest": "sha256:5eba8636f78046a124df6164caa0771aced9621dcd0173a43445d269f650d5ef",
+      "schema_id": "urn:frontier-agent-containment:schema:analysis-manifest:0.1.0",
+      "schema_version": "0.1.0"
+    },
+    {
+      "content_digest": "sha256:1f5ef6642dc3742b3c763fbd5c98ae3a2081442b11648cc0d34ccabede15b605",
+      "schema_id": "urn:frontier-agent-containment:schema:autonomy-condition:0.1.0",
+      "schema_version": "0.1.0"
+    },
+    {
+      "content_digest": "sha256:18657debf04aab500248f7d9569c6b93a4974ef2ca1f96ca20f17acd869d896f",
+      "schema_id": "urn:frontier-agent-containment:schema:benign-task:0.1.0",
+      "schema_version": "0.1.0"
+    },
+    {
+      "content_digest": "sha256:b7ca6796cfa3877fad93da3b7133256a76221a032435c72f07c1171c53146d85",
+      "schema_id": "urn:frontier-agent-containment:schema:campaign:0.1.0",
+      "schema_version": "0.1.0"
+    },
+    {
+      "content_digest": "sha256:ef05cbc2f072fd0a008b9d08c090e4a5c51e99f8c11617fd7971487bf17fa6cc",
+      "schema_id": "urn:frontier-agent-containment:schema:capability-envelope:0.1.0",
+      "schema_version": "0.1.0"
+    },
+    {
+      "content_digest": "sha256:146c2d3161820a84d9948a7bc355aa7ef46568852394e279a0b9c910d450c8ca",
+      "schema_id": "urn:frontier-agent-containment:schema:capability-evaluation:0.1.0",
+      "schema_version": "0.1.0"
+    },
+    {
+      "content_digest": "sha256:4d6c73493a7d6b332c9505df79fd7dcd5428bbbb1b24c3f78e6fd208d0f73ffa",
+      "schema_id": "urn:frontier-agent-containment:schema:control-condition:0.1.0",
+      "schema_version": "0.1.0"
+    },
+    {
+      "content_digest": "sha256:c0b1bf45f060ae0c7296b719594344e7662e3cfafd63d16a824c0b0b6de51b2e",
+      "schema_id": "urn:frontier-agent-containment:schema:control:0.1.0",
+      "schema_version": "0.1.0"
+    },
+    {
+      "content_digest": "sha256:0b357c8a037650b8fa3b78ba57a288d14ce04305662ff1beb8d28bfbaf21a736",
+      "schema_id": "urn:frontier-agent-containment:schema:environment:0.1.0",
+      "schema_version": "0.1.0"
+    },
+    {
+      "content_digest": "sha256:5c8a84be733106ecc8679804c1768e801398f11e33208520478106a840de204c",
+      "schema_id": "urn:frontier-agent-containment:schema:instrument-acceptance:0.2.0",
+      "schema_version": "0.2.0"
+    },
+    {
+      "content_digest": "sha256:37d169c0ca07c7bd90c16fc1cf79e1103d74b04f73a9c56a20474cecc34e1603",
+      "schema_id": "urn:frontier-agent-containment:schema:instrument-configuration:0.1.0",
+      "schema_version": "0.1.0"
+    },
+    {
+      "content_digest": "sha256:8ae9fbe34c1d646063706cad2596e68bfd6bedd3d390edc102f3279820b3b752",
+      "schema_id": "urn:frontier-agent-containment:schema:policy:0.1.0",
+      "schema_version": "0.1.0"
+    },
+    {
+      "content_digest": "sha256:83f8cea04ce19b935dc8c85f209048492feb0440864700640675e99ccf6b0772",
+      "schema_id": "urn:frontier-agent-containment:schema:resource:0.1.0",
+      "schema_version": "0.1.0"
+    },
+    {
+      "content_digest": "sha256:099f0a4a076e5689a965f29f5eae32d61bb2504a8ab4b7e3c577bf5d88a9d804",
+      "schema_id": "urn:frontier-agent-containment:schema:run-manifest:0.1.0",
+      "schema_version": "0.1.0"
+    },
+    {
+      "content_digest": "sha256:9da9e9da79b2c79e9d5405f9f571ec8f168859ec71e88c8880cfab327ef5769a",
+      "schema_id": "urn:frontier-agent-containment:schema:scenario:0.1.0",
+      "schema_version": "0.1.0"
+    },
+    {
+      "content_digest": "sha256:3bc3bb28f6dbed8233c5552a35d42adda9359303d3ee4292821cbf9b5998ed6e",
+      "schema_id": "urn:frontier-agent-containment:schema:scheduled-run:0.1.0",
+      "schema_version": "0.1.0"
+    },
+    {
+      "content_digest": "sha256:bbb8d8ec477684a826be04104aa073d0da1ecd3d2c5b4ff3b9ffcb19f5e7a567",
+      "schema_id": "urn:frontier-agent-containment:schema:validation-case:0.1.0",
+      "schema_version": "0.1.0"
+    }
+  ]
+}

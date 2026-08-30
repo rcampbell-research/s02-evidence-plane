@@ -1,0 +1,52 @@
+{
+  "artifacts": [
+    {
+      "artifact_family": "environment",
+      "artifact_id": "env:synthetic-lab",
+      "artifact_version": "0.1.0",
+      "content_digest": "sha256:a572b96ed0552455e0953d70ff5461b3731066a459040543878b722e07469065",
+      "lifecycle_state": "VALIDATED",
+      "locator": "scientific/environment.json",
+      "phase_context": "DEVELOPMENT",
+      "schema_id": "urn:frontier-agent-containment:schema:environment:0.1.0",
+      "schema_version": "0.1.0"
+    },
+    {
+      "artifact_family": "instrument_configuration",
+      "artifact_id": "instrument:baseline",
+      "artifact_version": "0.1.0",
+      "content_digest": "sha256:61ce3143d9f750593a216aacb169ed225a7a15d9a6837522f0ee3cdb2193a3b4",
+      "lifecycle_state": "FROZEN",
+      "locator": "scientific/instrument.json",
+      "phase_context": "INSTRUMENT_VALIDATION",
+      "schema_id": "urn:frontier-agent-containment:schema:instrument-configuration:0.1.0",
+      "schema_version": "0.1.0"
+    }
+  ],
+  "canonicalization_id": "RFC8785-JCS",
+  "digest_algorithm": "SHA-256",
+  "manifest_version": "0.1.0",
+  "rejected_inputs": [
+    {
+      "description": "Synthetic rejected A.",
+      "digest_scope": "FORENSIC_RAW_BYTES",
+      "forensic_byte_digest": "sha256:3edb5c03e618da91ad9539add20c044bcd34cdb5f84b3142faf8c17307c797bb",
+      "locator": "rejected/a.raw",
+      "phase_context": "DEVELOPMENT",
+      "rejected_input_id": "rejected:a",
+      "rejection_class": "malformed"
+    },
+    {
+      "description": "Synthetic rejected Z.",
+      "digest_scope": "FORENSIC_RAW_BYTES",
+      "forensic_byte_digest": "sha256:3ea107b4b9f781282a2611e2094b7e39af002875ad9af08761fa1c6bce3d2ddc",
+      "locator": "rejected/z.raw",
+      "phase_context": "DEVELOPMENT",
+      "rejected_input_id": "rejected:z",
+      "rejection_class": "malformed"
+    }
+  ],
+  "scope": {
+    "scope_type": "RELEASE"
+  }
+}

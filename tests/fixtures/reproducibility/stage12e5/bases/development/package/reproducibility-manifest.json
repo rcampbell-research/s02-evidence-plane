@@ -1,0 +1,114 @@
+{
+  "analysis_configuration_id": "NOT_APPLICABLE",
+  "artifact_manifest_digest": "sha256:6e5146435b03d54ce21f37b887d3b1e95cfdeea5534c63a516db7dc23c55aa3d",
+  "artifact_manifest_locator": "releases/development-v0.1/artifact-manifest.json",
+  "campaign_id": "NOT_APPLICABLE",
+  "capability_evaluation_reference": "NOT_APPLICABLE",
+  "control_subset": [],
+  "dependencies": [
+    {
+      "name": "a-pkg",
+      "version": "1.0.1"
+    },
+    {
+      "name": "a_pkg",
+      "version": "1.0.2"
+    }
+  ],
+  "environment": {
+    "architecture": "x86_64",
+    "build_content_digest": "sha256:95ec25a92e414507ca5a9a3414ba64f40071cfec4a3e45e55661f881b1301f2d",
+    "build_identity": "build:development-v0.1",
+    "environment_content_digest": "sha256:a572b96ed0552455e0953d70ff5461b3731066a459040543878b722e07469065",
+    "environment_reference": "env:synthetic-lab",
+    "os_runtime_identity": "system-Linux+release-Ubuntu_24.04+kernel-6.8.0+libc-glibc_2.39",
+    "python_version": "3.12.3"
+  },
+  "governing_documents": [
+    {
+      "content_digest": "sha256:8501a8705adb852e03ff6c45f3da5481bef89a87f5df3cd50cec66218ff37d5b",
+      "document_id": "research-contract",
+      "document_version": "v0.1",
+      "frozen_tag_identity": "research-contract-v0.1"
+    },
+    {
+      "content_digest": "sha256:d8e90620f0ddad8c598a5f2c51daffd83e0bcca814957bb04645755de40c1f2b",
+      "document_id": "threat-scenario-spec",
+      "document_version": "v0.1",
+      "frozen_tag_identity": "threat-scenario-spec-v0.1"
+    },
+    {
+      "content_digest": "sha256:08897136a0fc96646b72a30f4cb93b01878a5c61a494881ee70ea550163705ce",
+      "document_id": "control-architecture-spec",
+      "document_version": "v0.1",
+      "frozen_tag_identity": "control-architecture-spec-v0.1"
+    },
+    {
+      "content_digest": "sha256:dc20d27b87bdc75063ffcf2394a22f79f75dfd1ac87565331e1694570137eb29",
+      "document_id": "evidence-spec",
+      "document_version": "v0.1",
+      "frozen_tag_identity": "evidence-spec-v0.1"
+    },
+    {
+      "content_digest": "sha256:eeba305a0ab5cec3d62de219bf351fd33b7711cdc1b2e13bd706381971c4ddf3",
+      "document_id": "instrument-validation-spec",
+      "document_version": "v0.1",
+      "frozen_tag_identity": "instrument-validation-spec-v0.1"
+    },
+    {
+      "content_digest": "sha256:686b22b3906fddfcb029cb892f76b6e0482be800b87b09941540034dd8693f38",
+      "document_id": "statistical-analysis-plan",
+      "document_version": "v0.1",
+      "frozen_tag_identity": "statistical-analysis-plan-v0.1"
+    },
+    {
+      "content_digest": "sha256:cefa6943a313967b22145c3806d48c0539c0423b9a13695424c3a42ec56ee4ae",
+      "document_id": "implementation-contract",
+      "document_version": "v0.1",
+      "frozen_tag_identity": "implementation-contract-v0.1"
+    },
+    {
+      "content_digest": "sha256:330db7925d9fdc0e896a335f102b059a23a0b0e24bb3d1604cbb7a251bd7515a",
+      "document_id": "integrity-reproducibility-spec",
+      "document_version": "v0.1",
+      "frozen_tag_identity": "integrity-reproducibility-spec-v0.1"
+    },
+    {
+      "content_digest": "sha256:2381a308297613a67e553c9e0024de324ed79de5c7fc54671e1a418a9f9122d0",
+      "document_id": "integrity-reproducibility-clarification",
+      "document_version": "v0.1",
+      "frozen_tag_identity": "integrity-reproducibility-clarification-v0.1"
+    }
+  ],
+  "instrument_acceptance_reference": "NOT_APPLICABLE",
+  "instrument_configuration_id": "instrument:baseline",
+  "model_provider_identities": [],
+  "release_phase": "DEVELOPMENT",
+  "release_tag_identity": "research-release-development-v0.1",
+  "release_tag_object_sha": "3333333333333333333333333333333333333333",
+  "release_tag_target_commit_sha": "1111111111111111111111111111111111111111",
+  "repetition_identities": [],
+  "repository_commit_sha": "1111111111111111111111111111111111111111",
+  "repository_object_format": "SHA-1",
+  "repository_tree_sha": "2222222222222222222222222222222222222222",
+  "reproducibility_limitations": [
+    "Archive provenance unavailable — synthetic.",
+    "Zeta synthetic limitation."
+  ],
+  "reproducibility_version": "0.1.0",
+  "run_ids": [],
+  "scenario_subset": [],
+  "scheduled_run_ids": [],
+  "schema_set": [
+    {
+      "content_digest": "sha256:0b357c8a037650b8fa3b78ba57a288d14ce04305662ff1beb8d28bfbaf21a736",
+      "schema_id": "urn:frontier-agent-containment:schema:environment:0.1.0",
+      "schema_version": "0.1.0"
+    },
+    {
+      "content_digest": "sha256:37d169c0ca07c7bd90c16fc1cf79e1103d74b04f73a9c56a20474cecc34e1603",
+      "schema_id": "urn:frontier-agent-containment:schema:instrument-configuration:0.1.0",
+      "schema_version": "0.1.0"
+    }
+  ]
+}

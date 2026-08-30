@@ -1,0 +1,322 @@
+{
+  "artifact_documents_by_locator": {
+    "scientific/environment.json": {
+      "build_id": "build:synthetic-lab-001",
+      "controlled_endpoints": [
+        {
+          "endpoint_id": "synthetic_sink",
+          "purpose": "Controlled synthetic receipt.",
+          "zone_id": "Z6"
+        }
+      ],
+      "description": "Fictional environment entirely inside S0.",
+      "display_name": "Synthetic laboratory",
+      "environment_id": "env:synthetic-lab",
+      "environment_version": "0.1.0",
+      "expected_observers": [
+        {
+          "observed_property": "resource_access",
+          "observer_id": "resource_observer",
+          "trust_zone": "Z3"
+        }
+      ],
+      "forbidden_external_relationships": [
+        "UNRESTRICTED_INTERNET",
+        "REAL_CREDENTIAL_SOURCE",
+        "PRODUCTION_SYSTEM",
+        "HOST_ADMINISTRATION",
+        "THIRD_PARTY_TARGET"
+      ],
+      "network_relationships": [
+        {
+          "authorized": true,
+          "destination_zone": "Z6",
+          "relationship": "SERVICE_ACCESS",
+          "source_zone": "Z1"
+        }
+      ],
+      "reset_baseline_id": "cond:reset-baseline",
+      "s0_configuration_id": "cond:s0-baseline",
+      "synthetic_assets": [],
+      "trust_zones": [
+        {
+          "agent_accessible": true,
+          "description": "Workspace.",
+          "zone_id": "Z1"
+        },
+        {
+          "agent_accessible": false,
+          "description": "Protected.",
+          "zone_id": "Z3"
+        },
+        {
+          "agent_accessible": false,
+          "description": "Sink.",
+          "zone_id": "Z6"
+        }
+      ]
+    },
+    "scientific/instrument.json": {
+      "component_manifest": [
+        {
+          "component_id": "orchestrator",
+          "component_role": "experiment_orchestrator",
+          "component_version": "0.1.0",
+          "dependency_component_ids": []
+        },
+        {
+          "component_id": "resource_observer",
+          "component_role": "resource_service_observer",
+          "component_version": "0.1.0",
+          "dependency_component_ids": [
+            "orchestrator"
+          ]
+        },
+        {
+          "component_id": "evidence_collector",
+          "component_role": "evidence_collector",
+          "component_version": "0.1.0",
+          "dependency_component_ids": [
+            "resource_observer"
+          ]
+        }
+      ],
+      "configuration_state": "FROZEN",
+      "configuration_version": "0.1.0",
+      "description": "Exact declarative instrument configuration.",
+      "display_name": "Synthetic instrument",
+      "environment_id": "env:synthetic-lab",
+      "evidence_pipeline_configuration": {
+        "collector_component_id": "evidence_collector",
+        "evidence_format_schema_id": "urn:frontier-agent-containment:schema:evidence-event:0.1.0",
+        "evidence_format_version": "0.1.0",
+        "normalized_evidence_destination_id": "normalized_store",
+        "ordering_mechanism_id": "sequence_order"
+      },
+      "instrument_configuration_id": "instrument:baseline",
+      "observer_configuration": [
+        {
+          "authoritative_role": "RESOURCE_SERVICE_OBSERVER",
+          "component_id": "resource_observer",
+          "observed_property": "Synthetic resource effects.",
+          "observer_id": "synthetic_resource_observer"
+        }
+      ],
+      "orchestration_configuration": {
+        "action_budget_enforcement_responsibility": "Enforce declared budget.",
+        "orchestration_component_id": "orchestrator",
+        "run_initialization_responsibility": "Initialize frozen run state.",
+        "termination_responsibility": "Record termination."
+      },
+      "reset_configuration": {
+        "description": "Restore the synthetic baseline.",
+        "reset_baseline_reference": "baseline_snapshot",
+        "reset_component_id": "orchestrator",
+        "reset_configuration_id": "synthetic_reset"
+      },
+      "s0_configuration_reference": {
+        "configuration_id": "cond:s0-baseline",
+        "configuration_version": "0.1.0",
+        "description": "Separate S0 configuration."
+      },
+      "schema_contract_set": [
+        {
+          "schema_id": "urn:frontier-agent-containment:schema:evidence-event:0.1.0",
+          "schema_version": "0.1.0"
+        }
+      ]
+    }
+  },
+  "artifact_expectations_by_locator": {
+    "scientific/environment.json": {
+      "artifact_family": "environment",
+      "artifact_id": "env:synthetic-lab",
+      "artifact_version": "0.1.0",
+      "canonical_sha256": "sha256:a572b96ed0552455e0953d70ff5461b3731066a459040543878b722e07469065",
+      "schema_id": "urn:frontier-agent-containment:schema:environment:0.1.0"
+    },
+    "scientific/instrument.json": {
+      "artifact_family": "instrument_configuration",
+      "artifact_id": "instrument:baseline",
+      "artifact_version": "0.1.0",
+      "canonical_sha256": "sha256:61ce3143d9f750593a216aacb169ed225a7a15d9a6837522f0ee3cdb2193a3b4",
+      "schema_id": "urn:frontier-agent-containment:schema:instrument-configuration:0.1.0"
+    }
+  },
+  "artifact_metadata_by_locator": {
+    "scientific/environment.json": {
+      "lifecycle_state": "VALIDATED",
+      "phase_context": "DEVELOPMENT"
+    },
+    "scientific/instrument.json": {
+      "lifecycle_state": "FROZEN",
+      "phase_context": "INSTRUMENT_VALIDATION"
+    }
+  },
+  "build_mode": "DEVELOPMENT_TOOLING",
+  "environment_artifact": {
+    "build_id": "build:synthetic-lab-001",
+    "controlled_endpoints": [
+      {
+        "endpoint_id": "synthetic_sink",
+        "purpose": "Controlled synthetic receipt.",
+        "zone_id": "Z6"
+      }
+    ],
+    "description": "Fictional environment entirely inside S0.",
+    "display_name": "Synthetic laboratory",
+    "environment_id": "env:synthetic-lab",
+    "environment_version": "0.1.0",
+    "expected_observers": [
+      {
+        "observed_property": "resource_access",
+        "observer_id": "resource_observer",
+        "trust_zone": "Z3"
+      }
+    ],
+    "forbidden_external_relationships": [
+      "UNRESTRICTED_INTERNET",
+      "REAL_CREDENTIAL_SOURCE",
+      "PRODUCTION_SYSTEM",
+      "HOST_ADMINISTRATION",
+      "THIRD_PARTY_TARGET"
+    ],
+    "network_relationships": [
+      {
+        "authorized": true,
+        "destination_zone": "Z6",
+        "relationship": "SERVICE_ACCESS",
+        "source_zone": "Z1"
+      }
+    ],
+    "reset_baseline_id": "cond:reset-baseline",
+    "s0_configuration_id": "cond:s0-baseline",
+    "synthetic_assets": [],
+    "trust_zones": [
+      {
+        "agent_accessible": true,
+        "description": "Workspace.",
+        "zone_id": "Z1"
+      },
+      {
+        "agent_accessible": false,
+        "description": "Protected.",
+        "zone_id": "Z3"
+      },
+      {
+        "agent_accessible": false,
+        "description": "Sink.",
+        "zone_id": "Z6"
+      }
+    ]
+  },
+  "git_provenance": {
+    "release_tag_identity": "research-release-development-v0.1",
+    "release_tag_object_sha": "3333333333333333333333333333333333333333",
+    "release_tag_target_commit_sha": "1111111111111111111111111111111111111111",
+    "repository_clean": true,
+    "repository_commit_sha": "1111111111111111111111111111111111111111",
+    "repository_object_format": "SHA-1",
+    "repository_tree_sha": "2222222222222222222222222222222222222222"
+  },
+  "phase_projection": {
+    "analysis_configuration_id": "NOT_APPLICABLE",
+    "campaign_id": "NOT_APPLICABLE",
+    "capability_evaluation_reference": "NOT_APPLICABLE",
+    "control_subset": [],
+    "instrument_acceptance_reference": "NOT_APPLICABLE",
+    "instrument_configuration_id": "instrument:baseline",
+    "repetition_identities": [],
+    "run_ids": [],
+    "scenario_subset": [],
+    "scheduled_run_ids": []
+  },
+  "provider_records": [],
+  "rejected_input_metadata_by_locator": {
+    "rejected/a.raw": {
+      "description": "Synthetic rejected A.",
+      "phase_context": "DEVELOPMENT",
+      "rejection_class": "malformed"
+    },
+    "rejected/z.raw": {
+      "description": "Synthetic rejected Z.",
+      "phase_context": "DEVELOPMENT",
+      "rejection_class": "malformed"
+    }
+  },
+  "release_profile": {
+    "active_artifacts": [
+      {
+        "artifact_family": "instrument_configuration",
+        "artifact_id": "instrument:baseline",
+        "expected_artifact_version": "0.1.0",
+        "locator": "scientific/instrument.json"
+      },
+      {
+        "artifact_family": "environment",
+        "artifact_id": "env:synthetic-lab",
+        "locator": "scientific/environment.json"
+      }
+    ],
+    "enabled_dependency_extras": [],
+    "environment_reference": "env:synthetic-lab",
+    "governing_profile_version": "release-integrity-profile-v0.1",
+    "profile_version": "0.1.0",
+    "rejected_inputs": [
+      {
+        "locator": "rejected/a.raw",
+        "rejected_input_id": "rejected:a"
+      },
+      {
+        "locator": "rejected/z.raw",
+        "rejected_input_id": "rejected:z"
+      }
+    ],
+    "release_id": "release:development-v0.1",
+    "release_phase": "DEVELOPMENT",
+    "source_release_tag_identity": "research-release-development-v0.1"
+  },
+  "reproducibility_limitations": [
+    "Archive provenance unavailable — synthetic.",
+    "Zeta synthetic limitation."
+  ],
+  "runtime_dependency_closure": {
+    "dependencies": [
+      {
+        "distribution_provenance": null,
+        "name": "a-pkg",
+        "provides_extra": [],
+        "requires_dist": [],
+        "version": "1.0.1"
+      },
+      {
+        "distribution_provenance": null,
+        "name": "a_pkg",
+        "provides_extra": [],
+        "requires_dist": [],
+        "version": "1.0.2"
+      }
+    ],
+    "dependency_scope": "FULL_TRANSITIVE_RUNTIME",
+    "findings": []
+  },
+  "runtime_environment_facts": {
+    "architecture": "x86_64",
+    "environment_mode": "DEVELOPMENT_TOOLING",
+    "environment_reference": "env:synthetic-lab",
+    "kernel_release": "6.8.0",
+    "libc_identity": "glibc_2.39",
+    "locale_identity": "C.UTF-8",
+    "os_release_identity": "Ubuntu_24.04",
+    "os_runtime_identity": "system-Linux+release-Ubuntu_24.04+kernel-6.8.0+libc-glibc_2.39",
+    "os_system": "Linux",
+    "python_build_string": "main Aug 1 2026",
+    "python_executable": "/not/released/python",
+    "python_implementation": "CPython",
+    "python_version": "3.12.3",
+    "system_site_packages_enabled": true,
+    "timezone_identity": "UTC",
+    "user_site_packages_enabled": false,
+    "venv_root": "/not/released/venv"
+  }
+}
