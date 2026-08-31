@@ -31,7 +31,7 @@ TRANSITION_MESSAGE = (
     "Instrument Acceptance 0.2.0 exact reference resolution is deferred to "
     "Identity-3."
 )
-DUAL_VERSION_METADATA = {
+IDENTITY_INTRODUCING_DUAL_VERSION_METADATA = {
     "instrument_acceptance": (
         "instrument-acceptance",
         "acceptance_version",
@@ -47,6 +47,22 @@ DUAL_VERSION_METADATA = {
         "outcome_version",
         "derived_run_outcome_id",
     ),
+}
+IDENTITY_PRESERVING_DUAL_VERSION_METADATA = {
+    "evidence_event": (
+        "evidence-event",
+        "event_version",
+        "event_id",
+    ),
+    "validation_case": (
+        "validation-case",
+        "validation_case_version",
+        "validation_case_id",
+    ),
+}
+DUAL_VERSION_METADATA = {
+    **IDENTITY_INTRODUCING_DUAL_VERSION_METADATA,
+    **IDENTITY_PRESERVING_DUAL_VERSION_METADATA,
 }
 
 
@@ -123,9 +139,9 @@ def _transition_findings(findings: tuple[Any, ...]) -> list[Any]:
 
 def test_authoritative_registry_counts_and_family_versions_are_exact() -> None:
     assert len(SUPPORTED_ARTIFACT_FAMILIES) == 21
-    assert len(ARTIFACT_FAMILY_CONTRACT_SPECS) == 24
+    assert len(ARTIFACT_FAMILY_CONTRACT_SPECS) == 26
     assert sum(key[1] == "0.1.0" for key in ARTIFACT_FAMILY_CONTRACT_SPECS) == 21
-    assert sum(key[1] == "0.2.0" for key in ARTIFACT_FAMILY_CONTRACT_SPECS) == 3
+    assert sum(key[1] == "0.2.0" for key in ARTIFACT_FAMILY_CONTRACT_SPECS) == 5
     versions_by_family: dict[str, set[str]] = {}
     for family, artifact_version in ARTIFACT_FAMILY_CONTRACT_SPECS:
         versions_by_family.setdefault(family, set()).add(artifact_version)
@@ -150,9 +166,12 @@ def test_dual_version_contract_metadata_is_exact(
         f"{schema_name}:{artifact_version}"
     )
     assert spec.version_field == version_field
-    assert spec.identity_field == (
-        None if artifact_version == "0.1.0" else prospective_identity_field
-    )
+    if family in IDENTITY_PRESERVING_DUAL_VERSION_METADATA:
+        assert spec.identity_field == prospective_identity_field
+    else:
+        assert spec.identity_field == (
+            None if artifact_version == "0.1.0" else prospective_identity_field
+        )
 
 
 def test_registry_and_contract_specs_are_immutable() -> None:
@@ -225,7 +244,12 @@ def test_legacy_public_api_remains_the_historical_projection() -> None:
         legacy = get_artifact_family_spec(family)
         assert isinstance(legacy, ArtifactFamilySpec)
         assert legacy.schema_id.endswith(":0.1.0")
-        assert legacy.identity_field is None
+        expected_identity = (
+            DUAL_VERSION_METADATA[family][2]
+            if family in IDENTITY_PRESERVING_DUAL_VERSION_METADATA
+            else None
+        )
+        assert legacy.identity_field == expected_identity
         assert legacy.version_field == DUAL_VERSION_METADATA[family][1]
 
 

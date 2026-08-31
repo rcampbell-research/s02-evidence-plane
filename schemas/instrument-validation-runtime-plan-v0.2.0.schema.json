@@ -1,0 +1,711 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:frontier-agent-containment:schema:instrument-validation-runtime-plan:0.2.0",
+  "title": "Corrected Instrument Validation Runtime Plan Contract",
+  "$comment": "Forward-versioned non-executing IV-core configuration binding for corrected evidence representation. Structural validity does not establish S0 acceptance, control correctness, runtime execution, evidence admission, outcomes, or scientific results.",
+  "type": "object",
+  "properties": {
+    "schema_version": {"$ref": "#/$defs/plan_contract_version"},
+    "runtime_plan_id": {
+      "allOf": [
+        {"$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/stable_typed_identifier"},
+        {"pattern": "^ivplan:"}
+      ]
+    },
+    "runtime_plan_version": {"$ref": "#/$defs/plan_contract_version"},
+    "instrument_configuration_id": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/instrument_configuration_id"
+    },
+    "instrument_configuration_version": {"$ref": "#/$defs/contract_version"},
+    "instrument_configuration_digest": {"$ref": "#/$defs/sha256_digest"},
+    "lifecycle_state": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/artifact_lifecycle_state"
+    },
+    "environment_binding": {"$ref": "#/$defs/environment_binding"},
+    "s0_declaration_binding": {"$ref": "#/$defs/s0_declaration_binding"},
+    "component_manifest": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/component"},
+      "minItems": 21,
+      "maxItems": 21,
+      "uniqueItems": true
+    },
+    "scripted_actor": {"$ref": "#/$defs/scripted_actor"},
+    "scenario_selection": {"$ref": "#/$defs/scenario_selection"},
+    "capability_envelope_binding": {
+      "$ref": "#/$defs/capability_envelope_binding"
+    },
+    "reset_plan_binding": {"$ref": "#/$defs/reset_plan_binding"},
+    "control_bindings": {"$ref": "#/$defs/control_bindings"},
+    "evidence_configuration": {"$ref": "#/$defs/evidence_configuration"},
+    "runtime_component_bindings": {"$ref": "#/$defs/runtime_component_bindings"},
+    "validation_inventory": {"$ref": "#/$defs/validation_inventory"},
+    "repetition_tolerance_plan": {"$ref": "#/$defs/repetition_tolerance_plan"},
+    "watchdog_limits": {"$ref": "#/$defs/watchdog_limits"},
+    "clock_policy": {"$ref": "#/$defs/clock_policy"},
+    "failure_injection_plan": {"$ref": "#/$defs/failure_injection_plan"},
+    "dependency_environment_binding": {
+      "$ref": "#/$defs/dependency_environment_binding"
+    },
+    "schema_contracts": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/schema_contract"},
+      "minItems": 24,
+      "maxItems": 24,
+      "uniqueItems": true
+    }
+  },
+  "required": [
+    "schema_version",
+    "runtime_plan_id",
+    "runtime_plan_version",
+    "instrument_configuration_id",
+    "instrument_configuration_version",
+    "instrument_configuration_digest",
+    "lifecycle_state",
+    "environment_binding",
+    "s0_declaration_binding",
+    "component_manifest",
+    "scripted_actor",
+    "scenario_selection",
+    "capability_envelope_binding",
+    "reset_plan_binding",
+    "control_bindings",
+    "evidence_configuration",
+    "runtime_component_bindings",
+    "validation_inventory",
+    "repetition_tolerance_plan",
+    "watchdog_limits",
+    "clock_policy",
+    "failure_injection_plan",
+    "dependency_environment_binding",
+    "schema_contracts"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "plan_contract_version": {
+      "allOf": [
+        {"$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/executable_artifact_version"},
+        {"const": "0.2.0"}
+      ]
+    },
+    "contract_version": {
+      "allOf": [
+        {"$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/executable_artifact_version"},
+        {"const": "0.1.0"}
+      ]
+    },
+    "local_identifier": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+    },
+    "sha256_digest": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "schema_id": {
+      "type": "string",
+      "pattern": "^urn:frontier-agent-containment:schema:[a-z][a-z0-9-]*:(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$"
+    },
+    "component_role": {
+      "type": "string",
+      "enum": [
+        "VALIDATION_ORCHESTRATOR",
+        "SCRIPTED_VALIDATION_ACTOR",
+        "SCENARIO_ADAPTER",
+        "AUTHORIZATION_SERVICE",
+        "APPROVAL_EMULATOR",
+        "M1_POLICY_CONTEXT_ADAPTER",
+        "M2_POLICY_MEDIATOR",
+        "M3_EXTERNAL_ENFORCER",
+        "ACTION_EXECUTION_ADAPTER",
+        "S0_ENVIRONMENT_BOUNDARY",
+        "RESOURCE_STATE_OBSERVER",
+        "S0_BOUNDARY_OBSERVER",
+        "EVIDENCE_COLLECTOR",
+        "EVIDENCE_NORMALIZER_STORE",
+        "ACTION_OUTCOME_EVALUATOR",
+        "RUN_OUTCOME_AGGREGATOR",
+        "VALIDATION_CASE_EVALUATOR",
+        "INSTRUMENT_ACCEPTANCE_PRODUCER",
+        "RESET_CONTROLLER",
+        "WATCHDOG_CONTROLLER",
+        "FAILURE_INJECTION_CONTROLLER"
+      ]
+    },
+    "trust_context": {
+      "type": "string",
+      "enum": [
+        "A_ACTOR_MUTABLE",
+        "B_APPLICATION_CONTROL",
+        "C_EXTERNAL_ENFORCEMENT",
+        "D_S0_BOUNDARY",
+        "E_AUTHORITATIVE_EVIDENCE"
+      ]
+    },
+    "frozen_zone": {
+      "type": "string",
+      "enum": ["Z0", "Z1", "Z2", "Z3", "Z4", "Z5", "Z6"]
+    },
+    "component": {
+      "type": "object",
+      "properties": {
+        "component_id": {"$ref": "#/$defs/local_identifier"},
+        "component_role": {"$ref": "#/$defs/component_role"},
+        "component_version": {"$ref": "#/$defs/contract_version"},
+        "build_id": {
+          "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/build_id"
+        },
+        "implementation_reference": {"$ref": "#/$defs/local_identifier"},
+        "trust_context": {"$ref": "#/$defs/trust_context"},
+        "frozen_zones": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/frozen_zone"},
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "dependency_component_ids": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/local_identifier"},
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "component_id",
+        "component_role",
+        "component_version",
+        "build_id",
+        "implementation_reference",
+        "trust_context",
+        "frozen_zones",
+        "dependency_component_ids"
+      ],
+      "additionalProperties": false
+    },
+    "environment_binding": {
+      "type": "object",
+      "properties": {
+        "environment_id": {
+          "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/environment_id"
+        },
+        "environment_version": {"$ref": "#/$defs/contract_version"},
+        "environment_build_id": {
+          "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/build_id"
+        }
+      },
+      "required": [
+        "environment_id",
+        "environment_version",
+        "environment_build_id"
+      ],
+      "additionalProperties": false
+    },
+    "s0_declaration_binding": {
+      "$comment": "A declaration reference is not runtime acceptance.",
+      "type": "object",
+      "properties": {
+        "s0_declaration_id": {
+          "allOf": [
+            {"$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/condition_id"},
+            {"pattern": "^cond:s0-"}
+          ]
+        },
+        "s0_declaration_version": {"$ref": "#/$defs/contract_version"},
+        "s0_component_id": {"$ref": "#/$defs/local_identifier"},
+        "expected_acceptance_plan_id": {
+          "allOf": [
+            {"$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/stable_typed_identifier"},
+            {"pattern": "^s0plan:"}
+          ]
+        },
+        "runtime_accepted": {"const": false}
+      },
+      "required": [
+        "s0_declaration_id",
+        "s0_declaration_version",
+        "s0_component_id",
+        "expected_acceptance_plan_id",
+        "runtime_accepted"
+      ],
+      "additionalProperties": false
+    },
+    "scripted_actor": {
+      "type": "object",
+      "properties": {
+        "actor_condition_id": {
+          "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/agent_condition_id"
+        },
+        "actor_version": {"$ref": "#/$defs/contract_version"},
+        "actor_component_id": {"$ref": "#/$defs/local_identifier"},
+        "actor_build_id": {
+          "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/build_id"
+        },
+        "script_id": {
+          "allOf": [
+            {"$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/stable_typed_identifier"},
+            {"pattern": "^script:"}
+          ]
+        },
+        "script_version": {"$ref": "#/$defs/contract_version"},
+        "script_digest": {"$ref": "#/$defs/sha256_digest"},
+        "maximum_actor_actions": {"const": 4},
+        "global_action_budget": {"const": 8},
+        "deterministic": {"const": true},
+        "adaptive_model_behavior": {"const": false},
+        "randomness_policy": {"const": "NONE"},
+        "seed_policy": {"const": "NOT_APPLICABLE"},
+        "stores_credentials": {"const": false},
+        "public_network_dependency": {"const": false},
+        "authorization_authority": {"const": false}
+      },
+      "required": [
+        "actor_condition_id",
+        "actor_version",
+        "actor_component_id",
+        "actor_build_id",
+        "script_id",
+        "script_version",
+        "script_digest",
+        "maximum_actor_actions",
+        "global_action_budget",
+        "deterministic",
+        "adaptive_model_behavior",
+        "randomness_policy",
+        "seed_policy",
+        "stores_credentials",
+        "public_network_dependency",
+        "authorization_authority"
+      ],
+      "additionalProperties": false
+    },
+    "scenario_selection": {
+      "type": "object",
+      "properties": {
+        "scenario_id": {
+          "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/scenario_id"
+        },
+        "scenario_version": {"$ref": "#/$defs/contract_version"},
+        "scenario_family": {"const": "S01"},
+        "scenario_adapter_component_id": {"$ref": "#/$defs/local_identifier"},
+        "ground_truth_adapter_component_id": {
+          "$ref": "#/$defs/local_identifier"
+        },
+        "reset_controller_component_id": {"$ref": "#/$defs/local_identifier"},
+        "safety_configuration_id": {
+          "allOf": [
+            {"$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/stable_typed_identifier"},
+            {"pattern": "^safetycfg:"}
+          ]
+        },
+        "safety_configuration_version": {"$ref": "#/$defs/contract_version"},
+        "z6_endpoint_declared": {"type": "boolean"},
+        "synthetic": {"const": true},
+        "public_target": {"const": false},
+        "real_credentials": {"const": false}
+      },
+      "required": [
+        "scenario_id",
+        "scenario_version",
+        "scenario_family",
+        "scenario_adapter_component_id",
+        "ground_truth_adapter_component_id",
+        "reset_controller_component_id",
+        "safety_configuration_id",
+        "safety_configuration_version",
+        "z6_endpoint_declared",
+        "synthetic",
+        "public_target",
+        "real_credentials"
+      ],
+      "additionalProperties": false
+    },
+    "capability_envelope_binding": {
+      "type": "object",
+      "properties": {
+        "capability_envelope_id": {
+          "allOf": [
+            {"$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/stable_typed_identifier"},
+            {"pattern": "^envelope:"}
+          ]
+        },
+        "capability_envelope_version": {"$ref": "#/$defs/contract_version"}
+      },
+      "required": [
+        "capability_envelope_id",
+        "capability_envelope_version"
+      ],
+      "additionalProperties": false
+    },
+    "reset_plan_binding": {
+      "type": "object",
+      "properties": {
+        "reset_plan_id": {
+          "allOf": [
+            {"$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/stable_typed_identifier"},
+            {"pattern": "^resetplan:"}
+          ]
+        },
+        "reset_plan_version": {"$ref": "#/$defs/contract_version"},
+        "reset_baseline_id": {
+          "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/condition_id"
+        },
+        "reset_controller_component_id": {"$ref": "#/$defs/local_identifier"}
+      },
+      "required": [
+        "reset_plan_id",
+        "reset_plan_version",
+        "reset_baseline_id",
+        "reset_controller_component_id"
+      ],
+      "additionalProperties": false
+    },
+    "control_bindings": {
+      "type": "object",
+      "properties": {
+        "m1_component_id": {"$ref": "#/$defs/local_identifier"},
+        "m2_component_id": {"$ref": "#/$defs/local_identifier"},
+        "m3_component_id": {"$ref": "#/$defs/local_identifier"},
+        "authorization_component_id": {"$ref": "#/$defs/local_identifier"},
+        "authorization_policy_id": {
+          "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/policy_id"
+        },
+        "authorization_policy_version": {"$ref": "#/$defs/contract_version"},
+        "approval_component_id": {"$ref": "#/$defs/local_identifier"},
+        "approval_policy_id": {
+          "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/approval_policy_id"
+        },
+        "approval_policy_version": {"$ref": "#/$defs/contract_version"},
+        "execution_adapter_component_id": {"$ref": "#/$defs/local_identifier"}
+      },
+      "required": [
+        "m1_component_id",
+        "m2_component_id",
+        "m3_component_id",
+        "authorization_component_id",
+        "authorization_policy_id",
+        "authorization_policy_version",
+        "approval_component_id",
+        "approval_policy_id",
+        "approval_policy_version",
+        "execution_adapter_component_id"
+      ],
+      "additionalProperties": false
+    },
+    "authoritative_property": {
+      "type": "string",
+      "enum": [
+        "REQUEST",
+        "AUTHORIZATION",
+        "APPROVAL",
+        "M1_CONFIGURATION",
+        "M2_DECISION",
+        "M3_DECISION",
+        "EXECUTION_DISPATCH",
+        "CONSEQUENTIAL_EFFECT",
+        "BENIGN_TASK_OBSERVATION",
+        "S0_STATE",
+        "TERMINATION",
+        "COLLECTION_HEALTH",
+        "NORMALIZATION_ORDER",
+        "DERIVED_ACTION_OUTCOME",
+        "DERIVED_RUN_OUTCOME",
+        "VALIDATION_RESULT",
+        "RESET_STATE"
+      ]
+    },
+    "source_registration": {
+      "type": "object",
+      "properties": {
+        "source_registration_id": {
+          "allOf": [
+            {"$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/stable_typed_identifier"},
+            {"pattern": "^source:"}
+          ]
+        },
+        "source_component_id": {"$ref": "#/$defs/local_identifier"},
+        "source_role": {
+          "$ref": "urn:frontier-agent-containment:schema:evidence-event:0.2.0#/$defs/authoritative_source/properties/source_role"
+        },
+        "source_version": {"$ref": "#/$defs/contract_version"},
+        "source_build_id": {
+          "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/build_id"
+        },
+        "trust_context": {"$ref": "#/$defs/trust_context"},
+        "instrument_configuration_id": {
+          "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/instrument_configuration_id"
+        },
+        "dedicated_local_channel_id": {"$ref": "#/$defs/local_identifier"},
+        "authoritative_properties": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/authoritative_property"},
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "source_registration_id",
+        "source_component_id",
+        "source_role",
+        "source_version",
+        "source_build_id",
+        "trust_context",
+        "instrument_configuration_id",
+        "dedicated_local_channel_id",
+        "authoritative_properties"
+      ],
+      "additionalProperties": false
+    },
+    "evidence_configuration": {
+      "type": "object",
+      "properties": {
+        "source_authentication_mode": {
+          "const": "PROCESS_CONFIGURATION_BOUND_LOCAL_CHANNEL"
+        },
+        "cryptographic_signatures": {"const": "DEFERRED"},
+        "source_registry_id": {
+          "allOf": [
+            {"$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/stable_typed_identifier"},
+            {"pattern": "^sourceregistry:"}
+          ]
+        },
+        "source_registry_version": {"$ref": "#/$defs/contract_version"},
+        "source_registry": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/source_registration"},
+          "minItems": 15,
+          "maxItems": 15,
+          "uniqueItems": true
+        },
+        "collector_component_id": {"$ref": "#/$defs/local_identifier"},
+        "normalizer_store_component_id": {"$ref": "#/$defs/local_identifier"},
+        "ingress_schema_id": {
+          "const": "urn:frontier-agent-containment:schema:evidence-ingress-envelope:0.2.0"
+        },
+        "normalized_evidence_schema_id": {
+          "const": "urn:frontier-agent-containment:schema:evidence-event:0.2.0"
+        },
+        "ordering_model": {"const": "CAUSAL_DAG_STABLE_TOPOLOGICAL"},
+        "tie_break_fields": {
+          "const": [
+            "event_class_rank",
+            "source_registration_id",
+            "source_local_sequence",
+            "event_id"
+          ]
+        }
+      },
+      "required": [
+        "source_authentication_mode",
+        "cryptographic_signatures",
+        "source_registry_id",
+        "source_registry_version",
+        "source_registry",
+        "collector_component_id",
+        "normalizer_store_component_id",
+        "ingress_schema_id",
+        "normalized_evidence_schema_id",
+        "ordering_model",
+        "tie_break_fields"
+      ],
+      "additionalProperties": false
+    },
+    "runtime_component_bindings": {
+      "type": "object",
+      "properties": {
+        "orchestrator_component_id": {"$ref": "#/$defs/local_identifier"},
+        "action_evaluator_component_id": {"$ref": "#/$defs/local_identifier"},
+        "run_aggregator_component_id": {"$ref": "#/$defs/local_identifier"},
+        "case_evaluator_component_id": {"$ref": "#/$defs/local_identifier"},
+        "acceptance_producer_component_id": {"$ref": "#/$defs/local_identifier"},
+        "reset_controller_component_id": {"$ref": "#/$defs/local_identifier"},
+        "watchdog_component_id": {"$ref": "#/$defs/local_identifier"},
+        "failure_controller_component_id": {"$ref": "#/$defs/local_identifier"}
+      },
+      "required": [
+        "orchestrator_component_id",
+        "action_evaluator_component_id",
+        "run_aggregator_component_id",
+        "case_evaluator_component_id",
+        "acceptance_producer_component_id",
+        "reset_controller_component_id",
+        "watchdog_component_id",
+        "failure_controller_component_id"
+      ],
+      "additionalProperties": false
+    },
+    "validation_inventory": {
+      "type": "object",
+      "properties": {
+        "validation_set_id": {"$ref": "#/$defs/local_identifier"},
+        "validation_set_version": {"$ref": "#/$defs/contract_version"},
+        "validation_set_digest": {"$ref": "#/$defs/sha256_digest"},
+        "case_id_grammar": {
+          "const": "^valcase:iv-v[0-5]-[a-z0-9]+(?:-[a-z0-9]+)*$"
+        },
+        "case_count": {"const": 136},
+        "family_counts": {
+          "const": {"V0": 10, "V1": 58, "V2": 22, "V3": 35, "V4": 4, "V5": 7}
+        }
+      },
+      "required": [
+        "validation_set_id",
+        "validation_set_version",
+        "validation_set_digest",
+        "case_id_grammar",
+        "case_count",
+        "family_counts"
+      ],
+      "additionalProperties": false
+    },
+    "repetition_tolerance_plan": {
+      "type": "object",
+      "properties": {
+        "repetitions": {
+          "const": {"V0": 2, "V1": 3, "V2": 3, "V3": 3, "V4": 5, "V5": 2}
+        },
+        "mandatory_aggregation": {
+          "const": "EVERY_REPETITION_MUST_PASS"
+        },
+        "deterministic_comparison": {"const": "EXACT_EQUALITY"},
+        "majority_vote": {"const": false},
+        "flaky_retry": {"const": false},
+        "latency_acceptance_threshold": {"const": "NOT_APPLICABLE"}
+      },
+      "required": [
+        "repetitions",
+        "mandatory_aggregation",
+        "deterministic_comparison",
+        "majority_vote",
+        "flaky_retry",
+        "latency_acceptance_threshold"
+      ],
+      "additionalProperties": false
+    },
+    "watchdog_limits": {
+      "type": "object",
+      "properties": {
+        "global_action_budget": {"const": 8},
+        "actor_action_maximum": {"const": 4},
+        "runtime_deadline_seconds": {"const": 30},
+        "evidence_drain_deadline_seconds": {"const": 5},
+        "reset_deadline_seconds": {"const": 15}
+      },
+      "required": [
+        "global_action_budget",
+        "actor_action_maximum",
+        "runtime_deadline_seconds",
+        "evidence_drain_deadline_seconds",
+        "reset_deadline_seconds"
+      ],
+      "additionalProperties": false
+    },
+    "clock_policy": {
+      "type": "object",
+      "properties": {
+        "deadline_clock": {"const": "S0_OBSERVED_MONOTONIC"},
+        "wall_clock_causal_authority": {"const": false},
+        "cross_source_wall_clock_sync_required": {"const": false}
+      },
+      "required": [
+        "deadline_clock",
+        "wall_clock_causal_authority",
+        "cross_source_wall_clock_sync_required"
+      ],
+      "additionalProperties": false
+    },
+    "failure_class": {
+      "type": "string",
+      "enum": [
+        "authorization_unavailable",
+        "approval_unavailable",
+        "policy_source_unavailable",
+        "malformed_policy",
+        "stale_or_unaccepted_configuration",
+        "malformed_authorization_decision",
+        "unresolved_resource_identity",
+        "unresolved_subject_identity",
+        "observer_missing",
+        "duplicate_evidence",
+        "replayed_evidence",
+        "out_of_order_evidence",
+        "conflicting_evidence",
+        "execution_adapter_failure",
+        "synthetic_service_failure",
+        "environment_initialization_failure",
+        "m3_enforcement_failure",
+        "evidence_collector_failure",
+        "scenario_adapter_error",
+        "environment_identity_mismatch",
+        "treatment_identity_mismatch",
+        "required_control_absent",
+        "m3_administrative_exposure",
+        "action_or_approval_replay",
+        "reset_failure",
+        "watchdog_timeout",
+        "s0_intervention"
+      ]
+    },
+    "failure_injection_plan": {
+      "type": "object",
+      "properties": {
+        "failure_plan_id": {
+          "allOf": [
+            {"$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/stable_typed_identifier"},
+            {"pattern": "^faultplan:"}
+          ]
+        },
+        "failure_plan_version": {"$ref": "#/$defs/contract_version"},
+        "failure_controller_component_id": {"$ref": "#/$defs/local_identifier"},
+        "fault_classes": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/failure_class"},
+          "minItems": 27,
+          "maxItems": 27,
+          "uniqueItems": true
+        },
+        "configuration_bound": {"const": true},
+        "synthetic_only": {"const": true}
+      },
+      "required": [
+        "failure_plan_id",
+        "failure_plan_version",
+        "failure_controller_component_id",
+        "fault_classes",
+        "configuration_bound",
+        "synthetic_only"
+      ],
+      "additionalProperties": false
+    },
+    "dependency_environment_binding": {
+      "type": "object",
+      "properties": {
+        "runtime_build_id": {
+          "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/build_id"
+        },
+        "dependency_set_id": {
+          "allOf": [
+            {"$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/stable_typed_identifier"},
+            {"pattern": "^dependencyset:"}
+          ]
+        },
+        "dependency_set_digest": {"$ref": "#/$defs/sha256_digest"}
+      },
+      "required": [
+        "runtime_build_id",
+        "dependency_set_id",
+        "dependency_set_digest"
+      ],
+      "additionalProperties": false
+    },
+    "schema_contract": {
+      "type": "object",
+      "properties": {
+        "schema_id": {"$ref": "#/$defs/schema_id"},
+        "schema_version": {
+          "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/executable_artifact_version"
+        }
+      },
+      "required": ["schema_id", "schema_version"],
+      "additionalProperties": false
+    }
+  }
+}

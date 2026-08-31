@@ -445,12 +445,12 @@ def test_new_schemas_are_valid_draft_2020_12(
     assert schema["$id"] == schema_id
 
 
-def test_generic_schema_store_closes_at_32_unique_authoritative_ids(
+def test_generic_schema_store_closes_at_36_unique_authoritative_ids(
     schema_store: dict[str, Any],
 ) -> None:
-    assert len(SCHEMA_PATHS) == 32
-    assert len(schema_store) == 32
-    assert len(set(schema_store)) == 32
+    assert len(SCHEMA_PATHS) == 36
+    assert len(schema_store) == 36
+    assert len(set(schema_store)) == 36
     assert NEW_SCHEMA_IDS <= set(schema_store)
 
 
@@ -2136,7 +2136,7 @@ def test_release_profile_supports_instrument_validation_without_change(
 
 def test_public_scientific_artifact_registries_are_unchanged() -> None:
     assert len(SUPPORTED_ARTIFACT_FAMILIES) == 21
-    assert len(ARTIFACT_FAMILY_CONTRACT_SPECS) == 24
+    assert len(ARTIFACT_FAMILY_CONTRACT_SPECS) == 26
     registered_schema_ids = {
         spec.schema_id for spec in ARTIFACT_FAMILY_CONTRACT_SPECS.values()
     }

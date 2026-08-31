@@ -1,0 +1,316 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:frontier-agent-containment:schema:evidence-ingress-envelope:0.2.0",
+  "title": "Corrected Evidence Ingress Envelope Contract",
+  "$comment": "Forward-versioned inert receipt metadata bound one-to-one to Evidence Event 0.2.0. It acquires no payload and does not make caller quality, receipt, source, or content claims authoritative.",
+  "type": "object",
+  "properties": {
+    "schema_version": {"$ref": "#/$defs/envelope_contract_version"},
+    "envelope_version": {"$ref": "#/$defs/envelope_contract_version"},
+    "receipt_id": {"$ref": "#/$defs/receipt_id"},
+    "instrument_configuration_id": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/instrument_configuration_id"
+    },
+    "source_registry_id": {
+      "allOf": [
+        {"$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/stable_typed_identifier"},
+        {"pattern": "^sourceregistry:"}
+      ]
+    },
+    "source_registry_version": {"$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/executable_artifact_version"},
+    "run_id": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/run_id"
+    },
+    "action_id": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/action_id"
+    },
+    "event_id": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/event_id"
+    },
+    "source_registration_id": {"$ref": "#/$defs/source_registration_id"},
+    "source_component_id": {"$ref": "#/$defs/local_identifier"},
+    "source_version": {"$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/executable_artifact_version"},
+    "source_build_id": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/build_id"
+    },
+    "dedicated_local_channel_id": {"$ref": "#/$defs/local_identifier"},
+    "source_local_sequence": {"type": "integer", "minimum": 1},
+    "collector_receipt_sequence": {"type": "integer", "minimum": 1},
+    "prior_event_ids": {
+      "type": "array",
+      "items": {
+        "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/event_id"
+      },
+      "uniqueItems": true
+    },
+    "event_class": {"$ref": "#/$defs/event_class"},
+    "event_class_rank": {"$ref": "#/$defs/event_class_rank"},
+    "normalized_event_schema_id": {"const": "urn:frontier-agent-containment:schema:evidence-event:0.2.0"},
+    "normalized_event_version": {"const": "0.2.0"},
+    "payload": {"$ref": "#/$defs/payload"},
+    "evidence_quality_state": {
+      "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/evidence_quality_state"
+    },
+    "receipt_state": {
+      "type": "string",
+      "enum": ["RECEIVED", "ADMITTED", "REJECTED"]
+    },
+    "duplicate_of_receipt_id": {"$ref": "#/$defs/receipt_id"},
+    "replay_of_receipt_id": {"$ref": "#/$defs/receipt_id"},
+    "conflicts_with_receipt_ids": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/receipt_id"},
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "monotonic_time_evidence": {
+      "type": "object",
+      "properties": {
+        "clock_id": {"$ref": "#/$defs/local_identifier"},
+        "ticks": {"type": "integer", "minimum": 0},
+        "causal_authority": {"const": false}
+      },
+      "required": ["clock_id", "ticks", "causal_authority"],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "schema_version",
+    "envelope_version",
+    "receipt_id",
+    "instrument_configuration_id",
+    "source_registry_id",
+    "source_registry_version",
+    "run_id",
+    "event_id",
+    "source_registration_id",
+    "source_component_id",
+    "source_version",
+    "source_build_id",
+    "dedicated_local_channel_id",
+    "source_local_sequence",
+    "collector_receipt_sequence",
+    "prior_event_ids",
+    "event_class",
+    "event_class_rank",
+    "normalized_event_schema_id",
+    "normalized_event_version",
+    "payload",
+    "evidence_quality_state",
+    "receipt_state"
+  ],
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {"properties": {"event_class": {"enum": ["RUN_INITIALIZED", "S0_STATE_OBSERVED"]}}, "required": ["event_class"]},
+      "then": {"properties": {"event_class_rank": {"const": 10}}}
+    },
+    {
+      "if": {"properties": {"event_class": {"const": "RUN_STARTED"}}, "required": ["event_class"]},
+      "then": {"properties": {"event_class_rank": {"const": 20}}}
+    },
+    {
+      "if": {"properties": {"event_class": {"const": "AGENT_ACTION_REQUESTED"}}, "required": ["event_class"]},
+      "then": {"properties": {"event_class_rank": {"const": 30}}}
+    },
+    {
+      "if": {"properties": {"event_class": {"const": "AUTHORIZATION_DECIDED"}}, "required": ["event_class"]},
+      "then": {"properties": {"event_class_rank": {"const": 40}}}
+    },
+    {
+      "if": {"properties": {"event_class": {"const": "APPROVAL_REQUESTED"}}, "required": ["event_class"]},
+      "then": {"properties": {"event_class_rank": {"const": 50}}}
+    },
+    {
+      "if": {"properties": {"event_class": {"const": "APPROVAL_DECIDED"}}, "required": ["event_class"]},
+      "then": {"properties": {"event_class_rank": {"const": 60}}}
+    },
+    {
+      "if": {"properties": {"event_class": {"enum": ["M1_CONFIGURATION_OBSERVED", "M2_DECISION_OBSERVED", "M3_DECISION_OBSERVED"]}}, "required": ["event_class"]},
+      "then": {"properties": {"event_class_rank": {"const": 70}}}
+    },
+    {
+      "if": {"properties": {"event_class": {"enum": ["EXECUTION_NOT_ATTEMPTED", "EXECUTION_ATTEMPTED"]}}, "required": ["event_class"]},
+      "then": {"properties": {"event_class_rank": {"const": 80}}}
+    },
+    {
+      "if": {"properties": {"event_class": {"const": "EXECUTION_COMPLETED"}}, "required": ["event_class"]},
+      "then": {"properties": {"event_class_rank": {"const": 90}}}
+    },
+    {
+      "if": {"properties": {"event_class": {"enum": ["RESOURCE_ACCESSED", "RESOURCE_MODIFIED", "PRIVILEGE_EFFECT_OBSERVED", "PERSISTENCE_STATE_OBSERVED", "DATA_MOVEMENT_OBSERVED", "NETWORK_EFFECT_OBSERVED", "BENIGN_TASK_CRITERION_OBSERVED"]}}, "required": ["event_class"]},
+      "then": {"properties": {"event_class_rank": {"const": 100}}}
+    },
+    {
+      "if": {"properties": {"event_class": {"enum": ["CONTROL_ERROR_OBSERVED", "ARCHITECTURAL_INVALIDITY_OBSERVED"]}}, "required": ["event_class"]},
+      "then": {"properties": {"event_class_rank": {"const": 110}}}
+    },
+    {
+      "if": {"properties": {"event_class": {"enum": ["RUN_TERMINATED", "COLLECTION_HEALTH_OBSERVED", "NORMALIZATION_ORDER_OBSERVED", "RESET_STATE_OBSERVED"]}}, "required": ["event_class"]},
+      "then": {"properties": {"event_class_rank": {"const": 120}}}
+    },
+    {
+      "if": {"properties": {"event_class": {"const": "ACTION_OUTCOME_DERIVED"}}, "required": ["event_class"]},
+      "then": {"properties": {"event_class_rank": {"const": 130}}}
+    },
+    {
+      "if": {"properties": {"event_class": {"const": "RUN_OUTCOME_DERIVED"}}, "required": ["event_class"]},
+      "then": {"properties": {"event_class_rank": {"const": 140}}}
+    },
+    {
+      "if": {"properties": {"event_class": {"const": "VALIDATION_RESULT_OBSERVED"}}, "required": ["event_class"]},
+      "then": {"properties": {"event_class_rank": {"const": 150}}}
+    },
+    {
+      "if": {"properties": {"event_class": {"enum": ["AGENT_ACTION_REQUESTED", "AUTHORIZATION_DECIDED", "APPROVAL_REQUESTED", "APPROVAL_DECIDED", "M1_CONFIGURATION_OBSERVED", "M2_DECISION_OBSERVED", "M3_DECISION_OBSERVED", "EXECUTION_NOT_ATTEMPTED", "EXECUTION_ATTEMPTED", "EXECUTION_COMPLETED", "RESOURCE_ACCESSED", "RESOURCE_MODIFIED", "PRIVILEGE_EFFECT_OBSERVED", "PERSISTENCE_STATE_OBSERVED", "DATA_MOVEMENT_OBSERVED", "NETWORK_EFFECT_OBSERVED", "BENIGN_TASK_CRITERION_OBSERVED", "ACTION_OUTCOME_DERIVED"]}}, "required": ["event_class"]},
+      "then": {"required": ["action_id"]}
+    },
+    {
+      "if": {"properties": {"event_class": {"enum": ["RUN_INITIALIZED", "S0_STATE_OBSERVED", "RUN_STARTED", "RUN_TERMINATED", "COLLECTION_HEALTH_OBSERVED", "NORMALIZATION_ORDER_OBSERVED", "RESET_STATE_OBSERVED", "RUN_OUTCOME_DERIVED", "VALIDATION_RESULT_OBSERVED"]}}, "required": ["event_class"]},
+      "then": {"not": {"required": ["action_id"]}}
+    },
+    {
+      "if": {"properties": {"event_class": {"const": "S0_STATE_OBSERVED"}}, "required": ["event_class"]},
+      "then": {"properties": {"source_registration_id": {"const": "source:s0"}, "source_component_id": {"const": "s0_boundary_observer"}}}
+    },
+    {
+      "if": {"properties": {"event_class": {"const": "AGENT_ACTION_REQUESTED"}}, "required": ["event_class"]},
+      "then": {"properties": {"source_registration_id": {"const": "source:request"}, "source_component_id": {"const": "validation_orchestrator"}}}
+    },
+    {
+      "if": {"properties": {"event_class": {"const": "AUTHORIZATION_DECIDED"}}, "required": ["event_class"]},
+      "then": {"properties": {"source_registration_id": {"const": "source:authorization"}, "source_component_id": {"const": "authorization_service"}}}
+    },
+    {
+      "if": {"properties": {"event_class": {"const": "APPROVAL_DECIDED"}}, "required": ["event_class"]},
+      "then": {"properties": {"source_registration_id": {"const": "source:approval"}, "source_component_id": {"const": "approval_emulator"}}}
+    },
+    {
+      "if": {"properties": {"event_class": {"const": "M1_CONFIGURATION_OBSERVED"}}, "required": ["event_class"]},
+      "then": {"properties": {"source_registration_id": {"const": "source:m1-configuration"}, "source_component_id": {"const": "m1_policy_context_adapter"}}}
+    },
+    {
+      "if": {"properties": {"event_class": {"const": "M2_DECISION_OBSERVED"}}, "required": ["event_class"]},
+      "then": {"properties": {"source_registration_id": {"const": "source:m2"}, "source_component_id": {"const": "m2_policy_mediator"}}}
+    },
+    {
+      "if": {"properties": {"event_class": {"const": "M3_DECISION_OBSERVED"}}, "required": ["event_class"]},
+      "then": {"properties": {"source_registration_id": {"const": "source:m3"}, "source_component_id": {"const": "m3_external_enforcer"}}}
+    },
+    {
+      "if": {"properties": {"event_class": {"enum": ["EXECUTION_NOT_ATTEMPTED", "EXECUTION_ATTEMPTED", "EXECUTION_COMPLETED"]}}, "required": ["event_class"]},
+      "then": {"properties": {"source_registration_id": {"const": "source:execution"}, "source_component_id": {"const": "action_execution_adapter"}}}
+    },
+    {
+      "if": {"properties": {"event_class": {"enum": ["RESOURCE_ACCESSED", "RESOURCE_MODIFIED", "PRIVILEGE_EFFECT_OBSERVED", "PERSISTENCE_STATE_OBSERVED", "DATA_MOVEMENT_OBSERVED", "NETWORK_EFFECT_OBSERVED", "BENIGN_TASK_CRITERION_OBSERVED", "RESET_STATE_OBSERVED"]}}, "required": ["event_class"]},
+      "then": {"properties": {"source_registration_id": {"const": "source:resource"}, "source_component_id": {"const": "resource_state_observer"}}}
+    },
+    {
+      "if": {"properties": {"event_class": {"const": "RUN_TERMINATED"}}, "required": ["event_class"]},
+      "then": {"properties": {"source_registration_id": {"const": "source:watchdog"}, "source_component_id": {"const": "watchdog_controller"}}}
+    },
+    {
+      "if": {"properties": {"event_class": {"const": "COLLECTION_HEALTH_OBSERVED"}}, "required": ["event_class"]},
+      "then": {"properties": {"source_registration_id": {"const": "source:collector"}, "source_component_id": {"const": "evidence_collector"}}}
+    },
+    {
+      "if": {"properties": {"event_class": {"const": "NORMALIZATION_ORDER_OBSERVED"}}, "required": ["event_class"]},
+      "then": {"properties": {"source_registration_id": {"const": "source:normalizer"}, "source_component_id": {"const": "evidence_normalizer_store"}}}
+    },
+    {
+      "if": {"properties": {"event_class": {"const": "ACTION_OUTCOME_DERIVED"}}, "required": ["event_class"]},
+      "then": {"properties": {"source_registration_id": {"const": "source:action-evaluator"}, "source_component_id": {"const": "action_outcome_evaluator"}}}
+    },
+    {
+      "if": {"properties": {"event_class": {"const": "RUN_OUTCOME_DERIVED"}}, "required": ["event_class"]},
+      "then": {"properties": {"source_registration_id": {"const": "source:run-aggregator"}, "source_component_id": {"const": "run_outcome_aggregator"}}}
+    },
+    {
+      "if": {"properties": {"event_class": {"const": "VALIDATION_RESULT_OBSERVED"}}, "required": ["event_class"]},
+      "then": {"properties": {"source_registration_id": {"const": "source:case-evaluator"}, "source_component_id": {"const": "validation_case_evaluator"}}}
+    }
+  ],
+  "$defs": {
+    "envelope_contract_version": {
+      "allOf": [
+        {"$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/executable_artifact_version"},
+        {"const": "0.2.0"}
+      ]
+    },
+    "local_identifier": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+    },
+    "receipt_id": {
+      "allOf": [
+        {"$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/stable_typed_identifier"},
+        {"pattern": "^receipt:"}
+      ]
+    },
+    "source_registration_id": {
+      "allOf": [
+        {"$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/stable_typed_identifier"},
+        {"pattern": "^source:"}
+      ]
+    },
+    "event_class": {
+      "type": "string",
+      "enum": [
+        "RUN_INITIALIZED",
+        "S0_STATE_OBSERVED",
+        "RUN_STARTED",
+        "AGENT_ACTION_REQUESTED",
+        "AUTHORIZATION_DECIDED",
+        "APPROVAL_REQUESTED",
+        "APPROVAL_DECIDED",
+        "M1_CONFIGURATION_OBSERVED",
+        "M2_DECISION_OBSERVED",
+        "M3_DECISION_OBSERVED",
+        "EXECUTION_NOT_ATTEMPTED",
+        "EXECUTION_ATTEMPTED",
+        "EXECUTION_COMPLETED",
+        "RESOURCE_ACCESSED",
+        "RESOURCE_MODIFIED",
+        "PRIVILEGE_EFFECT_OBSERVED",
+        "PERSISTENCE_STATE_OBSERVED",
+        "DATA_MOVEMENT_OBSERVED",
+        "NETWORK_EFFECT_OBSERVED",
+        "BENIGN_TASK_CRITERION_OBSERVED",
+        "CONTROL_ERROR_OBSERVED",
+        "ARCHITECTURAL_INVALIDITY_OBSERVED",
+        "RUN_TERMINATED",
+        "COLLECTION_HEALTH_OBSERVED",
+        "NORMALIZATION_ORDER_OBSERVED",
+        "RESET_STATE_OBSERVED",
+        "ACTION_OUTCOME_DERIVED",
+        "RUN_OUTCOME_DERIVED",
+        "VALIDATION_RESULT_OBSERVED"
+      ]
+    },
+    "event_class_rank": {
+      "type": "integer",
+      "enum": [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150]
+    },
+    "payload": {
+      "type": "object",
+      "properties": {
+        "content_reference": {
+          "$ref": "urn:frontier-agent-containment:schema:common:0.1.0#/$defs/stable_typed_identifier"
+        },
+        "media_type": {"type": "string", "enum": ["application/json"]},
+        "byte_length": {"type": "integer", "minimum": 0},
+        "content_digest": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        }
+      },
+      "required": [
+        "content_reference",
+        "media_type",
+        "byte_length",
+        "content_digest"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

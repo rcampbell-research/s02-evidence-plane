@@ -244,6 +244,13 @@ ARTIFACT_FAMILY_CONTRACT_SPECS: Final[
             "validation_case_id",
             "validation_case_version",
         ),
+        _contract_entry(
+            "validation_case",
+            "validation-case",
+            "validation_case_id",
+            "validation_case_version",
+            "0.2.0",
+        ),
         # Historical Instrument Acceptance is intentionally identityless.
         _contract_entry(
             "instrument_acceptance",
@@ -259,6 +266,13 @@ ARTIFACT_FAMILY_CONTRACT_SPECS: Final[
         ),
         _contract_entry(
             "evidence_event", "evidence-event", "event_id", "event_version"
+        ),
+        _contract_entry(
+            "evidence_event",
+            "evidence-event",
+            "event_id",
+            "event_version",
+            "0.2.0",
         ),
         # Historical derived outcomes retain separate scientific linkage keys.
         _contract_entry(
@@ -2630,7 +2644,13 @@ _NONEXECUTION_OUTCOMES: Final[frozenset[str]] = frozenset(
 def _validate_evidence_events(
     registry: _ArtifactRegistry, findings: list[SemanticFinding]
 ) -> None:
-    records = _records(registry, "evidence_event")
+    records = tuple(
+        record
+        for record in _records(registry, "evidence_event")
+        if record.version == "0.1.0"
+    )
+    # Evidence Event 0.2.0 receives structural exact-version dispatch here.
+    # Its admission/ordering/outcome semantics remain deliberately deferred.
     sequence_groups: dict[tuple[str, int], list[_ArtifactRecord]] = {}
     for record in records:
         artifact = record.artifact

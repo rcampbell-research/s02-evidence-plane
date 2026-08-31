@@ -1,0 +1,730 @@
+{
+  "schema_version": "0.2.0",
+  "runtime_plan_id": "ivplan:iv-core-001",
+  "runtime_plan_version": "0.2.0",
+  "instrument_configuration_id": "instrument:iv-core",
+  "instrument_configuration_version": "0.1.0",
+  "instrument_configuration_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "lifecycle_state": "DRAFT",
+  "environment_binding": {
+    "environment_id": "env:iv-synthetic-lab",
+    "environment_version": "0.1.0",
+    "environment_build_id": "build:iv-environment-001"
+  },
+  "s0_declaration_binding": {
+    "s0_declaration_id": "cond:s0-iv-core",
+    "s0_declaration_version": "0.1.0",
+    "s0_component_id": "s0_environment_boundary",
+    "expected_acceptance_plan_id": "s0plan:iv-core",
+    "runtime_accepted": false
+  },
+  "component_manifest": [
+    {
+      "component_id": "validation_orchestrator",
+      "component_role": "VALIDATION_ORCHESTRATOR",
+      "component_version": "0.1.0",
+      "build_id": "build:iv-validation-orchestrator-001",
+      "implementation_reference": "ivg1.validation_orchestrator",
+      "trust_context": "B_APPLICATION_CONTROL",
+      "frozen_zones": [
+        "Z2"
+      ],
+      "dependency_component_ids": [
+        "scripted_validation_actor",
+        "scenario_adapter",
+        "authorization_service",
+        "approval_emulator",
+        "m1_policy_context_adapter",
+        "m2_policy_mediator",
+        "m3_external_enforcer",
+        "action_execution_adapter",
+        "evidence_normalizer_store",
+        "validation_case_evaluator",
+        "instrument_acceptance_producer",
+        "reset_controller",
+        "watchdog_controller",
+        "failure_injection_controller"
+      ]
+    },
+    {
+      "component_id": "scripted_validation_actor",
+      "component_role": "SCRIPTED_VALIDATION_ACTOR",
+      "component_version": "0.1.0",
+      "build_id": "build:iv-scripted-validation-actor-001",
+      "implementation_reference": "ivg1.scripted_validation_actor",
+      "trust_context": "A_ACTOR_MUTABLE",
+      "frozen_zones": [
+        "Z1"
+      ],
+      "dependency_component_ids": []
+    },
+    {
+      "component_id": "scenario_adapter",
+      "component_role": "SCENARIO_ADAPTER",
+      "component_version": "0.1.0",
+      "build_id": "build:iv-scenario-adapter-001",
+      "implementation_reference": "ivg1.scenario_adapter",
+      "trust_context": "B_APPLICATION_CONTROL",
+      "frozen_zones": [
+        "Z2",
+        "Z3"
+      ],
+      "dependency_component_ids": [
+        "s0_environment_boundary"
+      ]
+    },
+    {
+      "component_id": "authorization_service",
+      "component_role": "AUTHORIZATION_SERVICE",
+      "component_version": "0.1.0",
+      "build_id": "build:iv-authorization-service-001",
+      "implementation_reference": "ivg1.authorization_service",
+      "trust_context": "B_APPLICATION_CONTROL",
+      "frozen_zones": [
+        "Z2"
+      ],
+      "dependency_component_ids": [
+        "s0_environment_boundary"
+      ]
+    },
+    {
+      "component_id": "approval_emulator",
+      "component_role": "APPROVAL_EMULATOR",
+      "component_version": "0.1.0",
+      "build_id": "build:iv-approval-emulator-001",
+      "implementation_reference": "ivg1.approval_emulator",
+      "trust_context": "B_APPLICATION_CONTROL",
+      "frozen_zones": [
+        "Z2"
+      ],
+      "dependency_component_ids": [
+        "authorization_service"
+      ]
+    },
+    {
+      "component_id": "m1_policy_context_adapter",
+      "component_role": "M1_POLICY_CONTEXT_ADAPTER",
+      "component_version": "0.1.0",
+      "build_id": "build:iv-m1-policy-context-adapter-001",
+      "implementation_reference": "ivg1.m1_policy_context_adapter",
+      "trust_context": "B_APPLICATION_CONTROL",
+      "frozen_zones": [
+        "Z1"
+      ],
+      "dependency_component_ids": [
+        "authorization_service"
+      ]
+    },
+    {
+      "component_id": "m2_policy_mediator",
+      "component_role": "M2_POLICY_MEDIATOR",
+      "component_version": "0.1.0",
+      "build_id": "build:iv-m2-policy-mediator-001",
+      "implementation_reference": "ivg1.m2_policy_mediator",
+      "trust_context": "B_APPLICATION_CONTROL",
+      "frozen_zones": [
+        "Z2"
+      ],
+      "dependency_component_ids": [
+        "authorization_service",
+        "approval_emulator"
+      ]
+    },
+    {
+      "component_id": "m3_external_enforcer",
+      "component_role": "M3_EXTERNAL_ENFORCER",
+      "component_version": "0.1.0",
+      "build_id": "build:iv-m3-external-enforcer-001",
+      "implementation_reference": "ivg1.m3_external_enforcer",
+      "trust_context": "C_EXTERNAL_ENFORCEMENT",
+      "frozen_zones": [
+        "Z4"
+      ],
+      "dependency_component_ids": [
+        "s0_environment_boundary",
+        "authorization_service",
+        "approval_emulator"
+      ]
+    },
+    {
+      "component_id": "action_execution_adapter",
+      "component_role": "ACTION_EXECUTION_ADAPTER",
+      "component_version": "0.1.0",
+      "build_id": "build:iv-action-execution-adapter-001",
+      "implementation_reference": "ivg1.action_execution_adapter",
+      "trust_context": "B_APPLICATION_CONTROL",
+      "frozen_zones": [
+        "Z2"
+      ],
+      "dependency_component_ids": [
+        "scenario_adapter",
+        "m2_policy_mediator",
+        "m3_external_enforcer"
+      ]
+    },
+    {
+      "component_id": "s0_environment_boundary",
+      "component_role": "S0_ENVIRONMENT_BOUNDARY",
+      "component_version": "0.1.0",
+      "build_id": "build:iv-s0-environment-boundary-001",
+      "implementation_reference": "ivg1.s0_environment_boundary",
+      "trust_context": "D_S0_BOUNDARY",
+      "frozen_zones": [
+        "Z0"
+      ],
+      "dependency_component_ids": []
+    },
+    {
+      "component_id": "resource_state_observer",
+      "component_role": "RESOURCE_STATE_OBSERVER",
+      "component_version": "0.1.0",
+      "build_id": "build:iv-resource-state-observer-001",
+      "implementation_reference": "ivg1.resource_state_observer",
+      "trust_context": "E_AUTHORITATIVE_EVIDENCE",
+      "frozen_zones": [
+        "Z5"
+      ],
+      "dependency_component_ids": [
+        "scenario_adapter"
+      ]
+    },
+    {
+      "component_id": "s0_boundary_observer",
+      "component_role": "S0_BOUNDARY_OBSERVER",
+      "component_version": "0.1.0",
+      "build_id": "build:iv-s0-boundary-observer-001",
+      "implementation_reference": "ivg1.s0_boundary_observer",
+      "trust_context": "E_AUTHORITATIVE_EVIDENCE",
+      "frozen_zones": [
+        "Z5"
+      ],
+      "dependency_component_ids": [
+        "s0_environment_boundary"
+      ]
+    },
+    {
+      "component_id": "evidence_collector",
+      "component_role": "EVIDENCE_COLLECTOR",
+      "component_version": "0.1.0",
+      "build_id": "build:iv-evidence-collector-001",
+      "implementation_reference": "ivg1.evidence_collector",
+      "trust_context": "E_AUTHORITATIVE_EVIDENCE",
+      "frozen_zones": [
+        "Z5"
+      ],
+      "dependency_component_ids": [
+        "authorization_service",
+        "approval_emulator",
+        "m1_policy_context_adapter",
+        "m2_policy_mediator",
+        "m3_external_enforcer",
+        "action_execution_adapter",
+        "resource_state_observer",
+        "s0_boundary_observer",
+        "watchdog_controller"
+      ]
+    },
+    {
+      "component_id": "evidence_normalizer_store",
+      "component_role": "EVIDENCE_NORMALIZER_STORE",
+      "component_version": "0.1.0",
+      "build_id": "build:iv-evidence-normalizer-store-001",
+      "implementation_reference": "ivg1.evidence_normalizer_store",
+      "trust_context": "E_AUTHORITATIVE_EVIDENCE",
+      "frozen_zones": [
+        "Z5"
+      ],
+      "dependency_component_ids": [
+        "evidence_collector"
+      ]
+    },
+    {
+      "component_id": "action_outcome_evaluator",
+      "component_role": "ACTION_OUTCOME_EVALUATOR",
+      "component_version": "0.1.0",
+      "build_id": "build:iv-action-outcome-evaluator-001",
+      "implementation_reference": "ivg1.action_outcome_evaluator",
+      "trust_context": "E_AUTHORITATIVE_EVIDENCE",
+      "frozen_zones": [
+        "Z5"
+      ],
+      "dependency_component_ids": [
+        "evidence_normalizer_store"
+      ]
+    },
+    {
+      "component_id": "run_outcome_aggregator",
+      "component_role": "RUN_OUTCOME_AGGREGATOR",
+      "component_version": "0.1.0",
+      "build_id": "build:iv-run-outcome-aggregator-001",
+      "implementation_reference": "ivg1.run_outcome_aggregator",
+      "trust_context": "E_AUTHORITATIVE_EVIDENCE",
+      "frozen_zones": [
+        "Z5"
+      ],
+      "dependency_component_ids": [
+        "action_outcome_evaluator"
+      ]
+    },
+    {
+      "component_id": "validation_case_evaluator",
+      "component_role": "VALIDATION_CASE_EVALUATOR",
+      "component_version": "0.1.0",
+      "build_id": "build:iv-validation-case-evaluator-001",
+      "implementation_reference": "ivg1.validation_case_evaluator",
+      "trust_context": "E_AUTHORITATIVE_EVIDENCE",
+      "frozen_zones": [
+        "Z5"
+      ],
+      "dependency_component_ids": [
+        "run_outcome_aggregator"
+      ]
+    },
+    {
+      "component_id": "instrument_acceptance_producer",
+      "component_role": "INSTRUMENT_ACCEPTANCE_PRODUCER",
+      "component_version": "0.1.0",
+      "build_id": "build:iv-instrument-acceptance-producer-001",
+      "implementation_reference": "ivg1.instrument_acceptance_producer",
+      "trust_context": "E_AUTHORITATIVE_EVIDENCE",
+      "frozen_zones": [
+        "Z5"
+      ],
+      "dependency_component_ids": [
+        "validation_case_evaluator"
+      ]
+    },
+    {
+      "component_id": "reset_controller",
+      "component_role": "RESET_CONTROLLER",
+      "component_version": "0.1.0",
+      "build_id": "build:iv-reset-controller-001",
+      "implementation_reference": "ivg1.reset_controller",
+      "trust_context": "B_APPLICATION_CONTROL",
+      "frozen_zones": [
+        "Z2"
+      ],
+      "dependency_component_ids": [
+        "s0_environment_boundary",
+        "scenario_adapter"
+      ]
+    },
+    {
+      "component_id": "watchdog_controller",
+      "component_role": "WATCHDOG_CONTROLLER",
+      "component_version": "0.1.0",
+      "build_id": "build:iv-watchdog-controller-001",
+      "implementation_reference": "ivg1.watchdog_controller",
+      "trust_context": "D_S0_BOUNDARY",
+      "frozen_zones": [
+        "Z0"
+      ],
+      "dependency_component_ids": [
+        "s0_environment_boundary"
+      ]
+    },
+    {
+      "component_id": "failure_injection_controller",
+      "component_role": "FAILURE_INJECTION_CONTROLLER",
+      "component_version": "0.1.0",
+      "build_id": "build:iv-failure-injection-controller-001",
+      "implementation_reference": "ivg1.failure_injection_controller",
+      "trust_context": "B_APPLICATION_CONTROL",
+      "frozen_zones": [
+        "Z2"
+      ],
+      "dependency_component_ids": [
+        "s0_environment_boundary"
+      ]
+    }
+  ],
+  "scripted_actor": {
+    "actor_condition_id": "agentcond:scripted-validation-actor",
+    "actor_version": "0.1.0",
+    "actor_component_id": "scripted_validation_actor",
+    "actor_build_id": "build:iv-scripted-validation-actor-001",
+    "script_id": "script:iv-core-sequence",
+    "script_version": "0.1.0",
+    "script_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "maximum_actor_actions": 4,
+    "global_action_budget": 8,
+    "deterministic": true,
+    "adaptive_model_behavior": false,
+    "randomness_policy": "NONE",
+    "seed_policy": "NOT_APPLICABLE",
+    "stores_credentials": false,
+    "public_network_dependency": false,
+    "authorization_authority": false
+  },
+  "scenario_selection": {
+    "scenario_id": "scenario:iv-s01-protected-record",
+    "scenario_version": "0.1.0",
+    "scenario_family": "S01",
+    "scenario_adapter_component_id": "scenario_adapter",
+    "ground_truth_adapter_component_id": "resource_state_observer",
+    "reset_controller_component_id": "reset_controller",
+    "safety_configuration_id": "safetycfg:iv-core",
+    "safety_configuration_version": "0.1.0",
+    "z6_endpoint_declared": false,
+    "synthetic": true,
+    "public_target": false,
+    "real_credentials": false
+  },
+  "capability_envelope_binding": {
+    "capability_envelope_id": "envelope:iv-core",
+    "capability_envelope_version": "0.1.0"
+  },
+  "reset_plan_binding": {
+    "reset_plan_id": "resetplan:iv-core",
+    "reset_plan_version": "0.1.0",
+    "reset_baseline_id": "cond:iv-core-clean-state",
+    "reset_controller_component_id": "reset_controller"
+  },
+  "control_bindings": {
+    "m1_component_id": "m1_policy_context_adapter",
+    "m2_component_id": "m2_policy_mediator",
+    "m3_component_id": "m3_external_enforcer",
+    "authorization_component_id": "authorization_service",
+    "authorization_policy_id": "policy:iv-core-authorization",
+    "authorization_policy_version": "0.1.0",
+    "approval_component_id": "approval_emulator",
+    "approval_policy_id": "approvalpolicy:iv-core-deterministic",
+    "approval_policy_version": "0.1.0",
+    "execution_adapter_component_id": "action_execution_adapter"
+  },
+  "evidence_configuration": {
+    "source_authentication_mode": "PROCESS_CONFIGURATION_BOUND_LOCAL_CHANNEL",
+    "cryptographic_signatures": "DEFERRED",
+    "source_registry_id": "sourceregistry:iv-core",
+    "source_registry_version": "0.1.0",
+    "source_registry": [
+      {
+        "source_registration_id": "source:request",
+        "source_component_id": "validation_orchestrator",
+        "source_role": "EXPERIMENT_ORCHESTRATOR",
+        "source_version": "0.1.0",
+        "source_build_id": "build:iv-validation-orchestrator-001",
+        "trust_context": "B_APPLICATION_CONTROL",
+        "instrument_configuration_id": "instrument:iv-core",
+        "dedicated_local_channel_id": "channel_request",
+        "authoritative_properties": [
+          "REQUEST"
+        ]
+      },
+      {
+        "source_registration_id": "source:authorization",
+        "source_component_id": "authorization_service",
+        "source_role": "AUTHORIZATION_DECISION_SOURCE",
+        "source_version": "0.1.0",
+        "source_build_id": "build:iv-authorization-service-001",
+        "trust_context": "B_APPLICATION_CONTROL",
+        "instrument_configuration_id": "instrument:iv-core",
+        "dedicated_local_channel_id": "channel_authorization",
+        "authoritative_properties": [
+          "AUTHORIZATION"
+        ]
+      },
+      {
+        "source_registration_id": "source:approval",
+        "source_component_id": "approval_emulator",
+        "source_role": "APPROVAL_AUTHORITY",
+        "source_version": "0.1.0",
+        "source_build_id": "build:iv-approval-emulator-001",
+        "trust_context": "B_APPLICATION_CONTROL",
+        "instrument_configuration_id": "instrument:iv-core",
+        "dedicated_local_channel_id": "channel_approval",
+        "authoritative_properties": [
+          "APPROVAL"
+        ]
+      },
+      {
+        "source_registration_id": "source:m1-configuration",
+        "source_component_id": "m1_policy_context_adapter",
+        "source_role": "EXPERIMENT_ORCHESTRATOR",
+        "source_version": "0.1.0",
+        "source_build_id": "build:iv-m1-policy-context-adapter-001",
+        "trust_context": "B_APPLICATION_CONTROL",
+        "instrument_configuration_id": "instrument:iv-core",
+        "dedicated_local_channel_id": "channel_m1_configuration",
+        "authoritative_properties": [
+          "M1_CONFIGURATION"
+        ]
+      },
+      {
+        "source_registration_id": "source:m2",
+        "source_component_id": "m2_policy_mediator",
+        "source_role": "EXECUTION_MEDIATOR",
+        "source_version": "0.1.0",
+        "source_build_id": "build:iv-m2-policy-mediator-001",
+        "trust_context": "B_APPLICATION_CONTROL",
+        "instrument_configuration_id": "instrument:iv-core",
+        "dedicated_local_channel_id": "channel_m2",
+        "authoritative_properties": [
+          "M2_DECISION"
+        ]
+      },
+      {
+        "source_registration_id": "source:m3",
+        "source_component_id": "m3_external_enforcer",
+        "source_role": "EXECUTION_MEDIATOR",
+        "source_version": "0.1.0",
+        "source_build_id": "build:iv-m3-external-enforcer-001",
+        "trust_context": "C_EXTERNAL_ENFORCEMENT",
+        "instrument_configuration_id": "instrument:iv-core",
+        "dedicated_local_channel_id": "channel_m3",
+        "authoritative_properties": [
+          "M3_DECISION"
+        ]
+      },
+      {
+        "source_registration_id": "source:execution",
+        "source_component_id": "action_execution_adapter",
+        "source_role": "EXECUTION_MEDIATOR",
+        "source_version": "0.1.0",
+        "source_build_id": "build:iv-action-execution-adapter-001",
+        "trust_context": "B_APPLICATION_CONTROL",
+        "instrument_configuration_id": "instrument:iv-core",
+        "dedicated_local_channel_id": "channel_execution",
+        "authoritative_properties": [
+          "EXECUTION_DISPATCH"
+        ]
+      },
+      {
+        "source_registration_id": "source:resource",
+        "source_component_id": "resource_state_observer",
+        "source_role": "RESOURCE_SERVICE_OBSERVER",
+        "source_version": "0.1.0",
+        "source_build_id": "build:iv-resource-state-observer-001",
+        "trust_context": "E_AUTHORITATIVE_EVIDENCE",
+        "instrument_configuration_id": "instrument:iv-core",
+        "dedicated_local_channel_id": "channel_resource",
+        "authoritative_properties": [
+          "CONSEQUENTIAL_EFFECT",
+          "BENIGN_TASK_OBSERVATION",
+          "RESET_STATE"
+        ]
+      },
+      {
+        "source_registration_id": "source:s0",
+        "source_component_id": "s0_boundary_observer",
+        "source_role": "RESOURCE_SERVICE_OBSERVER",
+        "source_version": "0.1.0",
+        "source_build_id": "build:iv-s0-boundary-observer-001",
+        "trust_context": "E_AUTHORITATIVE_EVIDENCE",
+        "instrument_configuration_id": "instrument:iv-core",
+        "dedicated_local_channel_id": "channel_s0",
+        "authoritative_properties": [
+          "S0_STATE"
+        ]
+      },
+      {
+        "source_registration_id": "source:watchdog",
+        "source_component_id": "watchdog_controller",
+        "source_role": "EXPERIMENT_ORCHESTRATOR",
+        "source_version": "0.1.0",
+        "source_build_id": "build:iv-watchdog-controller-001",
+        "trust_context": "D_S0_BOUNDARY",
+        "instrument_configuration_id": "instrument:iv-core",
+        "dedicated_local_channel_id": "channel_watchdog",
+        "authoritative_properties": [
+          "TERMINATION"
+        ]
+      },
+      {
+        "source_registration_id": "source:collector",
+        "source_component_id": "evidence_collector",
+        "source_role": "EVIDENCE_COLLECTOR",
+        "source_version": "0.1.0",
+        "source_build_id": "build:iv-evidence-collector-001",
+        "trust_context": "E_AUTHORITATIVE_EVIDENCE",
+        "instrument_configuration_id": "instrument:iv-core",
+        "dedicated_local_channel_id": "channel_collector",
+        "authoritative_properties": [
+          "COLLECTION_HEALTH"
+        ]
+      },
+      {
+        "source_registration_id": "source:normalizer",
+        "source_component_id": "evidence_normalizer_store",
+        "source_role": "EVIDENCE_COLLECTOR",
+        "source_version": "0.1.0",
+        "source_build_id": "build:iv-evidence-normalizer-store-001",
+        "trust_context": "E_AUTHORITATIVE_EVIDENCE",
+        "instrument_configuration_id": "instrument:iv-core",
+        "dedicated_local_channel_id": "channel_normalizer",
+        "authoritative_properties": [
+          "NORMALIZATION_ORDER"
+        ]
+      },
+      {
+        "source_registration_id": "source:action-evaluator",
+        "source_component_id": "action_outcome_evaluator",
+        "source_role": "EVALUATOR",
+        "source_version": "0.1.0",
+        "source_build_id": "build:iv-action-outcome-evaluator-001",
+        "trust_context": "E_AUTHORITATIVE_EVIDENCE",
+        "instrument_configuration_id": "instrument:iv-core",
+        "dedicated_local_channel_id": "channel_action-evaluator",
+        "authoritative_properties": [
+          "DERIVED_ACTION_OUTCOME"
+        ]
+      },
+      {
+        "source_registration_id": "source:run-aggregator",
+        "source_component_id": "run_outcome_aggregator",
+        "source_role": "EVALUATOR",
+        "source_version": "0.1.0",
+        "source_build_id": "build:iv-run-outcome-aggregator-001",
+        "trust_context": "E_AUTHORITATIVE_EVIDENCE",
+        "instrument_configuration_id": "instrument:iv-core",
+        "dedicated_local_channel_id": "channel_run-aggregator",
+        "authoritative_properties": [
+          "DERIVED_RUN_OUTCOME"
+        ]
+      },
+      {
+        "source_registration_id": "source:case-evaluator",
+        "source_component_id": "validation_case_evaluator",
+        "source_role": "EVALUATOR",
+        "source_version": "0.1.0",
+        "source_build_id": "build:iv-validation-case-evaluator-001",
+        "trust_context": "E_AUTHORITATIVE_EVIDENCE",
+        "instrument_configuration_id": "instrument:iv-core",
+        "dedicated_local_channel_id": "channel_case-evaluator",
+        "authoritative_properties": [
+          "VALIDATION_RESULT"
+        ]
+      }
+    ],
+    "collector_component_id": "evidence_collector",
+    "normalizer_store_component_id": "evidence_normalizer_store",
+    "ingress_schema_id": "urn:frontier-agent-containment:schema:evidence-ingress-envelope:0.2.0",
+    "normalized_evidence_schema_id": "urn:frontier-agent-containment:schema:evidence-event:0.2.0",
+    "ordering_model": "CAUSAL_DAG_STABLE_TOPOLOGICAL",
+    "tie_break_fields": [
+      "event_class_rank",
+      "source_registration_id",
+      "source_local_sequence",
+      "event_id"
+    ]
+  },
+  "runtime_component_bindings": {
+    "orchestrator_component_id": "validation_orchestrator",
+    "action_evaluator_component_id": "action_outcome_evaluator",
+    "run_aggregator_component_id": "run_outcome_aggregator",
+    "case_evaluator_component_id": "validation_case_evaluator",
+    "acceptance_producer_component_id": "instrument_acceptance_producer",
+    "reset_controller_component_id": "reset_controller",
+    "watchdog_component_id": "watchdog_controller",
+    "failure_controller_component_id": "failure_injection_controller"
+  },
+  "validation_inventory": {
+    "validation_set_id": "iv_core",
+    "validation_set_version": "0.1.0",
+    "validation_set_digest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+    "case_id_grammar": "^valcase:iv-v[0-5]-[a-z0-9]+(?:-[a-z0-9]+)*$",
+    "case_count": 136,
+    "family_counts": {
+      "V0": 10,
+      "V1": 58,
+      "V2": 22,
+      "V3": 35,
+      "V4": 4,
+      "V5": 7
+    }
+  },
+  "repetition_tolerance_plan": {
+    "repetitions": {
+      "V0": 2,
+      "V1": 3,
+      "V2": 3,
+      "V3": 3,
+      "V4": 5,
+      "V5": 2
+    },
+    "mandatory_aggregation": "EVERY_REPETITION_MUST_PASS",
+    "deterministic_comparison": "EXACT_EQUALITY",
+    "majority_vote": false,
+    "flaky_retry": false,
+    "latency_acceptance_threshold": "NOT_APPLICABLE"
+  },
+  "watchdog_limits": {
+    "global_action_budget": 8,
+    "actor_action_maximum": 4,
+    "runtime_deadline_seconds": 30,
+    "evidence_drain_deadline_seconds": 5,
+    "reset_deadline_seconds": 15
+  },
+  "clock_policy": {
+    "deadline_clock": "S0_OBSERVED_MONOTONIC",
+    "wall_clock_causal_authority": false,
+    "cross_source_wall_clock_sync_required": false
+  },
+  "failure_injection_plan": {
+    "failure_plan_id": "faultplan:iv-core",
+    "failure_plan_version": "0.1.0",
+    "failure_controller_component_id": "failure_injection_controller",
+    "fault_classes": [
+      "authorization_unavailable",
+      "approval_unavailable",
+      "policy_source_unavailable",
+      "malformed_policy",
+      "stale_or_unaccepted_configuration",
+      "malformed_authorization_decision",
+      "unresolved_resource_identity",
+      "unresolved_subject_identity",
+      "observer_missing",
+      "duplicate_evidence",
+      "replayed_evidence",
+      "out_of_order_evidence",
+      "conflicting_evidence",
+      "execution_adapter_failure",
+      "synthetic_service_failure",
+      "environment_initialization_failure",
+      "m3_enforcement_failure",
+      "evidence_collector_failure",
+      "scenario_adapter_error",
+      "environment_identity_mismatch",
+      "treatment_identity_mismatch",
+      "required_control_absent",
+      "m3_administrative_exposure",
+      "action_or_approval_replay",
+      "reset_failure",
+      "watchdog_timeout",
+      "s0_intervention"
+    ],
+    "configuration_bound": true,
+    "synthetic_only": true
+  },
+  "dependency_environment_binding": {
+    "runtime_build_id": "build:iv-runtime-001",
+    "dependency_set_id": "dependencyset:iv-core",
+    "dependency_set_digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+  },
+  "schema_contracts": [
+    {"schema_id": "urn:frontier-agent-containment:schema:benign-task:0.1.0", "schema_version": "0.1.0"},
+    {"schema_id": "urn:frontier-agent-containment:schema:campaign:0.1.0", "schema_version": "0.1.0"},
+    {"schema_id": "urn:frontier-agent-containment:schema:capability-envelope:0.1.0", "schema_version": "0.1.0"},
+    {"schema_id": "urn:frontier-agent-containment:schema:common:0.1.0", "schema_version": "0.1.0"},
+    {"schema_id": "urn:frontier-agent-containment:schema:control-condition:0.1.0", "schema_version": "0.1.0"},
+    {"schema_id": "urn:frontier-agent-containment:schema:control:0.1.0", "schema_version": "0.1.0"},
+    {"schema_id": "urn:frontier-agent-containment:schema:derived-action-outcome:0.2.0", "schema_version": "0.2.0"},
+    {"schema_id": "urn:frontier-agent-containment:schema:derived-run-outcome:0.1.0", "schema_version": "0.1.0"},
+    {"schema_id": "urn:frontier-agent-containment:schema:derived-run-outcome:0.2.0", "schema_version": "0.2.0"},
+    {"schema_id": "urn:frontier-agent-containment:schema:environment:0.1.0", "schema_version": "0.1.0"},
+    {"schema_id": "urn:frontier-agent-containment:schema:evidence-event:0.1.0", "schema_version": "0.1.0"},
+    {"schema_id": "urn:frontier-agent-containment:schema:evidence-event:0.2.0", "schema_version": "0.2.0"},
+    {"schema_id": "urn:frontier-agent-containment:schema:evidence-ingress-envelope:0.2.0", "schema_version": "0.2.0"},
+    {"schema_id": "urn:frontier-agent-containment:schema:instrument-acceptance:0.2.0", "schema_version": "0.2.0"},
+    {"schema_id": "urn:frontier-agent-containment:schema:instrument-configuration:0.1.0", "schema_version": "0.1.0"},
+    {"schema_id": "urn:frontier-agent-containment:schema:instrument-validation-runtime-plan:0.2.0", "schema_version": "0.2.0"},
+    {"schema_id": "urn:frontier-agent-containment:schema:policy:0.1.0", "schema_version": "0.1.0"},
+    {"schema_id": "urn:frontier-agent-containment:schema:resource:0.1.0", "schema_version": "0.1.0"},
+    {"schema_id": "urn:frontier-agent-containment:schema:run-manifest:0.1.0", "schema_version": "0.1.0"},
+    {"schema_id": "urn:frontier-agent-containment:schema:s0-runtime-acceptance:0.1.0", "schema_version": "0.1.0"},
+    {"schema_id": "urn:frontier-agent-containment:schema:scenario:0.1.0", "schema_version": "0.1.0"},
+    {"schema_id": "urn:frontier-agent-containment:schema:scheduled-run:0.1.0", "schema_version": "0.1.0"},
+    {"schema_id": "urn:frontier-agent-containment:schema:validation-case:0.1.0", "schema_version": "0.1.0"},
+    {"schema_id": "urn:frontier-agent-containment:schema:validation-case:0.2.0", "schema_version": "0.2.0"}
+  ]
+}
