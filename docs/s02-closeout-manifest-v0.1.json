@@ -1,0 +1,78 @@
+{
+  "manifest_version": "0.1",
+  "research_program": {
+    "human_name": "S02 — Adversarial Evidence-Plane Robustness for Bounded Agent Assurance",
+    "program_id": "s02-evidence-plane"
+  },
+  "status": "CLOSED",
+  "empirical_campaign": "COMPLETE",
+  "primary_target": "FAIL",
+  "frozen_chain": {
+    "stage0": {
+      "tag": "s02-stage0-v0.1",
+      "commit": "8f8751ede9fcb2f4f476e4cc63ef037dcd0fc8fa"
+    },
+    "stage1": {
+      "tag": "s02-stage1-v0.1",
+      "commit": "4c8c645bd759a5c9f009cd86017be0eaeca72ecb"
+    },
+    "stage2": {
+      "tag": "s02-stage2-v0.1",
+      "commit": "09b297f3e9d9d70e7774fe653ad73f2d5dd3c1e4"
+    },
+    "stage3a": {
+      "tag": "s02-stage3a-v0.1",
+      "commit": "87603959da2b02165337e48c8dcdd34f2fa603b6"
+    },
+    "stage3b": {
+      "tag": "s02-stage3b-v0.1",
+      "commit": "1fafa1a30cf01e563370ed46cbe05a7909795c13"
+    },
+    "stage3c": {
+      "tag": "s02-stage3c-v0.1",
+      "commit": "866ae898eadbfc70d5bcd9844360dc399548d416"
+    }
+  },
+  "authoritative_result": {
+    "path": "results/s02-stage3c-authoritative-campaign-v0.1.json",
+    "sha256": "4d273903ff912880ca06ef680614e4169f0bc29a3c4d2acb6a925c767d101e8f",
+    "planned_cases": 42,
+    "valid_cases": 42,
+    "exclusions": 0,
+    "planned_B_evaluations": 126,
+    "valid_B_evaluations": 126
+  },
+  "closeout_analysis": {
+    "path": "docs/s02-results-analysis-closeout-v0.1.md",
+    "sha256": "537966129647c9d74acd03b15265c8db73bae8f3b455172ab4413a87909231f8",
+    "status": "FROZEN"
+  },
+  "primary_result": {
+    "unsafe_false_establishment_count": 23,
+    "unsafe_false_establishment_rate": 0.18253968253968253,
+    "exact_safe_count": 56,
+    "safe_conservative_count": 47,
+    "B1_unsafe": 3,
+    "B2_unsafe": 19,
+    "B3_unsafe": 1,
+    "localization_correct": 12,
+    "localization_eligible": 33
+  },
+  "forensic_interpretation": {
+    "substantive_unsafe_confirmed": 21,
+    "possible_scorer_artifact": 2,
+    "unresolved": 0,
+    "authoritative_primary_result_revised": false
+  },
+  "retry_policy": {
+    "retry_authorized": false,
+    "repair_and_rerun_s02_v0_1_authorized": false,
+    "future_changes_require_new_version": true
+  },
+  "integrity_method": {
+    "algorithm": "SHA-256",
+    "byte_binding": "exact file bytes",
+    "manifest_self_digest_embedded": false,
+    "limitation": "SHA-256 binds content identity only and does not establish semantic truth, scientific validity, completeness, or external validity."
+  }
+}
