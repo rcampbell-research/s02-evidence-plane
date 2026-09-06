@@ -1,0 +1,12 @@
+cff-version: 1.2.0
+message: >-
+  If you use this software or research artifact, please cite it using the
+  metadata in this file.
+title: "S02 — Adversarial Evidence-Plane Robustness for Bounded Agent Assurance"
+type: software
+authors:
+  - family-names: Campbell
+    given-names: Robert
+repository-code: "https://github.com/rcampbell-research/s02-evidence-plane"
+version: "0.1"
+date-released: 2026-09-06

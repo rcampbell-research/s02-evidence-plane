@@ -1,0 +1,29 @@
+S02 Repository Licensing Notice
+
+Copyright 2026 Robert Campbell
+
+This repository uses a dual licensing model based on the type of material.
+
+1. Source code
+
+Code under src/, tests/, and schemas/, together with project Python and
+configuration code, is licensed under the Apache License, Version 2.0
+(Apache-2.0), unless otherwise noted.
+
+The canonical Apache License 2.0 text is available at:
+https://www.apache.org/licenses/LICENSE-2.0
+
+2. Research evidence, results, and documentation
+
+Project-authored documentation under docs/, the authoritative S02 result under
+results/, README.md, and CITATION.cff are licensed under the Creative Commons
+Attribution 4.0 International License (CC BY 4.0), unless otherwise noted.
+
+The canonical CC BY 4.0 license is available at:
+https://creativecommons.org/licenses/by/4.0/
+
+3. Third-party material
+
+Third-party dependencies and quoted or referenced external material retain
+their original licenses and terms. They are not relicensed by this repository,
+and this notice does not claim copyright over third-party material.
