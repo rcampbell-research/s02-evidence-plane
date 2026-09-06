@@ -2,8 +2,8 @@
 
 This module consumes already-supplied inert mappings.  It does not collect
 evidence, resolve content references, execute a scenario, or communicate with
-runtime components.  All governing versions and source registrations come
-from a caller-supplied, trusted Runtime Plan 0.2.0.
+runtime components.  The IV-facing wrapper resolves its governing objects
+before delegating to the generic evidence-set evaluator.
 """
 
 from __future__ import annotations
@@ -1628,26 +1628,19 @@ def _finalize_item(item: _WorkingItem, *, canonical: bool) -> None:
     )
 
 
-def evaluate_evidence_set(
+def evaluate_supplied_evidence(
     supplied_evidence: Sequence[SuppliedEvidence | tuple[Mapping[str, Any], Mapping[str, Any] | None]],
     *,
-    runtime_plan: Mapping[str, Any],
-    validation_case: Mapping[str, Any],
-    run_manifest: Mapping[str, Any],
+    trusted_context: TrustedEvaluatorContext,
+    source_registrations: Mapping[str, Mapping[str, Any]],
     schema_store: Mapping[str, Any],
-    selected_treatments: Sequence[SelectedTreatment] = (),
 ) -> EvidenceSetEvaluation:
-    """Admit, classify, causally validate, and canonically order supplied evidence."""
+    """Evaluate supplied evidence using already-resolved trusted inputs."""
 
-    trusted_context = validate_trusted_evaluator_context(
-        runtime_plan,
-        validation_case,
-        run_manifest,
-        schema_store,
-        selected_treatments=selected_treatments,
-    )
-    registrations = _trusted_registrations(runtime_plan)
-    treatments = {item.action_id: item for item in selected_treatments}
+    treatments = {
+        binding[0]: SelectedTreatment(*binding)
+        for binding in trusted_context.selected_treatments
+    }
     normalized: list[SuppliedEvidence] = []
     for item in supplied_evidence:
         if isinstance(item, SuppliedEvidence):
@@ -1661,7 +1654,7 @@ def evaluate_evidence_set(
             item,
             schema_store=schema_store,
             trusted_context=trusted_context,
-            registrations=registrations,
+            registrations=source_registrations,
             treatments=treatments,
         )
         for index, item in enumerate(normalized)
@@ -1787,6 +1780,32 @@ def evaluate_evidence_set(
             EvidenceCompleteness.COMPLETE if set_complete else EvidenceCompleteness.INCOMPLETE
         ),
         internal_findings=tuple(sorted(findings)),
+    )
+
+
+def evaluate_evidence_set(
+    supplied_evidence: Sequence[SuppliedEvidence | tuple[Mapping[str, Any], Mapping[str, Any] | None]],
+    *,
+    runtime_plan: Mapping[str, Any],
+    validation_case: Mapping[str, Any],
+    run_manifest: Mapping[str, Any],
+    schema_store: Mapping[str, Any],
+    selected_treatments: Sequence[SelectedTreatment] = (),
+) -> EvidenceSetEvaluation:
+    """Resolve IV governing inputs and evaluate the supplied evidence set."""
+
+    trusted_context = validate_trusted_evaluator_context(
+        runtime_plan,
+        validation_case,
+        run_manifest,
+        schema_store,
+        selected_treatments=selected_treatments,
+    )
+    return evaluate_supplied_evidence(
+        supplied_evidence,
+        trusted_context=trusted_context,
+        source_registrations=_trusted_registrations(runtime_plan),
+        schema_store=schema_store,
     )
 
 
@@ -2589,6 +2608,7 @@ __all__ = [
     "evaluate_action",
     "evaluate_evidence_set",
     "evaluate_run",
+    "evaluate_supplied_evidence",
     "normalization_order_digest",
     "validate_trusted_evaluator_context",
 ]
