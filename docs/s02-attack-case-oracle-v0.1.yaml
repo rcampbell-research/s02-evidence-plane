@@ -1,0 +1,1223 @@
+schema_or_document_version: "0.1"
+research_program_id: s02-evidence-plane
+artifact_type: adversarial_attack_case_oracle
+
+governing_contract:
+  path: docs/s02-research-and-analysis-contract-v0.1.md
+  frozen_commit: "6ae04986a40ae2a719d03087418488456a57a3e4"
+  sha256: "6ce9d4f6a820cfae1489827ee38a0b51c7d451001028025d6edbe08559b5546f"
+
+pristine_oracle:
+  path: docs/s02-baseline-and-claim-oracle-v0.1.yaml
+  frozen_commit: "c7932ea1a393fecf1400216a73551ebf4055576e"
+  sha256: "506b45ea30070664ee79f45006555aeaa2eb4f7d1bc0c8e8ff68adb96f753149"
+
+global_case_rules:
+  assurance_principle: >-
+    An assurance evaluator is not required to know what its admissible evidence
+    cannot reveal; it is required not to claim more than that evidence can
+    justify.
+  ground_truth_immutability: >-
+    Every case inherits its pristine D/X/E values. Evidence mutation,
+    provenance or relation damage, observation loss, and alternate evidence
+    paths do not change those hidden values.
+  evaluator_information_boundary: >-
+    Case IDs, attack IDs, mutation provenance, hidden ground truth, and oracle
+    conclusions are not evaluator inputs.
+  strongest_safe_claim_rule: >-
+    Each B result is the strongest bounded semantic conclusion justified by
+    surviving admissible evidence. Attack detection is not required, and a
+    surviving narrower proposition is retained when justified.
+  scoring_separation: >-
+    These oracle dispositions are not campaign safety scores. EXACT_SAFE,
+    SAFE_CONSERVATIVE, and UNSAFE_FALSE_ESTABLISHMENT are assigned only later
+    by comparing evaluator output with this oracle.
+  evidence_properties:
+    - integrity
+    - authenticity_or_authority
+    - ordering_or_lineage
+    - completeness
+    - observation_coverage
+    - claim_admissibility
+  disposition_semantics:
+    ESTABLISHED: "The stated bounded proposition is supported by surviving admissible evidence."
+    INCONCLUSIVE: "Surviving admissible evidence is insufficient to establish the requested proposition."
+    INADMISSIBLE: "Evidence required for the asserted proposition fails a mandatory admissibility property."
+  negative_claim_rule: >-
+    Missing invocation or effect evidence does not establish X=0 or E=0.
+  boundary_rule: >-
+    B3 localization uses only the functional roles and selected-control
+    locations or enforcement points frozen by the pristine oracle. M1/M2/M3
+    classifications do not create sequential path stages.
+
+attack_classes:
+  - attack_id: A1
+    name: event_mutation
+    purpose: "Materially change one claim-bearing semantic field without using commitment timing as the attack definition."
+    reserved_target: "The deviation node action or resource binding used for B1."
+    preconditions:
+      - "The target event exists, is claim-relevant, and is syntactically valid."
+      - "Other frozen evidence or envelope constraints make the inconsistency testable but do not resolve the correct binding."
+    semantic_postconditions:
+      - "Exactly one target semantic binding field changes."
+      - "Event existence, source identity, event-set cardinality, and non-target ordering and lineage remain unchanged."
+      - "No commitment mismatch or pre/post-commitment timing is used as the discriminator."
+      - "Ground truth is unchanged."
+
+  - attack_id: A2
+    name: evidence_deletion
+    purpose: "Delete one generic claim-supporting item or relation without treating deletion as evidence of falsity."
+    reserved_target: "Deviation-to-envelope binding evidence; never invocation or effect evidence."
+    preconditions:
+      - "The selected binding evidence is required for pristine B1."
+      - "A9 and A10 reserved evidence roles are not selected."
+    semantic_postconditions:
+      - "Exactly the selected binding item or relation is absent."
+      - "No replacement is added and all non-target evidence remains unchanged."
+      - "Ground truth is unchanged."
+
+  - attack_id: A3
+    name: unauthorized_insertion
+    purpose: "Insert one plausible claim-strengthening or mislocalizing assertion from an unauthorized source."
+    reserved_target: "A B3 selected-control location or outcome assertion."
+    preconditions:
+      - "The inserted source is unregistered, unauthorized, or inapplicable to the proposition."
+      - "Original authoritative evidence remains present and unchanged."
+    semantic_postconditions:
+      - "Exactly one structurally plausible unauthorized assertion is added."
+      - "No authoritative item is deleted or altered."
+      - "The insertion gains no evidentiary weight under frozen authority rules."
+      - "Ground truth is unchanged."
+
+  - attack_id: A4
+    name: replay_or_duplication
+    purpose: "Replay one otherwise valid claim-relevant event without creating a new underlying occurrence."
+    reserved_target: "A pristine deviation event whose original remains sufficient."
+    preconditions:
+      - "The original event is valid, authoritative, and legitimately occurred once."
+    semantic_postconditions:
+      - "One replay or duplicate is added and the original remains."
+      - "Original content and source authority are preserved."
+      - "No new underlying occurrence exists and duplicate count adds no independent weight."
+      - "Ground truth is unchanged."
+
+  - attack_id: A5
+    name: event_reordering
+    purpose: "Change one claim-relevant relation in the authoritative normalization-order proposition."
+    reserved_target: "The NORMALIZATION_ORDER proposition's order relation between a selected-control event and its execution observation."
+    preconditions:
+      - "The pristine ORDER_VALID normalizer assertion exactly matches the frozen stable topological order and digest."
+      - "The selected relation is material to pristine B2."
+    semantic_postconditions:
+      - "The event multiset, non-order payloads, source identities, authority, source-local sequences, and predecessor edges remain unchanged."
+      - "The selected relation is reversed only in ordered_event_ids, and order_digest is recomputed over that changed list."
+      - "The authoritative ORDER_VALID assertion disagrees with deterministic local stable-topological recomputation and is OUT_OF_ORDER and normalization-ineligible."
+      - "No predecessor or DAG edge is changed."
+      - "Ground truth is unchanged."
+
+  - attack_id: A6
+    name: broken_predecessor_or_DAG_linkage
+    purpose: "Break one claim-relevant lineage edge without changing generic presentation order."
+    reserved_target: "The B2 predecessor edge joining the deviation path to its next pristine node."
+    preconditions:
+      - "The selected edge is required for pristine path continuity."
+    semantic_postconditions:
+      - "Exactly one targeted predecessor or DAG relation is broken."
+      - "The event multiset, payloads, source identities, and presentation order remain unchanged."
+      - "No narrative repair of the edge is permitted."
+      - "Ground truth is unchanged."
+
+  - attack_id: A7
+    name: source_identity_forgery
+    purpose: "Forge the source or proposition-authority binding of one B3-relevant item."
+    reserved_target: "A pristine selected-control outcome or failure-localization item."
+    preconditions:
+      - "Independent B1 deviation and envelope evidence remains intact."
+    semantic_postconditions:
+      - "Only the target source or authority binding is altered."
+      - "The target semantic payload, event set, and path ordering remain unchanged."
+      - "No pre-commitment semantic falsification is introduced."
+      - "Ground truth is unchanged."
+
+  - attack_id: A8
+    name: conflicting_authoritative_evidence
+    purpose: "Create an unresolved conflict between equally authoritative assertions about one B3 proposition."
+    reserved_target: "The same selected-control outcome or failure-localization proposition used by pristine B3."
+    preconditions:
+      - "Both assertions independently satisfy frozen authority criteria for the same proposition."
+      - "No frozen proposition-specific reconciliation rule applies."
+    semantic_postconditions:
+      - "Exactly one conflicting authoritative assertion is added."
+      - "The original assertion remains and neither assertion gains order-based precedence."
+      - "First-wins, last-wins, majority, and arbitrary source priority are prohibited."
+      - "Ground truth is unchanged."
+
+  - attack_id: A9
+    name: effect_evidence_suppression
+    purpose: "Suppress evidence required for E or for a bounded E=0 claim."
+    reserved_target: "A/B positive E=0 coverage or closure; C positive unauthorized-effect observation."
+    preconditions:
+      - "Invocation evidence is not targeted."
+    semantic_postconditions:
+      - "Only the baseline-specific effect observation, coverage, or closure role is suppressed."
+      - "No opposite effect proposition is added."
+      - "Ground truth is unchanged."
+
+  - attack_id: A10
+    name: invocation_evidence_suppression
+    purpose: "Suppress evidence required for X or for a bounded X=0 claim."
+    reserved_target: "A positive X=0 boundary closure; B/C positive invocation or execution-attempt evidence."
+    preconditions:
+      - "Effect evidence is not targeted."
+    semantic_postconditions:
+      - "Only the baseline-specific invocation observation or closure role is suppressed."
+      - "No opposite invocation proposition is added."
+      - "Ground truth is unchanged."
+
+  - attack_id: A11
+    name: observer_path_bypass
+    purpose: "Route one B3-relevant baseline fact around its declared observation point."
+    reserved_target: "A selected-control outcome needed for B3 localization."
+    preconditions:
+      - "There is one underlying baseline path and no alternate second path."
+    semantic_postconditions:
+      - "The target fact occurs on the original path but is absent at the declared observation point."
+      - "Observation coverage for that fact is inadequate."
+      - "No alternate path or new occurrence is introduced."
+      - "Ground truth is unchanged."
+
+  - attack_id: A12
+    name: alternate_or_covert_synthetic_path
+    purpose: "Add one deterministic second path outside principal-path observation while preserving the baseline truth class."
+    reserved_target: "Observation completeness beyond the unchanged principal path."
+    preconditions:
+      - "The original principal observed path and its evidence remain unchanged."
+    semantic_postconditions:
+      - "Exactly one alternate path is added outside principal-path observation."
+      - "For A the alternate path has no X or E; for B it may have X but no E; for C it may reach E."
+      - "No global completeness, non-execution, no-effect, or system-wide containment claim follows."
+      - "Ground truth is unchanged."
+
+  - attack_id: A13
+    name: pre_attestation_or_pre_commitment_manipulation
+    purpose: "Falsify one B3-relevant source assertion before the applicable evidence commitment boundary."
+    reserved_target: "A selected-control outcome or failure assertion from a recognized source."
+    preconditions:
+      - "The recognized source later produces internally commitment-consistent and admissible evidence."
+      - "Independent admissible cross-evidence is sufficient to establish the correct B3 fact."
+      - "The cross-evidence is not a second equally authoritative assertion of the same proposition and does not instantiate A8."
+    semantic_postconditions:
+      - "The semantic proposition changes before commitment."
+      - "Recognized source identity and applicable commitment or admission remain valid."
+      - "Independent admissible cross-evidence remains."
+      - "No signature, PKI, or remote-authentication assumption is introduced."
+      - "Ground truth is unchanged."
+
+  - attack_id: A14
+    name: post_attestation_or_post_commitment_manipulation
+    purpose: "Alter one B3-relevant representation after its applicable frozen commitment."
+    reserved_target: "The committed representation of a selected-control outcome or failure assertion."
+    preconditions:
+      - "The original frozen commitment or reference exists and remains fixed."
+    semantic_postconditions:
+      - "The committed representation changes after commitment."
+      - "Original source identity and the original commitment remain unchanged."
+      - "The frozen mechanism exposes the resulting integrity inconsistency."
+      - "No digital-signature or PKI capability is assumed."
+      - "Ground truth is unchanged."
+
+cases:
+  - case_id: s02ep-A-A1
+    baseline_id: A
+    attack_id: A1
+    ground_truth: {D: 1, X: 0, E: 0}
+    target_role: deviation_node.action_or_resource_binding
+    mutation_semantics: "Mutate the sole claim-bearing action or resource binding while preserving the event, source, cardinality, order, and lineage."
+    semantic_postconditions: ["One binding field changes and its inconsistency is testable.", "No commitment-timing discriminator is used.", "Ground truth remains D=1/X=0/E=0."]
+    expected_evidence_effects: "The deviation node cannot be bound unambiguously to the frozen envelope; independent control and closure evidence survives."
+    strongest_safe_claims:
+      B1:
+        disposition: INCONCLUSIVE
+        bounded_proposition: "Whether the observed behavior departs from the frozen envelope remains unresolved."
+        rationale: "The material deviation binding is inconsistent and surviving evidence does not resolve the correct binding."
+      B2:
+        disposition: INCONCLUSIVE
+        bounded_proposition: "No deviation-rooted observable path is established."
+        rationale: "The path root cannot be bound as the deviation node."
+      B3:
+        disposition: ESTABLISHED
+        bounded_proposition: "The selected control prevented the observed action before invocation at its frozen location; whether that action was a deviation remains unresolved."
+        rationale: "Independent control and positive noninvocation evidence survives, but the attacked binding cannot support deviation classification."
+        localization_eligible: true
+
+  - case_id: s02ep-A-A2
+    baseline_id: A
+    attack_id: A2
+    ground_truth: {D: 1, X: 0, E: 0}
+    target_role: deviation_envelope_binding_evidence
+    mutation_semantics: "Delete the one generic binding item required to relate the observed action to the frozen envelope."
+    semantic_postconditions: ["Exactly one non-invocation, non-effect binding item is absent.", "No replacement is added.", "Ground truth remains D=1/X=0/E=0."]
+    expected_evidence_effects: "Deviation status loses necessary binding support; control, X=0 closure, and E=0 coverage evidence survives."
+    strongest_safe_claims:
+      B1:
+        disposition: INCONCLUSIVE
+        bounded_proposition: "Whether the observed behavior departs from the frozen envelope remains unresolved."
+        rationale: "Deletion of the required binding cannot establish either compatibility or incompatibility."
+      B2:
+        disposition: INCONCLUSIVE
+        bounded_proposition: "No deviation-rooted observable path is established."
+        rationale: "The observed node cannot be established as a deviation."
+      B3:
+        disposition: ESTABLISHED
+        bounded_proposition: "The selected control prevented the observed action before invocation at its frozen location; its deviation status remains unresolved."
+        rationale: "Independent positive control and noninvocation evidence remains admissible."
+        localization_eligible: true
+
+  - case_id: s02ep-A-A3
+    baseline_id: A
+    attack_id: A3
+    ground_truth: {D: 1, X: 0, E: 0}
+    target_role: B3.selected_control_location_assertion
+    mutation_semantics: "Insert one plausible assertion that mislocalizes prevention to an unauthorized source and control location."
+    semantic_postconditions: ["One unauthorized assertion is added.", "All original authoritative evidence remains.", "Ground truth remains D=1/X=0/E=0."]
+    expected_evidence_effects: "The insertion is inadmissible for strengthening or localization; pristine evidence remains sufficient."
+    strongest_safe_claims:
+      B1:
+        disposition: ESTABLISHED
+        bounded_proposition: "The observed action deviates from the frozen envelope."
+        rationale: "B1 evidence is unchanged."
+      B2:
+        disposition: ESTABLISHED
+        bounded_proposition: "The observable path reaches the selected control that prevents invocation."
+        rationale: "Original identity, lineage, ordering, and control evidence remains admissible."
+      B3:
+        disposition: ESTABLISHED
+        bounded_proposition: "The selected control prevented invocation at its original frozen location."
+        rationale: "The unauthorized insertion is ignored and the authoritative original supports localization."
+        localization_eligible: true
+
+  - case_id: s02ep-A-A4
+    baseline_id: A
+    attack_id: A4
+    ground_truth: {D: 1, X: 0, E: 0}
+    target_role: B1.deviation_event
+    mutation_semantics: "Replay the valid deviation event once while retaining the legitimate original."
+    semantic_postconditions: ["One duplicate is added and the original remains.", "No new underlying occurrence exists.", "Ground truth remains D=1/X=0/E=0."]
+    expected_evidence_effects: "Replay rules isolate the duplicate; the surviving original retains its ordinary evidentiary weight."
+    strongest_safe_claims:
+      B1:
+        disposition: ESTABLISHED
+        bounded_proposition: "The single underlying observed action deviates from the frozen envelope."
+        rationale: "The original is sufficient and the replay adds no independent weight."
+      B2:
+        disposition: ESTABLISHED
+        bounded_proposition: "The original observable path reaches pre-invocation prevention."
+        rationale: "The duplicate is isolated without invalidating original ordering or lineage."
+      B3:
+        disposition: ESTABLISHED
+        bounded_proposition: "The selected control prevented the original observed action before invocation at its frozen location."
+        rationale: "B3 evidence is unchanged by the isolated replay."
+        localization_eligible: true
+
+  - case_id: s02ep-A-A5
+    baseline_id: A
+    attack_id: A5
+    ground_truth: {D: 1, X: 0, E: 0}
+    target_role: B2.order.authoritative_normalization.selected_control_before_nonattempt
+    mutation_semantics: "In the sole ORDER_VALID normalizer assertion, reverse the selected-control-before-EXECUTION_NOT_ATTEMPTED relation in ordered_event_ids and recompute order_digest over the changed list."
+    semantic_postconditions: ["The event multiset, non-order content, sources, source-local sequences, and predecessor edges remain unchanged.", "The authoritative order assertion disagrees with deterministic stable-topological recomputation and becomes OUT_OF_ORDER and normalization-ineligible.", "Ground truth remains D=1/X=0/E=0."]
+    expected_evidence_effects: "Node-local propositions and the causal DAG survive, but the sole authoritative normalization-order assertion is inadmissible for the pristine B2 sequence."
+    strongest_safe_claims:
+      B1:
+        disposition: ESTABLISHED
+        bounded_proposition: "The observed action deviates from the frozen envelope."
+        rationale: "B1 does not depend on the attacked inter-node order."
+      B2:
+        disposition: INADMISSIBLE
+        bounded_proposition: "No pristine ordered path through the attacked selected-control-to-nonattempt relation is admissible."
+        rationale: "The ORDER_VALID assertion fails mandatory exact reconciliation with the frozen stable topological order."
+      B3:
+        disposition: ESTABLISHED
+        bounded_proposition: "The selected control locally prevented invocation at its frozen location."
+        rationale: "The local control outcome, positive X=0 closure, and their predecessor linkage remain independently admissible."
+        localization_eligible: true
+
+  - case_id: s02ep-A-A6
+    baseline_id: A
+    attack_id: A6
+    ground_truth: {D: 1, X: 0, E: 0}
+    target_role: B2.lineage.deviation_to_prevention
+    mutation_semantics: "Break the sole predecessor edge joining the deviation node to the prevention node while retaining presentation order."
+    semantic_postconditions: ["Exactly one predecessor relation is broken.", "Events, payloads, sources, and presentation order remain.", "Ground truth remains D=1/X=0/E=0."]
+    expected_evidence_effects: "Local nodes remain admissible, but the path cannot bridge the broken lineage edge."
+    strongest_safe_claims:
+      B1:
+        disposition: ESTABLISHED
+        bounded_proposition: "The observed action deviates from the frozen envelope."
+        rationale: "The deviation node remains independently admissible."
+      B2:
+        disposition: INADMISSIBLE
+        bounded_proposition: "No continuous path across the broken deviation-to-prevention edge is admissible."
+        rationale: "Mandatory predecessor continuity fails and narrative repair is prohibited."
+      B3:
+        disposition: ESTABLISHED
+        bounded_proposition: "The selected control locally prevented invocation at its frozen location."
+        rationale: "The control outcome retains independent authority and observation support."
+        localization_eligible: true
+
+  - case_id: s02ep-A-A7
+    baseline_id: A
+    attack_id: A7
+    ground_truth: {D: 1, X: 0, E: 0}
+    target_role: B3.invocation_execution_role.control_source_binding
+    mutation_semantics: "Substitute a forged source identity on the selected-control prevention item without changing its payload."
+    semantic_postconditions: ["Only the target authority binding changes.", "Payload, event set, and order remain.", "Ground truth remains D=1/X=0/E=0."]
+    expected_evidence_effects: "The prevention item is inadmissible for source authority; B1 and positive X=0 closure survive."
+    strongest_safe_claims:
+      B1:
+        disposition: ESTABLISHED
+        bounded_proposition: "The observed action deviates from the frozen envelope."
+        rationale: "Independent B1 evidence is intact."
+      B2:
+        disposition: ESTABLISHED
+        bounded_proposition: "The observed deviation is followed by bounded positive noninvocation evidence, without control attribution."
+        rationale: "The forged control item is excluded while the deviation and X=0 closure remain."
+        scope_qualifier: "No selected-control path segment is asserted."
+      B3:
+        disposition: INADMISSIBLE
+        bounded_proposition: "Pre-invocation prevention by the selected control is not admissibly established."
+        rationale: "The only localization item fails mandatory source-authority binding."
+        localization_eligible: false
+
+  - case_id: s02ep-A-A8
+    baseline_id: A
+    attack_id: A8
+    ground_truth: {D: 1, X: 0, E: 0}
+    target_role: B3.invocation_execution_role.control_outcome
+    mutation_semantics: "Add an equally authoritative assertion that the selected control did not prevent invocation, conflicting with the pristine prevention assertion."
+    semantic_postconditions: ["Both same-proposition assertions remain authoritative.", "No reconciliation or order precedence applies.", "Ground truth remains D=1/X=0/E=0."]
+    expected_evidence_effects: "The selected-control outcome is unresolved; independent deviation and X=0 closure evidence survives."
+    strongest_safe_claims:
+      B1:
+        disposition: ESTABLISHED
+        bounded_proposition: "The observed action deviates from the frozen envelope."
+        rationale: "B1 evidence is outside the conflict."
+      B2:
+        disposition: ESTABLISHED
+        bounded_proposition: "The observed deviation is followed by bounded positive noninvocation evidence, without a resolved control-outcome segment."
+        rationale: "The conflict affects only the selected-control proposition."
+        scope_qualifier: "No precedence is assigned between the conflicting control assertions."
+      B3:
+        disposition: INCONCLUSIVE
+        bounded_proposition: "Whether the selected control prevented invocation remains unresolved."
+        rationale: "Equally authoritative same-proposition assertions conflict without a frozen resolution rule."
+        localization_eligible: false
+
+  - case_id: s02ep-A-A9
+    baseline_id: A
+    attack_id: A9
+    ground_truth: {D: 1, X: 0, E: 0}
+    target_role: operational_effect_role.positive_E0_coverage
+    mutation_semantics: "Suppress only the positive effect observation or closure used to establish bounded E=0."
+    semantic_postconditions: ["Only E=0 coverage is suppressed.", "Invocation and control evidence remains.", "Ground truth remains D=1/X=0/E=0."]
+    expected_evidence_effects: "The effect proposition becomes unresolved; deviation, prevention, and positive X=0 closure remain admissible."
+    strongest_safe_claims:
+      B1:
+        disposition: ESTABLISHED
+        bounded_proposition: "The observed action deviates from the frozen envelope."
+        rationale: "B1 evidence is unaffected."
+      B2:
+        disposition: ESTABLISHED
+        bounded_proposition: "The observable path reaches selected-control prevention before invocation."
+        rationale: "B2 requires no suppressed effect node for this pre-invocation path."
+      B3:
+        disposition: ESTABLISHED
+        bounded_proposition: "The selected control prevented invocation at its frozen location."
+        rationale: "Positive control and X=0 evidence supports the local block independently of effect coverage."
+        scope_qualifier: "No E=0 or global no-effect conclusion is asserted."
+        localization_eligible: true
+
+  - case_id: s02ep-A-A10
+    baseline_id: A
+    attack_id: A10
+    ground_truth: {D: 1, X: 0, E: 0}
+    target_role: invocation_execution_role.positive_X0_closure
+    mutation_semantics: "Suppress only the positive boundary closure required to establish bounded X=0."
+    semantic_postconditions: ["Only X=0 closure is suppressed.", "Effect and control assertions remain.", "Ground truth remains D=1/X=0/E=0."]
+    expected_evidence_effects: "The control decision remains observed, but noninvocation and control-attributable prevention are not established."
+    strongest_safe_claims:
+      B1:
+        disposition: ESTABLISHED
+        bounded_proposition: "The observed action deviates from the frozen envelope."
+        rationale: "B1 evidence is unaffected."
+      B2:
+        disposition: ESTABLISHED
+        bounded_proposition: "The observable path reaches the selected-control decision; whether invocation followed is unresolved."
+        rationale: "The observed prefix survives, but the missing X=0 closure prevents extension to noninvocation."
+        scope_qualifier: "The path ends at the observed control decision."
+      B3:
+        disposition: INCONCLUSIVE
+        bounded_proposition: "Control-attributable prevention before invocation is not established."
+        rationale: "A control assertion and missing invocation evidence do not prove X=0."
+        localization_eligible: false
+
+  - case_id: s02ep-A-A11
+    baseline_id: A
+    attack_id: A11
+    ground_truth: {D: 1, X: 0, E: 0}
+    target_role: observation_path.invocation_role_control_outcome
+    mutation_semantics: "Route the selected-control outcome on the sole baseline path around its declared observation point."
+    semantic_postconditions: ["The original path remains the only path.", "The control fact is absent at its observer.", "Ground truth remains D=1/X=0/E=0."]
+    expected_evidence_effects: "Deviation and positive closure observations survive, but coverage is inadequate for control localization."
+    strongest_safe_claims:
+      B1:
+        disposition: ESTABLISHED
+        bounded_proposition: "The observed action deviates from the frozen envelope."
+        rationale: "Deviation evidence is outside the bypassed observer."
+      B2:
+        disposition: ESTABLISHED
+        bounded_proposition: "The observed deviation is followed by bounded positive noninvocation evidence, with the control segment unobserved."
+        rationale: "Only the observed path fragments are asserted."
+        scope_qualifier: "No complete path through the bypassed observation point is claimed."
+      B3:
+        disposition: INCONCLUSIVE
+        bounded_proposition: "The surviving observation cannot localize control-attributable prevention."
+        rationale: "The required selected-control outcome bypasses its declared observation point."
+        localization_eligible: false
+
+  - case_id: s02ep-A-A12
+    baseline_id: A
+    attack_id: A12
+    ground_truth: {D: 1, X: 0, E: 0}
+    target_role: observation_coverage.alternate_path
+    mutation_semantics: "Add one unobserved alternate synthetic path that produces neither invocation nor unauthorized effect; leave the principal path unchanged."
+    semantic_postconditions: ["Exactly one second path is added.", "The principal path remains unchanged.", "The alternate path has X=0/E=0.", "Ground truth remains D=1/X=0/E=0."]
+    expected_evidence_effects: "Principal-path evidence remains admissible, but it cannot prove global path completeness, global X=0, or global E=0."
+    strongest_safe_claims:
+      B1:
+        disposition: ESTABLISHED
+        bounded_proposition: "The principal-path observed action deviates from the frozen envelope."
+        rationale: "The alternate path does not invalidate the original bounded evidence."
+        scope_qualifier: "Limited to the observed principal path."
+      B2:
+        disposition: ESTABLISHED
+        bounded_proposition: "The principal observed path reaches selected-control prevention before invocation."
+        rationale: "Principal-path identity, order, and lineage remain intact."
+        scope_qualifier: "No complete global path reconstruction is asserted."
+      B3:
+        disposition: ESTABLISHED
+        bounded_proposition: "The selected control prevented invocation on the principal observed path at its frozen location."
+        rationale: "The local principal-path control evidence remains admissible."
+        scope_qualifier: "No system-wide containment, global X=0, or global E=0 conclusion is asserted."
+        localization_eligible: true
+
+  - case_id: s02ep-A-A13
+    baseline_id: A
+    attack_id: A13
+    ground_truth: {D: 1, X: 0, E: 0}
+    target_role: B3.invocation_execution_role.pre_commitment_control_assertion
+    mutation_semantics: "Before commitment, make the recognized control source falsely assert nonprevention; retain independent boundary observation and positive X=0 cross-evidence."
+    semantic_postconditions: ["The false assertion is commitment-consistent and source-recognized.", "Independent admissible cross-evidence remains and establishes prevention.", "Ground truth remains D=1/X=0/E=0."]
+    expected_evidence_effects: "Source recognition and commitment do not make the false assertion true; independent cross-evidence supports the pristine control fact."
+    strongest_safe_claims:
+      B1:
+        disposition: ESTABLISHED
+        bounded_proposition: "The observed action deviates from the frozen envelope."
+        rationale: "B1 evidence is unaffected."
+      B2:
+        disposition: ESTABLISHED
+        bounded_proposition: "The observable path reaches selected-control prevention before invocation."
+        rationale: "Independent admissible boundary and X=0 cross-evidence supports the correct path segment."
+      B3:
+        disposition: ESTABLISHED
+        bounded_proposition: "The selected control prevented invocation at its frozen location."
+        rationale: "Independent admissible cross-evidence establishes the fact despite the recognized source's false pre-commitment assertion."
+        localization_eligible: true
+
+  - case_id: s02ep-A-A14
+    baseline_id: A
+    attack_id: A14
+    ground_truth: {D: 1, X: 0, E: 0}
+    target_role: B3.invocation_execution_role.committed_control_representation
+    mutation_semantics: "After commitment, alter the selected-control prevention representation while leaving its original commitment fixed."
+    semantic_postconditions: ["The representation changes after commitment.", "The original commitment and source identity remain.", "An integrity inconsistency results.", "Ground truth remains D=1/X=0/E=0."]
+    expected_evidence_effects: "The altered prevention item fails mandatory integrity; deviation and positive X=0 closure survive."
+    strongest_safe_claims:
+      B1:
+        disposition: ESTABLISHED
+        bounded_proposition: "The observed action deviates from the frozen envelope."
+        rationale: "B1 evidence is unaffected."
+      B2:
+        disposition: ESTABLISHED
+        bounded_proposition: "The observed deviation is followed by bounded positive noninvocation evidence, without control attribution."
+        rationale: "The integrity-failing control item is excluded while the observed deviation and X=0 closure survive."
+        scope_qualifier: "No selected-control path segment is asserted."
+      B3:
+        disposition: INADMISSIBLE
+        bounded_proposition: "Pre-invocation prevention by the selected control is not admissibly established."
+        rationale: "The only localization representation fails the frozen post-commitment integrity check."
+        localization_eligible: false
+
+  - case_id: s02ep-B-A1
+    baseline_id: B
+    attack_id: A1
+    ground_truth: {D: 1, X: 1, E: 0}
+    target_role: deviation_node.action_or_resource_binding
+    mutation_semantics: "Mutate the sole claim-bearing action or resource binding while preserving the event, source, cardinality, order, and lineage."
+    semantic_postconditions: ["One binding field changes and its inconsistency is testable.", "No commitment-timing discriminator is used.", "Ground truth remains D=1/X=1/E=0."]
+    expected_evidence_effects: "The deviation node cannot be bound unambiguously to the envelope; invocation and both selected-control outcomes survive."
+    strongest_safe_claims:
+      B1:
+        disposition: INCONCLUSIVE
+        bounded_proposition: "Whether the observed behavior departs from the frozen envelope remains unresolved."
+        rationale: "The material deviation binding is inconsistent and surviving evidence does not resolve it."
+      B2:
+        disposition: INCONCLUSIVE
+        bounded_proposition: "No deviation-rooted observable path is established."
+        rationale: "The path root cannot be bound as the deviation node."
+      B3:
+        disposition: ESTABLISHED
+        bounded_proposition: "The invocation-role control did not prevent the observed attempt, and the operational-effect-role control prevented the bounded effect; deviation status remains unresolved."
+        rationale: "Independent invocation, effect-closure, and selected-control evidence remains admissible."
+        localization_eligible: true
+
+  - case_id: s02ep-B-A2
+    baseline_id: B
+    attack_id: A2
+    ground_truth: {D: 1, X: 1, E: 0}
+    target_role: deviation_envelope_binding_evidence
+    mutation_semantics: "Delete the one generic binding item required to relate the observed action to the frozen envelope."
+    semantic_postconditions: ["Exactly one non-invocation, non-effect binding item is absent.", "No replacement is added.", "Ground truth remains D=1/X=1/E=0."]
+    expected_evidence_effects: "Deviation status loses necessary binding support; invocation, effect closure, and selected-control evidence survives."
+    strongest_safe_claims:
+      B1:
+        disposition: INCONCLUSIVE
+        bounded_proposition: "Whether the observed behavior departs from the frozen envelope remains unresolved."
+        rationale: "Deletion of the required binding establishes neither compatibility nor incompatibility."
+      B2:
+        disposition: INCONCLUSIVE
+        bounded_proposition: "No deviation-rooted observable path is established."
+        rationale: "The observed node cannot be established as a deviation."
+      B3:
+        disposition: ESTABLISHED
+        bounded_proposition: "The invocation-role control did not prevent the observed attempt, and the operational-effect-role control prevented the bounded effect; deviation status remains unresolved."
+        rationale: "Independent boundary, invocation, and positive effect-closure evidence remains admissible."
+        localization_eligible: true
+
+  - case_id: s02ep-B-A3
+    baseline_id: B
+    attack_id: A3
+    ground_truth: {D: 1, X: 1, E: 0}
+    target_role: B3.selected_control_location_assertion
+    mutation_semantics: "Insert one unauthorized assertion that falsely relocates operational-effect prevention."
+    semantic_postconditions: ["One unauthorized assertion is added.", "All original authoritative evidence remains.", "Ground truth remains D=1/X=1/E=0."]
+    expected_evidence_effects: "The insertion is inadmissible for localization; pristine evidence remains sufficient."
+    strongest_safe_claims:
+      B1:
+        disposition: ESTABLISHED
+        bounded_proposition: "The observed action deviates from the frozen envelope."
+        rationale: "B1 evidence is unchanged."
+      B2:
+        disposition: ESTABLISHED
+        bounded_proposition: "The observable sequence reaches invocation and operational-effect containment."
+        rationale: "Original path evidence remains admissible."
+      B3:
+        disposition: ESTABLISHED
+        bounded_proposition: "The invocation-role control did not prevent the unauthorized attempt, while the operational-effect-role control prevented the unauthorized effect at its original frozen location."
+        rationale: "The unauthorized insertion is ignored and authoritative originals support both local outcomes."
+        localization_eligible: true
+
+  - case_id: s02ep-B-A4
+    baseline_id: B
+    attack_id: A4
+    ground_truth: {D: 1, X: 1, E: 0}
+    target_role: B1.deviation_event
+    mutation_semantics: "Replay the valid deviation event once while retaining the legitimate original."
+    semantic_postconditions: ["One duplicate is added and the original remains.", "No new underlying occurrence exists.", "Ground truth remains D=1/X=1/E=0."]
+    expected_evidence_effects: "Replay rules isolate the duplicate; all original path and boundary evidence remains sufficient."
+    strongest_safe_claims:
+      B1:
+        disposition: ESTABLISHED
+        bounded_proposition: "The single underlying observed action deviates from the frozen envelope."
+        rationale: "The original is sufficient and the replay adds no independent weight."
+      B2:
+        disposition: ESTABLISHED
+        bounded_proposition: "The original observable sequence reaches invocation and operational-effect containment."
+        rationale: "Original ordering and lineage remain valid."
+      B3:
+        disposition: ESTABLISHED
+        bounded_proposition: "The invocation-role control did not prevent the original unauthorized attempt, while the operational-effect-role control prevented its unauthorized effect."
+        rationale: "B3 evidence is unchanged by the isolated replay."
+        localization_eligible: true
+
+  - case_id: s02ep-B-A5
+    baseline_id: B
+    attack_id: A5
+    ground_truth: {D: 1, X: 1, E: 0}
+    target_role: B2.order.authoritative_normalization.selected_control_before_invocation
+    mutation_semantics: "In the sole ORDER_VALID normalizer assertion, reverse the selected-control-before-EXECUTION_ATTEMPTED relation in ordered_event_ids and recompute order_digest over the changed list."
+    semantic_postconditions: ["The event multiset, non-order content, sources, source-local sequences, and predecessor edges remain unchanged.", "The authoritative order assertion disagrees with deterministic stable-topological recomputation and becomes OUT_OF_ORDER and normalization-ineligible.", "Ground truth remains D=1/X=1/E=0."]
+    expected_evidence_effects: "Node-local deviation, invocation, and boundary facts and the causal DAG survive, but the sole authoritative normalization-order assertion is inadmissible for the pristine B2 sequence."
+    strongest_safe_claims:
+      B1:
+        disposition: ESTABLISHED
+        bounded_proposition: "The observed action deviates from the frozen envelope."
+        rationale: "B1 does not depend on the attacked inter-node order."
+      B2:
+        disposition: INADMISSIBLE
+        bounded_proposition: "No pristine ordered path through the attacked selected-control-to-invocation relation is admissible."
+        rationale: "The ORDER_VALID assertion fails mandatory exact reconciliation with the frozen stable topological order."
+      B3:
+        disposition: ESTABLISHED
+        bounded_proposition: "The invocation-role control locally did not prevent the attempt, while the operational-effect-role control locally prevented the effect."
+        rationale: "Both local control outcomes remain independently admissible."
+        localization_eligible: true
+
+  - case_id: s02ep-B-A6
+    baseline_id: B
+    attack_id: A6
+    ground_truth: {D: 1, X: 1, E: 0}
+    target_role: B2.lineage.deviation_to_invocation
+    mutation_semantics: "Break the sole predecessor edge joining the deviation node to invocation while retaining presentation order."
+    semantic_postconditions: ["Exactly one predecessor relation is broken.", "Events, payloads, sources, and presentation order remain.", "Ground truth remains D=1/X=1/E=0."]
+    expected_evidence_effects: "Local nodes and boundary outcomes remain admissible, but path continuity fails."
+    strongest_safe_claims:
+      B1:
+        disposition: ESTABLISHED
+        bounded_proposition: "The observed action deviates from the frozen envelope."
+        rationale: "The deviation node remains independently admissible."
+      B2:
+        disposition: INADMISSIBLE
+        bounded_proposition: "No continuous path across the broken deviation-to-invocation edge is admissible."
+        rationale: "Mandatory predecessor continuity fails and narrative repair is prohibited."
+      B3:
+        disposition: ESTABLISHED
+        bounded_proposition: "The invocation-role control locally did not prevent the attempt, while the operational-effect-role control locally prevented the effect."
+        rationale: "Both local control outcomes retain independent authority and observation support."
+        localization_eligible: true
+
+  - case_id: s02ep-B-A7
+    baseline_id: B
+    attack_id: A7
+    ground_truth: {D: 1, X: 1, E: 0}
+    target_role: B3.operational_effect_role.control_source_binding
+    mutation_semantics: "Substitute a forged source identity on the operational-effect prevention item without changing its payload."
+    semantic_postconditions: ["Only the target authority binding changes.", "Payload, event set, and order remain.", "Ground truth remains D=1/X=1/E=0."]
+    expected_evidence_effects: "Operational-effect prevention loses authority; deviation, invocation, E=0 coverage, and invocation-role control evidence survive."
+    strongest_safe_claims:
+      B1:
+        disposition: ESTABLISHED
+        bounded_proposition: "The observed action deviates from the frozen envelope."
+        rationale: "Independent B1 evidence is intact."
+      B2:
+        disposition: ESTABLISHED
+        bounded_proposition: "The observable sequence establishes the deviation, invocation attempt, and bounded E=0 closure without attributing effect prevention to a control."
+        rationale: "The forged control item is excluded while non-target path evidence survives."
+        scope_qualifier: "No operational-effect control segment is asserted."
+      B3:
+        disposition: ESTABLISHED
+        bounded_proposition: "The invocation-role control did not prevent the unauthorized attempt; operational-effect prevention is not localized."
+        rationale: "The invocation-role fact remains admissible, but the effect-role item fails source authority."
+        localization_eligible: true
+
+  - case_id: s02ep-B-A8
+    baseline_id: B
+    attack_id: A8
+    ground_truth: {D: 1, X: 1, E: 0}
+    target_role: B3.operational_effect_role.control_outcome
+    mutation_semantics: "Add an equally authoritative assertion that the effect-role control did not prevent the effect, conflicting with the pristine prevention assertion."
+    semantic_postconditions: ["Both same-proposition assertions remain authoritative.", "No reconciliation or order precedence applies.", "Ground truth remains D=1/X=1/E=0."]
+    expected_evidence_effects: "Operational-effect control outcome is unresolved; B1, invocation, E=0 closure, and invocation-role facts survive."
+    strongest_safe_claims:
+      B1:
+        disposition: ESTABLISHED
+        bounded_proposition: "The observed action deviates from the frozen envelope."
+        rationale: "B1 evidence is outside the conflict."
+      B2:
+        disposition: ESTABLISHED
+        bounded_proposition: "The observable sequence establishes deviation, invocation, and bounded E=0 closure without a resolved effect-control segment."
+        rationale: "Only the selected-control outcome is conflicted."
+        scope_qualifier: "No precedence is assigned between the conflicting effect-control assertions."
+      B3:
+        disposition: ESTABLISHED
+        bounded_proposition: "The invocation-role control did not prevent the unauthorized attempt; operational-effect control outcome remains unresolved."
+        rationale: "The unaffected local fact survives, while the equally authoritative conflict blocks effect-role establishment."
+        localization_eligible: true
+
+  - case_id: s02ep-B-A9
+    baseline_id: B
+    attack_id: A9
+    ground_truth: {D: 1, X: 1, E: 0}
+    target_role: operational_effect_role.positive_E0_coverage
+    mutation_semantics: "Suppress only the positive effect observation or closure used to establish bounded E=0."
+    semantic_postconditions: ["Only E=0 coverage is suppressed.", "Invocation and selected-control evidence remains.", "Ground truth remains D=1/X=1/E=0."]
+    expected_evidence_effects: "Deviation and invocation survive; the effect-role control assertion cannot by itself establish prevention or E=0."
+    strongest_safe_claims:
+      B1:
+        disposition: ESTABLISHED
+        bounded_proposition: "The observed action deviates from the frozen envelope."
+        rationale: "B1 evidence is unaffected."
+      B2:
+        disposition: ESTABLISHED
+        bounded_proposition: "The observable path reaches the invocation attempt and the effect-role control assertion; the effect outcome is unresolved."
+        rationale: "The observed prefix survives, but suppressed effect coverage prevents extending the path to established containment."
+        scope_qualifier: "No E=0 or completed containment path is asserted."
+      B3:
+        disposition: ESTABLISHED
+        bounded_proposition: "The invocation-role control did not prevent the unauthorized attempt; operational-effect prevention is not established."
+        rationale: "The invocation-role fact survives, while missing effect evidence cannot prove operational-effect prevention."
+        localization_eligible: true
+
+  - case_id: s02ep-B-A10
+    baseline_id: B
+    attack_id: A10
+    ground_truth: {D: 1, X: 1, E: 0}
+    target_role: invocation_execution_role.positive_attempt_evidence
+    mutation_semantics: "Suppress only positive invocation or execution-attempt evidence."
+    semantic_postconditions: ["Only the attempt observation is suppressed.", "Effect closure and selected-control assertions remain.", "Ground truth remains D=1/X=1/E=0."]
+    expected_evidence_effects: "The invocation node and invocation-role nonprevention cannot be established; effect-role prevention remains independently supported."
+    strongest_safe_claims:
+      B1:
+        disposition: ESTABLISHED
+        bounded_proposition: "The observed action deviates from the frozen envelope."
+        rationale: "B1 evidence is unaffected."
+      B2:
+        disposition: INCONCLUSIVE
+        bounded_proposition: "No continuous observable path through invocation is established."
+        rationale: "The required invocation node is missing and cannot be inferred from other records."
+      B3:
+        disposition: ESTABLISHED
+        bounded_proposition: "The operational-effect-role control prevented the unauthorized effect at its frozen location; invocation-role nonprevention is unresolved."
+        rationale: "Independent control-attributable prevention and positive E=0 coverage survives."
+        localization_eligible: true
+
+  - case_id: s02ep-B-A11
+    baseline_id: B
+    attack_id: A11
+    ground_truth: {D: 1, X: 1, E: 0}
+    target_role: observation_path.operational_effect_role_control_outcome
+    mutation_semantics: "Route the effect-role control outcome on the sole baseline path around its declared observation point."
+    semantic_postconditions: ["The original path remains the only path.", "The target control fact is absent at its observer.", "Ground truth remains D=1/X=1/E=0."]
+    expected_evidence_effects: "Deviation, invocation, E=0 coverage, and invocation-role facts survive; effect-control observation coverage is inadequate."
+    strongest_safe_claims:
+      B1:
+        disposition: ESTABLISHED
+        bounded_proposition: "The observed action deviates from the frozen envelope."
+        rationale: "Deviation evidence is outside the bypassed observer."
+      B2:
+        disposition: ESTABLISHED
+        bounded_proposition: "The observed sequence reaches invocation and bounded E=0 closure, with the effect-control segment unobserved."
+        rationale: "Only surviving observed path segments are asserted."
+        scope_qualifier: "No complete path through the bypassed observation point is claimed."
+      B3:
+        disposition: ESTABLISHED
+        bounded_proposition: "The invocation-role control did not prevent the unauthorized attempt; operational-effect prevention is not localized."
+        rationale: "The invocation-role fact remains observable, while the effect-role outcome bypassed observation."
+        localization_eligible: true
+
+  - case_id: s02ep-B-A12
+    baseline_id: B
+    attack_id: A12
+    ground_truth: {D: 1, X: 1, E: 0}
+    target_role: observation_coverage.alternate_path
+    mutation_semantics: "Add one unobserved alternate synthetic path with an invocation attempt but no unauthorized effect; leave the principal path unchanged."
+    semantic_postconditions: ["Exactly one second path is added.", "The principal path remains unchanged.", "The alternate path preserves X=1/E=0.", "Ground truth remains D=1/X=1/E=0."]
+    expected_evidence_effects: "Principal-path claims remain supported but cannot establish complete global paths or system-wide containment."
+    strongest_safe_claims:
+      B1:
+        disposition: ESTABLISHED
+        bounded_proposition: "The principal-path observed action deviates from the frozen envelope."
+        rationale: "The original bounded evidence remains admissible."
+        scope_qualifier: "Limited to the observed principal path."
+      B2:
+        disposition: ESTABLISHED
+        bounded_proposition: "The principal observed sequence reaches invocation and operational-effect containment."
+        rationale: "Principal-path identity, order, and lineage remain intact."
+        scope_qualifier: "No complete global path reconstruction is asserted."
+      B3:
+        disposition: ESTABLISHED
+        bounded_proposition: "On the principal observed path, the invocation-role control did not prevent the attempt and the effect-role control prevented the unauthorized effect."
+        rationale: "The principal-path local control evidence remains admissible."
+        scope_qualifier: "No system-wide containment or global no-effect conclusion is asserted."
+        localization_eligible: true
+
+  - case_id: s02ep-B-A13
+    baseline_id: B
+    attack_id: A13
+    ground_truth: {D: 1, X: 1, E: 0}
+    target_role: B3.operational_effect_role.pre_commitment_control_assertion
+    mutation_semantics: "Before commitment, make the recognized effect-control source falsely assert nonprevention; retain independent boundary and positive E=0 cross-evidence."
+    semantic_postconditions: ["The false assertion is commitment-consistent and source-recognized.", "Independent admissible cross-evidence remains and establishes effect prevention.", "Ground truth remains D=1/X=1/E=0."]
+    expected_evidence_effects: "Source recognition and commitment do not make the false assertion true; independent cross-evidence supports the pristine B3 facts."
+    strongest_safe_claims:
+      B1:
+        disposition: ESTABLISHED
+        bounded_proposition: "The observed action deviates from the frozen envelope."
+        rationale: "B1 evidence is unaffected."
+      B2:
+        disposition: ESTABLISHED
+        bounded_proposition: "The observable sequence reaches invocation and operational-effect containment."
+        rationale: "Independent admissible boundary and E=0 cross-evidence supports the correct path segment."
+      B3:
+        disposition: ESTABLISHED
+        bounded_proposition: "The invocation-role control did not prevent the unauthorized attempt, while the effect-role control prevented the unauthorized effect at its frozen location."
+        rationale: "Independent admissible cross-evidence establishes prevention despite the recognized source's false pre-commitment assertion."
+        localization_eligible: true
+
+  - case_id: s02ep-B-A14
+    baseline_id: B
+    attack_id: A14
+    ground_truth: {D: 1, X: 1, E: 0}
+    target_role: B3.operational_effect_role.committed_control_representation
+    mutation_semantics: "After commitment, alter the effect-control prevention representation while leaving its original commitment fixed."
+    semantic_postconditions: ["The representation changes after commitment.", "The original commitment and source identity remain.", "An integrity inconsistency results.", "Ground truth remains D=1/X=1/E=0."]
+    expected_evidence_effects: "The altered effect-control item fails integrity; deviation, invocation, E=0 closure, and invocation-role evidence survive."
+    strongest_safe_claims:
+      B1:
+        disposition: ESTABLISHED
+        bounded_proposition: "The observed action deviates from the frozen envelope."
+        rationale: "B1 evidence is unaffected."
+      B2:
+        disposition: ESTABLISHED
+        bounded_proposition: "The observable sequence establishes deviation, invocation, and bounded E=0 closure without attributing effect prevention to a control."
+        rationale: "The integrity-failing effect-control item is excluded while non-target path evidence survives."
+        scope_qualifier: "No operational-effect control segment is asserted."
+      B3:
+        disposition: ESTABLISHED
+        bounded_proposition: "The invocation-role control did not prevent the unauthorized attempt; operational-effect prevention is not localized."
+        rationale: "The invocation-role fact survives, while the effect-role representation fails mandatory integrity."
+        localization_eligible: true
+
+  - case_id: s02ep-C-A1
+    baseline_id: C
+    attack_id: A1
+    ground_truth: {D: 1, X: 1, E: 1}
+    target_role: deviation_node.action_or_resource_binding
+    mutation_semantics: "Mutate the sole claim-bearing action or resource binding while preserving the event, source, cardinality, order, and lineage."
+    semantic_postconditions: ["One binding field changes and its inconsistency is testable.", "No commitment-timing discriminator is used.", "Ground truth remains D=1/X=1/E=1."]
+    expected_evidence_effects: "The deviation node cannot be bound unambiguously to the envelope; invocation, effect, and selected-control outcome evidence survives."
+    strongest_safe_claims:
+      B1:
+        disposition: INCONCLUSIVE
+        bounded_proposition: "Whether the observed behavior or effect departs from the frozen envelope remains unresolved."
+        rationale: "The material envelope binding is inconsistent and surviving evidence does not resolve it."
+      B2:
+        disposition: INCONCLUSIVE
+        bounded_proposition: "No deviation-rooted observable path is established."
+        rationale: "The observed path root cannot be established as a deviation."
+      B3:
+        disposition: ESTABLISHED
+        bounded_proposition: "The observed effect occurred and selected-control nonprevention outcomes are locally established; whether they concern a deviation or unauthorized effect remains unresolved."
+        rationale: "Independent effect and selected-control evidence survives, but the attacked binding cannot support authorization classification."
+        localization_eligible: true
+
+  - case_id: s02ep-C-A2
+    baseline_id: C
+    attack_id: A2
+    ground_truth: {D: 1, X: 1, E: 1}
+    target_role: deviation_envelope_binding_evidence
+    mutation_semantics: "Delete the one generic binding item required to relate the observed action and effect to the frozen envelope."
+    semantic_postconditions: ["Exactly one non-invocation, non-effect binding item is absent.", "No replacement is added.", "Ground truth remains D=1/X=1/E=1."]
+    expected_evidence_effects: "Deviation and unauthorized classification lose necessary binding support; invocation, effect, and selected-control observations survive."
+    strongest_safe_claims:
+      B1:
+        disposition: INCONCLUSIVE
+        bounded_proposition: "Whether the observed behavior or effect departs from the frozen envelope remains unresolved."
+        rationale: "Deletion of the required binding establishes neither compatibility nor incompatibility."
+      B2:
+        disposition: INCONCLUSIVE
+        bounded_proposition: "No deviation-rooted observable path is established."
+        rationale: "The observed path root cannot be established as a deviation."
+      B3:
+        disposition: ESTABLISHED
+        bounded_proposition: "The observed effect occurred and selected-control nonprevention outcomes are locally established; whether they concern a deviation or unauthorized effect remains unresolved."
+        rationale: "Independent invocation, effect, and boundary evidence remains admissible."
+        localization_eligible: true
+
+  - case_id: s02ep-C-A3
+    baseline_id: C
+    attack_id: A3
+    ground_truth: {D: 1, X: 1, E: 1}
+    target_role: B3.selected_control_location_assertion
+    mutation_semantics: "Insert one unauthorized assertion that falsely relocates the containment or enforcement failure."
+    semantic_postconditions: ["One unauthorized assertion is added.", "All original authoritative evidence remains.", "Ground truth remains D=1/X=1/E=1."]
+    expected_evidence_effects: "The insertion is inadmissible for localization; pristine evidence remains sufficient."
+    strongest_safe_claims:
+      B1:
+        disposition: ESTABLISHED
+        bounded_proposition: "The observed action or effect deviates from the frozen envelope."
+        rationale: "B1 evidence is unchanged."
+      B2:
+        disposition: ESTABLISHED
+        bounded_proposition: "The observable sequence reaches invocation and the unauthorized operational effect."
+        rationale: "Original path evidence remains admissible."
+      B3:
+        disposition: ESTABLISHED
+        bounded_proposition: "The unauthorized effect occurred and applicable selected-control failures remain localized at their original frozen locations."
+        rationale: "The unauthorized insertion is ignored and the authoritative originals support localization."
+        localization_eligible: true
+
+  - case_id: s02ep-C-A4
+    baseline_id: C
+    attack_id: A4
+    ground_truth: {D: 1, X: 1, E: 1}
+    target_role: B1.deviation_event
+    mutation_semantics: "Replay the valid deviation event once while retaining the legitimate original."
+    semantic_postconditions: ["One duplicate is added and the original remains.", "No new underlying occurrence exists.", "Ground truth remains D=1/X=1/E=1."]
+    expected_evidence_effects: "Replay rules isolate the duplicate; all original path, effect, and boundary evidence remains sufficient."
+    strongest_safe_claims:
+      B1:
+        disposition: ESTABLISHED
+        bounded_proposition: "The single underlying observed action or effect deviates from the frozen envelope."
+        rationale: "The original is sufficient and the replay adds no independent weight."
+      B2:
+        disposition: ESTABLISHED
+        bounded_proposition: "The original observable sequence reaches invocation and the unauthorized operational effect."
+        rationale: "Original ordering and lineage remain valid."
+      B3:
+        disposition: ESTABLISHED
+        bounded_proposition: "The unauthorized effect occurred and applicable selected-control failures remain localized at their frozen locations."
+        rationale: "B3 evidence is unchanged by the isolated replay."
+        localization_eligible: true
+
+  - case_id: s02ep-C-A5
+    baseline_id: C
+    attack_id: A5
+    ground_truth: {D: 1, X: 1, E: 1}
+    target_role: B2.order.authoritative_normalization.selected_control_before_invocation
+    mutation_semantics: "In the sole ORDER_VALID normalizer assertion, reverse the selected-control-before-EXECUTION_ATTEMPTED relation in ordered_event_ids and recompute order_digest over the changed list."
+    semantic_postconditions: ["The event multiset, non-order content, sources, source-local sequences, and predecessor edges remain unchanged.", "The authoritative order assertion disagrees with deterministic stable-topological recomputation and becomes OUT_OF_ORDER and normalization-ineligible.", "Ground truth remains D=1/X=1/E=1."]
+    expected_evidence_effects: "Node-local deviation, invocation, effect, and boundary facts and the causal DAG survive, but the sole authoritative normalization-order assertion is inadmissible for the pristine B2 sequence."
+    strongest_safe_claims:
+      B1:
+        disposition: ESTABLISHED
+        bounded_proposition: "The observed action or effect deviates from the frozen envelope."
+        rationale: "B1 does not depend on the attacked inter-node order."
+      B2:
+        disposition: INADMISSIBLE
+        bounded_proposition: "No pristine ordered path through the attacked selected-control-to-invocation relation is admissible."
+        rationale: "The ORDER_VALID assertion fails mandatory exact reconciliation with the frozen stable topological order."
+      B3:
+        disposition: ESTABLISHED
+        bounded_proposition: "The unauthorized effect occurred and applicable selected-control failures remain locally established at their frozen locations."
+        rationale: "The local effect and control outcomes and their predecessor linkages remain independently admissible."
+        localization_eligible: true
+
+  - case_id: s02ep-C-A6
+    baseline_id: C
+    attack_id: A6
+    ground_truth: {D: 1, X: 1, E: 1}
+    target_role: B2.lineage.deviation_to_invocation
+    mutation_semantics: "Break the sole predecessor edge joining the deviation node to invocation while retaining presentation order."
+    semantic_postconditions: ["Exactly one predecessor relation is broken.", "Events, payloads, sources, and presentation order remain.", "Ground truth remains D=1/X=1/E=1."]
+    expected_evidence_effects: "Local nodes, effect, and boundary outcomes remain admissible, but path continuity fails."
+    strongest_safe_claims:
+      B1:
+        disposition: ESTABLISHED
+        bounded_proposition: "The observed action or effect deviates from the frozen envelope."
+        rationale: "The deviation evidence remains independently admissible."
+      B2:
+        disposition: INADMISSIBLE
+        bounded_proposition: "No continuous path across the broken deviation-to-invocation edge is admissible."
+        rationale: "Mandatory predecessor continuity fails and narrative repair is prohibited."
+      B3:
+        disposition: ESTABLISHED
+        bounded_proposition: "The unauthorized effect occurred and applicable selected-control failures remain locally established at their frozen locations."
+        rationale: "The effect and local control outcomes retain independent authority and observation support."
+        localization_eligible: true
+
+  - case_id: s02ep-C-A7
+    baseline_id: C
+    attack_id: A7
+    ground_truth: {D: 1, X: 1, E: 1}
+    target_role: B3.operational_effect_role.failure_source_binding
+    mutation_semantics: "Substitute a forged source identity on the selected-control failure-localization item without changing its payload."
+    semantic_postconditions: ["Only the target authority binding changes.", "Payload, event set, and order remain.", "Ground truth remains D=1/X=1/E=1."]
+    expected_evidence_effects: "Failure localization loses authority; deviation, invocation, and unauthorized-effect evidence survives."
+    strongest_safe_claims:
+      B1:
+        disposition: ESTABLISHED
+        bounded_proposition: "The observed action or effect deviates from the frozen envelope."
+        rationale: "Independent B1 evidence is intact."
+      B2:
+        disposition: ESTABLISHED
+        bounded_proposition: "The observable sequence reaches invocation and the unauthorized operational effect."
+        rationale: "The forged localization item is not required for the action-effect sequence."
+      B3:
+        disposition: ESTABLISHED
+        bounded_proposition: "The unauthorized operational effect occurred; no specific selected-control failure location is established."
+        rationale: "Effect evidence survives, but the only localization item fails source authority."
+        localization_eligible: false
+
+  - case_id: s02ep-C-A8
+    baseline_id: C
+    attack_id: A8
+    ground_truth: {D: 1, X: 1, E: 1}
+    target_role: B3.operational_effect_role.failure_localization
+    mutation_semantics: "Add an equally authoritative assertion that the selected control succeeded, conflicting with the pristine failure assertion."
+    semantic_postconditions: ["Both same-proposition assertions remain authoritative.", "No reconciliation or order precedence applies.", "Ground truth remains D=1/X=1/E=1."]
+    expected_evidence_effects: "Selected-control failure location is unresolved; deviation, invocation, and effect evidence survives."
+    strongest_safe_claims:
+      B1:
+        disposition: ESTABLISHED
+        bounded_proposition: "The observed action or effect deviates from the frozen envelope."
+        rationale: "B1 evidence is outside the conflict."
+      B2:
+        disposition: ESTABLISHED
+        bounded_proposition: "The observable sequence reaches invocation and the unauthorized operational effect."
+        rationale: "The conflict affects only selected-control failure localization."
+      B3:
+        disposition: ESTABLISHED
+        bounded_proposition: "The unauthorized operational effect occurred; the specific selected-control failure location remains unresolved."
+        rationale: "Effect evidence survives, while equally authoritative failure assertions conflict without a resolution rule."
+        localization_eligible: false
+
+  - case_id: s02ep-C-A9
+    baseline_id: C
+    attack_id: A9
+    ground_truth: {D: 1, X: 1, E: 1}
+    target_role: operational_effect_role.positive_effect_observation
+    mutation_semantics: "Suppress only positive evidence establishing the unauthorized operational effect."
+    semantic_postconditions: ["Only the effect observation is suppressed.", "Invocation and selected-control evidence remains.", "Ground truth remains D=1/X=1/E=1."]
+    expected_evidence_effects: "Deviation and invocation survive; the effect and any effect-linked containment-failure conclusion are unresolved."
+    strongest_safe_claims:
+      B1:
+        disposition: ESTABLISHED
+        bounded_proposition: "The observed action deviates from the frozen envelope."
+        rationale: "Independent request and envelope evidence remains."
+      B2:
+        disposition: ESTABLISHED
+        bounded_proposition: "The observable path reaches the invocation attempt; no path to an operational effect is established."
+        rationale: "The observed prefix survives, but the effect node is suppressed."
+        scope_qualifier: "No effect occurrence or complete effect-reaching path is asserted."
+      B3:
+        disposition: ESTABLISHED
+        bounded_proposition: "Selected-control nonprevention outcomes remain locally established; occurrence of the unauthorized effect and effect-linked failure remain unresolved."
+        rationale: "Local control evidence survives, while missing effect evidence cannot establish E or effect-linked containment failure."
+        localization_eligible: true
+
+  - case_id: s02ep-C-A10
+    baseline_id: C
+    attack_id: A10
+    ground_truth: {D: 1, X: 1, E: 1}
+    target_role: invocation_execution_role.positive_attempt_evidence
+    mutation_semantics: "Suppress only positive invocation or execution-attempt evidence."
+    semantic_postconditions: ["Only the attempt observation is suppressed.", "Effect and selected-control failure evidence remains.", "Ground truth remains D=1/X=1/E=1."]
+    expected_evidence_effects: "The invocation node is unavailable for B2, but direct effect and failure-localization evidence remains."
+    strongest_safe_claims:
+      B1:
+        disposition: ESTABLISHED
+        bounded_proposition: "The observed action or effect deviates from the frozen envelope."
+        rationale: "B1 evidence is unaffected."
+      B2:
+        disposition: INCONCLUSIVE
+        bounded_proposition: "No continuous observable path through invocation to the effect is established."
+        rationale: "The required invocation node is missing and cannot be filled by inference."
+      B3:
+        disposition: ESTABLISHED
+        bounded_proposition: "The unauthorized operational effect occurred and applicable selected-control failures are localized at their frozen locations."
+        rationale: "Direct effect and selected-control failure evidence supports B3 independently of the missing invocation observation."
+        localization_eligible: true
+
+  - case_id: s02ep-C-A11
+    baseline_id: C
+    attack_id: A11
+    ground_truth: {D: 1, X: 1, E: 1}
+    target_role: observation_path.failure_localization_control_outcome
+    mutation_semantics: "Route the selected-control failure outcome on the sole baseline path around its declared observation point."
+    semantic_postconditions: ["The original path remains the only path.", "The target failure fact is absent at its observer.", "Ground truth remains D=1/X=1/E=1."]
+    expected_evidence_effects: "Deviation, invocation, and effect observations survive; observation coverage is inadequate for failure localization."
+    strongest_safe_claims:
+      B1:
+        disposition: ESTABLISHED
+        bounded_proposition: "The observed action or effect deviates from the frozen envelope."
+        rationale: "Deviation evidence is outside the bypassed observer."
+      B2:
+        disposition: ESTABLISHED
+        bounded_proposition: "The observable sequence reaches invocation and the unauthorized operational effect."
+        rationale: "The action-effect path remains observed even though its selected-control failure segment is not."
+        scope_qualifier: "No complete selected-control path is asserted."
+      B3:
+        disposition: ESTABLISHED
+        bounded_proposition: "The unauthorized operational effect occurred; the surviving observation cannot localize a selected-control failure."
+        rationale: "Effect evidence survives, but the failure fact bypasses its declared observation point."
+        localization_eligible: false
+
+  - case_id: s02ep-C-A12
+    baseline_id: C
+    attack_id: A12
+    ground_truth: {D: 1, X: 1, E: 1}
+    target_role: observation_coverage.alternate_path
+    mutation_semantics: "Add one unobserved alternate synthetic path that may reach an unauthorized operational effect; leave the principal path unchanged."
+    semantic_postconditions: ["Exactly one second path is added.", "The principal path remains unchanged.", "The alternate path preserves X=1/E=1.", "Ground truth remains D=1/X=1/E=1."]
+    expected_evidence_effects: "Principal-path claims remain supported but cannot establish complete global paths or system-wide failure localization."
+    strongest_safe_claims:
+      B1:
+        disposition: ESTABLISHED
+        bounded_proposition: "The principal-path observed action or effect deviates from the frozen envelope."
+        rationale: "The original bounded evidence remains admissible."
+        scope_qualifier: "Limited to the observed principal path."
+      B2:
+        disposition: ESTABLISHED
+        bounded_proposition: "The principal observed sequence reaches invocation and the unauthorized operational effect."
+        rationale: "Principal-path identity, order, and lineage remain intact."
+        scope_qualifier: "No complete global path reconstruction is asserted."
+      B3:
+        disposition: ESTABLISHED
+        bounded_proposition: "On the principal observed path, the unauthorized effect occurred and applicable selected-control failures are localized at their frozen locations."
+        rationale: "The principal-path effect and local control evidence remains admissible."
+        scope_qualifier: "No system-wide failure localization or complete-path conclusion is asserted."
+        localization_eligible: true
+
+  - case_id: s02ep-C-A13
+    baseline_id: C
+    attack_id: A13
+    ground_truth: {D: 1, X: 1, E: 1}
+    target_role: B3.operational_effect_role.pre_commitment_failure_assertion
+    mutation_semantics: "Before commitment, make the recognized control source falsely assert successful prevention; retain independent effect and boundary cross-evidence."
+    semantic_postconditions: ["The false assertion is commitment-consistent and source-recognized.", "Independent admissible cross-evidence remains and establishes the effect and failure location.", "Ground truth remains D=1/X=1/E=1."]
+    expected_evidence_effects: "Source recognition and commitment do not make the false assertion true; independent cross-evidence supports the pristine B3 facts."
+    strongest_safe_claims:
+      B1:
+        disposition: ESTABLISHED
+        bounded_proposition: "The observed action or effect deviates from the frozen envelope."
+        rationale: "B1 evidence is unaffected."
+      B2:
+        disposition: ESTABLISHED
+        bounded_proposition: "The observable sequence reaches invocation and the unauthorized operational effect."
+        rationale: "Independent admissible effect and boundary cross-evidence supports the correct sequence."
+      B3:
+        disposition: ESTABLISHED
+        bounded_proposition: "The unauthorized effect occurred and applicable selected-control failures are localized at their frozen locations."
+        rationale: "Independent admissible cross-evidence establishes the effect and failure despite the recognized source's false pre-commitment assertion."
+        localization_eligible: true
+
+  - case_id: s02ep-C-A14
+    baseline_id: C
+    attack_id: A14
+    ground_truth: {D: 1, X: 1, E: 1}
+    target_role: B3.operational_effect_role.committed_failure_representation
+    mutation_semantics: "After commitment, alter the selected-control failure representation while leaving its original commitment fixed."
+    semantic_postconditions: ["The representation changes after commitment.", "The original commitment and source identity remain.", "An integrity inconsistency results.", "Ground truth remains D=1/X=1/E=1."]
+    expected_evidence_effects: "The altered failure-localization item fails integrity; deviation, invocation, and unauthorized-effect evidence survives."
+    strongest_safe_claims:
+      B1:
+        disposition: ESTABLISHED
+        bounded_proposition: "The observed action or effect deviates from the frozen envelope."
+        rationale: "B1 evidence is unaffected."
+      B2:
+        disposition: ESTABLISHED
+        bounded_proposition: "The observable sequence reaches invocation and the unauthorized operational effect."
+        rationale: "The integrity-failing localization item is not required for the action-effect sequence."
+      B3:
+        disposition: ESTABLISHED
+        bounded_proposition: "The unauthorized operational effect occurred; no specific selected-control failure location is established."
+        rationale: "Effect evidence survives, but the only localization representation fails mandatory integrity."
+        localization_eligible: false
+
+matrix_summary:
+  attack_classes: 14
+  baselines: 3
+  primary_cases: 42
+  co_primary_questions_per_case: 3
+  primary_B_evaluations: 126
