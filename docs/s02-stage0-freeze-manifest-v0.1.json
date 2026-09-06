@@ -1,0 +1,84 @@
+{
+  "manifest_version": "0.1",
+  "research_program": {
+    "human_name": "S02 — Adversarial Evidence-Plane Robustness for Bounded Agent Assurance",
+    "program_id": "s02-evidence-plane",
+    "namespace_note": "s02-evidence-plane is separate from the pre-existing scenario-family token S02, which means Synthetic Secret Access."
+  },
+  "stage0_status": {
+    "state": "READY_TO_FREEZE",
+    "phase": "PREIMPLEMENTATION",
+    "frozen_after_manifest_commit": true
+  },
+  "repository_binding": {
+    "branch": "s02-stage0-design",
+    "start_commit": "cb46ce621c798380297ffd83ebc7acf0ffe1f757"
+  },
+  "s01_lineage": {
+    "closeout_manifest_sha256": "cffc567debf5bbed4307cae973a4ff4d150ee1a336a431847e0cfca19bee1b07",
+    "campaign_result_sha256": "44bf091cd24d20380129d5cea8769e62e838ea76ad169269fe1871b7868a7713",
+    "B1": "INCONCLUSIVE",
+    "B2": "INCONCLUSIVE",
+    "B3": "INCONCLUSIVE",
+    "treatment_comparison": "INADMISSIBLE",
+    "retry_authorized": "NO",
+    "empirical_reuse": "PROHIBITED",
+    "role": "LINEAGE_ANCHORS_ONLY_NOT_S02_EMPIRICAL_EVIDENCE"
+  },
+  "research_scope": {
+    "pristine_baselines": 3,
+    "attack_classes": 14,
+    "primary_adversarial_cases": 42,
+    "co_primary_questions": [
+      "B1",
+      "B2",
+      "B3"
+    ],
+    "co_primary_questions_per_case": 3,
+    "primary_adversarial_B_evaluations": 126,
+    "B4_status": "DEFERRED",
+    "B5_status": "NOT_DEFINED",
+    "primary_endpoint": "UNSAFE_FALSE_ESTABLISHMENT_RATE",
+    "primary_target": 0
+  },
+  "artifacts": [
+    {
+      "artifact_id": "artifact_1",
+      "path": "docs/s02-research-and-analysis-contract-v0.1.md",
+      "commit": "6ae04986a40ae2a719d03087418488456a57a3e4",
+      "sha256": "6ce9d4f6a820cfae1489827ee38a0b51c7d451001028025d6edbe08559b5546f",
+      "status": "FROZEN"
+    },
+    {
+      "artifact_id": "artifact_2",
+      "path": "docs/s02-baseline-and-claim-oracle-v0.1.yaml",
+      "commit": "c7932ea1a393fecf1400216a73551ebf4055576e",
+      "sha256": "506b45ea30070664ee79f45006555aeaa2eb4f7d1bc0c8e8ff68adb96f753149",
+      "status": "FROZEN"
+    },
+    {
+      "artifact_id": "artifact_3",
+      "path": "docs/s02-attack-case-oracle-v0.1.yaml",
+      "commit": "b092e22215c19b5f39f101a4af49c007cf665858",
+      "sha256": "58f05ad3103b99143aecb6b424d1939bc657032c773262b9916e1b84b6f15645",
+      "status": "FROZEN"
+    }
+  ],
+  "integrity_method": {
+    "algorithm": "SHA-256",
+    "byte_binding": "Exact file bytes; artifact verification must reproduce the recorded digest.",
+    "self_digest_embedded": false,
+    "manifest_digest_procedure": "The manifest SHA-256 will be computed externally after commit and SHALL NOT be embedded in this manifest.",
+    "limitation": "SHA-256 establishes only frozen content identity and integrity; it does not establish semantic truth, source authority, completeness, or scientific validity."
+  },
+  "implementation_boundary": {
+    "mutation_harness_implemented": false,
+    "mutation_harness_implementation_authorized": false,
+    "evaluator_implementation_frozen": false,
+    "runtime_fixtures_frozen": false,
+    "campaign_execution_authorized": false,
+    "later_implementation_campaign_freeze_required": true,
+    "frontier_live_primary_corpus": false,
+    "frontier_live_primary_UFER_denominator": false
+  }
+}
